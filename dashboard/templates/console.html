@@ -1,0 +1,12 @@
+<!-- File: dashboard/templates/console.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="console-container">
+    <h2>Console Logs</h2>
+    <div id="consoleOutput" class="console-output"></div>
+    <button id="toggleButton" class="btn btn-secondary" onclick="toggleAutoScroll()">Disable Autoscroll</button>
+</div>
+<script src="/static/js/script.js"></script>
+{% endblock %}

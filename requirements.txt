@@ -1,0 +1,11 @@
+aiohttp
+aiosqlite
+asyncio
+flask
+google
+googlesearch
+numpy
+openai>=1.0.0
+PIL
+vaderSentiment
+wikipedia

@@ -1,0 +1,1 @@
+flagged_phrases = ["daughter", "gf", "mom", "sister", "^(?!.*b.*n.*w.*o).*", "*bnwo", "*beaner", "*chank", "*chink", "coon", "*deepfake", "*fag", "*faggot", "*hitler", "*jiggaboo", "*kyke", "*moon cricket", "*nigger", "*porch monkey", "*retard", "*slurplay", "*tranny", "*whigga", "*whigger", "*zhid", "*zhyd"]

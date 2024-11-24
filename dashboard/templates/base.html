@@ -1,0 +1,36 @@
+<!-- File: dashboard/templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" href="/static/icon.ico">
+    <title>ColossusBot Dashboard</title>
+</head>
+
+<body>
+    <header class="header">
+        <h1 class="title">ColossusBot Dashboard</h1>
+        <nav class="navbar">
+            <ul class="nav-list">
+                <li><a href="/">Home</a></li>
+                <li><a href="/console">Console Logs</a></li>
+                <li><a href="/api/commands">Commands</a></li>
+                <li><a href="/api/status">Status</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2024 ColossusBot. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

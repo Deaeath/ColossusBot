@@ -1,0 +1,1 @@
+nsfw_words = ["funeral", "white", "mom", "sister", "bnwo", "sissy", "nigga","fag"]
