@@ -33,10 +33,10 @@ class EventsHandler(commands.Cog):
         self.db_handler = db_handler
 
         # Instantiate modular event-handling classes
-        self.ai_chat_bot = AIChatbot(client)
-        self.nsfw_checker = NSFWChecker(client)
-        self.flagged_words_alert = FlaggedWordsAlert(client)
-        self.repeated_message_alert = RepeatedMessageAlert(client)
+        self.ai_chat_bot = AIChatbot(client, db_handler)
+        self.nsfw_checker = NSFWChecker(client, db_handler)
+        self.flagged_words_alert = FlaggedWordsAlert(client, db_handler)
+        self.repeated_message_alert = RepeatedMessageAlert(client, db_handler)
         self.active_alert_checker = ActiveAlertChecker(client, db_handler)
 
     @commands.Cog.listener()

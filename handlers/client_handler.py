@@ -1,5 +1,3 @@
-# File: handlers/client_handler.py
-
 """
 ClientHandler: Manages Client Initialization
 --------------------------------------------
@@ -8,7 +6,7 @@ Centralized setup for Discord client and related configurations.
 
 import logging
 from typing import Dict
-
+import discord
 from discord.ext import commands
 from config import BOT_PREFIX, DATABASE_CONFIG
 
@@ -31,13 +29,13 @@ class ClientHandler:
         logger.info("ClientHandler initialization complete.")
 
     @staticmethod
-    def _setup_intents() -> commands.Intents:
+    def _setup_intents() -> discord.Intents:  # Updated return type to discord.Intents
         """
         Configures Discord intents for the bot.
 
         :return: Configured intents object.
         """
-        intents = commands.Intents.default()
+        intents = discord.Intents.default()  # Use discord.Intents instead of commands.Intents
         intents.messages = True
         intents.guilds = True
         intents.members = True

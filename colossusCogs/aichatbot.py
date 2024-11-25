@@ -8,6 +8,7 @@ A Discord cog that interacts with users using OpenAI and supports moderation act
 
 import asyncio
 import discord
+import os
 from discord.ext import commands
 from openai import OpenAI
 import re
@@ -20,7 +21,7 @@ class AIChatbot(commands.Cog):
     A cog for AI-powered interaction and moderation.
     """
 
-    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler, openai_api_key: str):
+    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler):
         """
         Initializes the AIChatbot cog.
 
@@ -29,11 +30,11 @@ class AIChatbot(commands.Cog):
         :param openai_api_key: The OpenAI API key for GPT interactions.
         """
         self.client = client
-        self.openai_client = OpenAI(api_key=openai_api_key)
+        self.openai_client = os.getenv("OPENAI_API_KEY")
         self.conversation_history = {}
         self.db_handler = db_handler
         self.logger = logging.getLogger("ColossusBot")
-        self.logger.info("AIChatbot initialized and ready!")
+        self.logger.info("AIChatbot initialized.")
 
     async def clear_chat_history(self, user_id: int):
         """
@@ -82,7 +83,7 @@ class AIChatbot(commands.Cog):
         # Fetch guild configuration from the database
         config = await self.db_handler.get_config(guild_id)
         if not config:
-            self.logger.warning(f"No config found for guild {guild_id}.")
+            self.logger.warning("No config found for guild %s.", guild_id)
             return
 
         owner_id = config.get("owner_id")

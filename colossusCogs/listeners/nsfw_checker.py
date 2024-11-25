@@ -30,8 +30,9 @@ from handlers.database_handler import DatabaseHandler
 from PIL import Image
 import io
 import re
-from Flags.nsfw_words import nsfw_words
+from colossusCogs.listeners.flags.nsfw_words import nsfw_words
 import os
+import logging
 
 class NSFWChecker(commands.Cog):
     """
@@ -47,9 +48,10 @@ class NSFWChecker(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        self.nsfw_word_list = nsfw_words.nsfw_words
+        self.nsfw_word_list = nsfw_words
         self.OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY")
-        print("NSFWChecker initialized.")
+        self.logger = logging.getLogger("ColossusBot")
+        self.logger.info("NSFWChecker initialized.")
 
     async def on_message(self, message: discord.Message) -> None:
         """

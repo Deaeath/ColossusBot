@@ -32,9 +32,10 @@ class CommandsHandler(commands.Cog):
         :param db_handler: The database handler for archiving operations.
         """
         self.client = client
-        self.aichatbot = AIChatbot(client)
-        self.channel_manager = ChannelAccessManager(client)
-        self.admin_commands = AdminCommands(client)
+        self.db_handler = db_handler
+        self.aichatbot = AIChatbot(client, db_handler)
+        self.channel_manager = ChannelAccessManager(client, db_handler)
+        self.admin_commands = AdminCommands(client, db_handler)
         self.channel_archiver = ChannelArchiver(client, db_handler)
         logger.info("CommandsHandler initialized successfully.")
 

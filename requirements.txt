@@ -1,11 +1,13 @@
 aiohttp
 aiosqlite
 asyncio
+discord
 flask
 google
 googlesearch
 numpy
 openai>=1.0.0
-PIL
+pillow
+python-dotenv
 vaderSentiment
 wikipedia

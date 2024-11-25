@@ -15,6 +15,7 @@ from discord.ext import commands
 import asyncio
 from typing import List, Optional, Tuple, Union
 from handlers.database_handler import DatabaseHandler
+import logging
 
 class RepeatedMessageAlert(commands.Cog):
     """
@@ -36,7 +37,8 @@ class RepeatedMessageAlert(commands.Cog):
         self.db_handler = db_handler
         self.SINGLE_USER_REPEAT_THRESHOLD = 5  # Threshold for repeated messages by a single user
         self.MIN_WORD_COUNT = 5  # Minimum word count to consider for repeated message detection
-        print("RepeatedMessageAlert initialized.")
+        self.logger = logging.getLogger("ColossusBot")
+        self.logger.info("RepeatedMessageAlert initialized.")
 
     async def on_message(self, message: discord.Message) -> None:
         """

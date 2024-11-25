@@ -11,9 +11,11 @@ from discord.ext.commands import Bot
 from config import BOT_TOKEN
 from handlers.client_handler import ClientHandler
 from handlers.database_handler import DatabaseHandler
-from handlers.event_handler import EventHandler
+from handlers.event_handler import EventsHandler
 from handlers.commands_handler import CommandsHandler
 from handlers.web_handler import WebHandler
+
+print(BOT_TOKEN)
 
 # Configure Logging
 logging.basicConfig(
@@ -40,7 +42,7 @@ def main() -> None:
 
     database_handler: DatabaseHandler = DatabaseHandler(client_handler.get_database_config())
     web_handler: WebHandler = WebHandler(client, client_handler.console_buffer)
-    event_handler: EventHandler = EventHandler(client, database_handler)
+    event_handler: EventsHandler = EventsHandler(client, database_handler)
     commands_handler: CommandsHandler = CommandsHandler(client, database_handler)
 
     async def setup_client() -> None:
@@ -71,8 +73,9 @@ def main() -> None:
         logger.info("Starting ColossusBot...")
         client.run(BOT_TOKEN)
     finally:
+        # Close the database connection gracefully
         logger.info("Closing ColossusBot...")
-        client.loop.run_until_complete(database_handler.close())
+        database_handler.close()  # Await closing of database handler
 
 
 if __name__ == "__main__":

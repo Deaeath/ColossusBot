@@ -1,5 +1,3 @@
-# File: ColossusBot/config.py
-
 """
 Config: Centralized Bot Configuration
 --------------------------------------
@@ -10,21 +8,26 @@ from dotenv import load_dotenv
 import os
 import logging
 from typing import Optional, Dict
+import sys
 
 # Load environment variables from .env and optionally .env.local for local development
 load_dotenv()  # Load .env file
 if os.path.exists(".env.local"):
     load_dotenv(".env.local")  # Override with .env.local values for local development
 
-# Logging Configuration
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("colossusbot.log"),
-        logging.StreamHandler()
-    ]
-)
+# Logging Configuration (without writing to a file)
+log_handlers = [logging.StreamHandler(sys.stdout)]  # Only log to stdout
+
+# Set up logging with error handling for the handlers
+try:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=log_handlers
+    )
+except OSError as e:
+    # If logging setup fails, ignore errors (don't crash the bot)
+    logging.error(f"Error setting up logging: {e}")
 
 # Bot Configuration
 BOT_PREFIX: str = os.getenv("BOT_PREFIX", "!")  # Default prefix is "!" if not set

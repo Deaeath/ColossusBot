@@ -9,6 +9,8 @@ This class handles checking for active alerts in channels. It logs channel activ
 import discord
 from datetime import datetime, timezone
 import random
+import logging
+
 
 class ActiveAlertChecker:
     """
@@ -24,6 +26,8 @@ class ActiveAlertChecker:
         """
         self.client = client
         self.db_handler = db_handler
+        self.logger = logging.getLogger("ColossusBot")
+        self.logger.info("Active Alert Checker initialized.")
 
     async def on_message(self, message: discord.Message):
         """
