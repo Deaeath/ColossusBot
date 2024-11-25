@@ -1,3 +1,11 @@
+# colossusCogs/active_alert_checker.py
+
+"""
+Active Alert Checker for ColossusBot
+------------------------------------
+This class handles checking for active alerts in channels. It logs channel activity by tracking the time difference between the last message sent in the channel and the current message. When a channel becomes active, an alert is logged to a designated log channel.
+"""
+
 import discord
 from datetime import datetime, timezone
 import random

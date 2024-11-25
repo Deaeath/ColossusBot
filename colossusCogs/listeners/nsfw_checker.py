@@ -1,5 +1,26 @@
 # colossusCogs/listeners/nsfw_checker.py
 
+"""
+NSFW Content Checker for ColossusBot
+-------------------------------------
+This cog monitors messages and attachments within the server to detect and handle NSFW (Not Safe For Work) content.
+When a user sends a message with an image or GIF attachment, the bot performs Optical Character Recognition (OCR) on the image 
+to extract any text and checks it for NSFW words. If NSFW content is detected, the bot sends an alert to a designated staff channel.
+
+Actions available to staff include reviewing the message, approving the deletion of the content, or ignoring the alert.
+The bot also supports re-checking attachments if necessary.
+
+Features:
+- Detects NSFW content from image and GIF attachments.
+- Uses OCR to extract text from images for NSFW word detection.
+- Sends alerts to a staff channel for review.
+- Allows staff reactions to take actions such as deleting the content or ignoring it.
+
+Requirements:
+- OCR.space API key for OCR functionality (loaded from environment variable "OCR_SPACE_API_KEY").
+- Appropriate permissions for sending messages, managing reactions, and reading attachments in the server.
+"""
+
 import discord
 from discord.ext import commands
 import aiohttp
@@ -30,7 +51,6 @@ class NSFWChecker(commands.Cog):
         self.OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY")  # Ensure it's loaded from .env
         print("NSFWChecker initialized.")
 
-    @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """
         Listener for new messages. Checks attachments for NSFW content.
@@ -59,8 +79,7 @@ class NSFWChecker(commands.Cog):
                             await self.handle_nsfw_content(message, attachment, extracted_text)
                             break
 
-    @commands.Cog.listener()
-    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User) -> None:
+    async def on_reaction(self, reaction: discord.Reaction, user: discord.User) -> None:
         """
         Listener for reaction additions. Handles actions based on reactions to NSFW alert messages.
 

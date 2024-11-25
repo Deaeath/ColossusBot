@@ -1,5 +1,13 @@
 # colossusCogs/listeners/flagged_words_alert.py
 
+"""
+Flagged Words Alert Listener for ColossusBot
+--------------------------------------------
+This cog listens for messages containing flagged words or phrases in ColossusBot.
+When a flagged word is detected, the bot alerts the staff channel and provides actions to manage the user.
+
+Staff actions include warning, muting, kicking, or banning the user based on the severity of the flagged content.
+"""
 import discord
 from discord.ext import commands
 import re
@@ -23,7 +31,6 @@ class FlaggedWordsAlert(commands.Cog):
         self.db_handler = db_handler
         print("FlaggedWordsAlert initialized.")
 
-    @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """
         Listener for new messages. Checks for flagged words and handles alerts.
@@ -39,8 +46,7 @@ class FlaggedWordsAlert(commands.Cog):
             await self.client.change_presence(activity=discord.Game(name=f"❌ Flagged Word Alert! {message.author}"))
             await self.send_alert(message, detected_word)
 
-    @commands.Cog.listener()
-    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User) -> None:
+    async def on_reaction(self, reaction: discord.Reaction, user: discord.User) -> None:
         """
         Listener for reaction additions. Handles actions based on reactions to alert messages.
 

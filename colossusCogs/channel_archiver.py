@@ -1,3 +1,16 @@
+# File: colossusCogs/channel_archiver.py
+
+"""
+ChannelArchiver Cog: Manages Channel Archiving and Auto-Archiving
+----------------------------------------------------------------
+This cog is responsible for managing the archiving and unarchiving of 
+channels in a Discord server. It includes functionality for:
+- Auto-archiving inactive channels.
+- Archiving and unarchiving specific channels or categories.
+- Ensuring that archived channels are moved to a dedicated archive category.
+- Handling rate limits and providing progress updates during operations.
+"""
+
 import discord
 from discord.ext import commands
 import logging
@@ -7,9 +20,9 @@ import asyncio
 
 from handlers.database_handler import DatabaseHandler
 
+# Set up logger
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 class ChannelArchiver(commands.Cog):
     """
@@ -29,13 +42,13 @@ class ChannelArchiver(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        print("ChannelArchiver initialized.")
+        logger.info("ChannelArchiver initialized.")
 
     async def cog_load(self) -> None:
         """
         Load the cog and ensure the database is properly set up.
         """
-        print("ChannelArchiver.cog_load Database ready.")
+        logger.info("ChannelArchiver cog loaded and database ready.")
 
     async def autoarchive(self, ctx: commands.Context) -> None:
         """
@@ -52,7 +65,7 @@ class ChannelArchiver(commands.Cog):
         start_time = asyncio.get_event_loop().time()
 
         for idx, channel in enumerate(ctx.guild.channels, start=1):
-            if channel.name.lower() in ignored_channels or channel.category and "archive" in channel.category.name.lower():
+            if channel.name.lower() in ignored_channels or (channel.category and "archive" in channel.category.name.lower()):
                 continue
 
             if isinstance(channel, discord.CategoryChannel):
@@ -83,7 +96,7 @@ class ChannelArchiver(commands.Cog):
                 if last_message_time < one_month_ago:
                     inactive_channels.append((channel, last_message_time, last_message_link))
             except Exception as e:
-                print(f"Error processing channel `{channel.name}`: {e}")
+                logger.error(f"Error processing channel `{channel.name}`: {e}")
                 continue
 
             elapsed_time = asyncio.get_event_loop().time() - start_time
@@ -102,7 +115,17 @@ class ChannelArchiver(commands.Cog):
         total_inactive_channels = len(inactive_channels)
         await ctx.send(f"🔍 Found {total_inactive_channels} inactive channel(s).")
 
-        for idx, (channel, last_message_time, last_message_link) in enumerate(inactive_channels, start=1):
+        # Archive inactive channels
+        await self.archive_channels(ctx, inactive_channels)
+
+    async def archive_channels(self, ctx: commands.Context, channels: List[tuple]) -> None:
+        """
+        Archives the list of inactive channels.
+
+        :param ctx: The command context.
+        :param channels: List of tuples containing channel info to archive.
+        """
+        for idx, (channel, last_message_time, last_message_link) in enumerate(channels, start=1):
             try:
                 archive_category = await self.get_or_create_archive_category(ctx.guild)
                 await self.db_handler.add_archived_channel(
@@ -114,7 +137,7 @@ class ChannelArchiver(commands.Cog):
                 await channel.edit(category=archive_category, sync_permissions=True)
                 await ctx.send(f"✅ Channel `{channel.name}` has been archived! 📦")
             except Exception as e:
-                print(f"Error archiving channel `{channel.name}`: {e}")
+                logger.error(f"Error archiving channel `{channel.name}`: {e}")
 
     async def archive(self, ctx: commands.Context, target: Optional[Union[discord.abc.GuildChannel, int, str]] = None) -> None:
         """
@@ -148,7 +171,7 @@ class ChannelArchiver(commands.Cog):
                 await channel.edit(category=archive_category, sync_permissions=True)
                 await ctx.send(f"✅ Archived `{channel.name}`.")
             except Exception as e:
-                print(f"Error archiving `{channel.name}`: {e}")
+                logger.error(f"Error archiving `{channel.name}`: {e}")
 
     async def unarchive(self, ctx: commands.Context, target: Optional[discord.abc.GuildChannel] = None) -> None:
         """
@@ -167,10 +190,10 @@ class ChannelArchiver(commands.Cog):
                     await channel.edit(category=None, sync_permissions=True)
                 await ctx.send(f"✅ Unarchived category `{target.name}`.")
             else:
-                await channel.edit(category=None, sync_permissions=True)
+                await target.edit(category=None, sync_permissions=True)
                 await ctx.send(f"✅ Unarchived channel `{target.name}`.")
         except Exception as e:
-            print(f"Error unarchiving `{target}`: {e}")
+            logger.error(f"Error unarchiving `{target}`: {e}")
 
     async def get_or_create_archive_category(self, guild: discord.Guild) -> discord.CategoryChannel:
         """
@@ -200,6 +223,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The Discord bot client instance.
     :param db_handler: An instance of the DatabaseHandler.
     """
-    print("ChannelArchiver.setup Setting up ChannelArchiver...")
+    logger.info("Setting up ChannelArchiver cog...")
     await client.add_cog(ChannelArchiver(client, db_handler))
-    print("ChannelArchiver.setup ChannelArchiver setup complete.")
+    logger.info("ChannelArchiver setup complete.")

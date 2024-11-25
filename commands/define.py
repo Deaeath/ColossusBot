@@ -1,3 +1,12 @@
+# File: commands/define.py
+
+"""
+Define Command: Fetch Definitions from Urban Dictionary
+------------------------------------------------------
+A cog that fetches the definition of a given term from the Urban Dictionary API and 
+displays it in an embed with additional details like example, thumbs up, and thumbs down.
+"""
+
 import discord
 from discord.ext import commands
 import requests
@@ -11,6 +20,12 @@ class Define(commands.Cog):
     """
 
     def __init__(self, client: commands.Bot) -> None:
+        """
+        Initializes the Define cog.
+
+        Args:
+            client (commands.Bot): The bot instance.
+        """
         self.client = client
 
     @commands.command(name="define")
@@ -28,27 +43,45 @@ class Define(commands.Cog):
 
         url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
         headers = {
-            'x-rapidapi-key': "YOUR_RAPIDAPI_KEY",
+            'x-rapidapi-key': "YOUR_RAPIDAPI_KEY",  # Replace with your RapidAPI key
             'x-rapidapi-host': "mashape-community-urban-dictionary.p.rapidapi.com",
         }
-        response = requests.get(url, headers=headers, params={"term": term})
 
-        if response.status_code == 200:
-            data = json.loads(response.text).get("list", [])
-            if data:
-                embed = discord.Embed(
-                    title=f"Definition of {term}",
-                    description=data[0]["definition"],
-                    color=discord.Color.blue(),
-                )
-                embed.add_field(name="Example", value=data[0].get("example", "No example available."), inline=False)
-                embed.add_field(name="Thumbs Up", value=data[0].get("thumbs_up", 0), inline=True)
-                embed.add_field(name="Thumbs Down", value=data[0].get("thumbs_down", 0), inline=True)
-                await ctx.send(embed=embed)
+        try:
+            # Make the request to Urban Dictionary API
+            response = requests.get(url, headers=headers, params={"term": term})
+
+            # Check if the response status is OK (200)
+            if response.status_code == 200:
+                data = response.json().get("list", [])
+                
+                # Check if there are definitions in the response
+                if data:
+                    embed = discord.Embed(
+                        title=f"Definition of {term}",
+                        description=data[0]["definition"],
+                        color=discord.Color.blue(),
+                    )
+                    embed.add_field(
+                        name="Example", value=data[0].get("example", "No example available."), inline=False
+                    )
+                    embed.add_field(
+                        name="Thumbs Up", value=data[0].get("thumbs_up", 0), inline=True
+                    )
+                    embed.add_field(
+                        name="Thumbs Down", value=data[0].get("thumbs_down", 0), inline=True
+                    )
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send(f"No definitions found for `{term}`.")
             else:
-                await ctx.send(f"No definitions found for `{term}`.")
-        else:
-            await ctx.send(f"Error: Unable to fetch definition for `{term}`.")
+                await ctx.send(f"Error: Unable to fetch definition for `{term}`. Status Code: {response.status_code}")
+        except requests.RequestException as e:
+            # Catch any network-related errors
+            await ctx.send(f"Network error occurred while fetching the definition: {e}")
+        except Exception as e:
+            # Catch any other unexpected errors
+            await ctx.send(f"An unexpected error occurred: {e}")
 
 
 async def setup(client: commands.Bot) -> None:

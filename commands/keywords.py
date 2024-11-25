@@ -1,3 +1,12 @@
+# File: commands/keywords.py
+
+"""
+KeyWords Command: Display and Explain Key Words for Dynamic Message Customization
+--------------------------------------------------------------------------------
+A cog that explains and displays key words for dynamic message customization based on 
+the member or server in a Discord bot.
+"""
+
 from discord.ext import commands
 from discord import Embed, Reaction, User
 from typing import Dict
@@ -9,12 +18,18 @@ class KeyWordsCommand(commands.Cog):
     A cog that explains and displays key words for dynamic message customization.
     """
 
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initializes the KeyWordsCommand cog.
+
+        Args:
+            client (commands.Bot): The bot instance.
+        """
         self.client = client
 
     @commands.command(aliases=["key-words"])
     @commands.has_any_role("owner", "head_staff")
-    async def key_words(self, ctx: commands.Context):
+    async def key_words(self, ctx: commands.Context) -> None:
         """
         Display an interactive embed to explain and list available key words.
 
@@ -111,7 +126,7 @@ class KeyWordsCommand(commands.Cog):
         for reaction in reactions.keys():
             await message.add_reaction(reaction)
 
-        def check(reaction: Reaction, user: User):
+        def check(reaction: Reaction, user: User) -> bool:
             return (
                 user == ctx.author
                 and str(reaction.emoji) in reactions
@@ -143,7 +158,7 @@ class KeyWordsCommand(commands.Cog):
                 break
 
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
     """
     Asynchronous setup function to add the cog to the bot.
 

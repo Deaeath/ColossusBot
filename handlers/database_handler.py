@@ -1,8 +1,38 @@
-# handlers/database_handler.py
+# File: handlers/database_handler.py
+
+"""
+DatabaseHandler Class: Manages Database Operations for ColossusBot
+-----------------------------------------------------------------
+This class provides a unified interface for interacting with different 
+database engines (SQLite and MySQL) within ColossusBot. It includes 
+methods for connecting to the database, executing queries, setting up 
+tables, and managing guild and user configurations. The class abstracts 
+database operations to allow seamless integration with the bot's various 
+features.
+
+Key Features:
+- Supports both SQLite and MySQL databases.
+- Handles dynamic table creation and schema migration.
+- Provides methods for guild-specific configurations and user settings.
+- Includes a variety of database operations such as inserts, updates, 
+  selects, and fetches.
+
+Usage:
+1. Initialize with database configuration.
+2. Use `connect()` to establish a connection.
+3. Use `setup()` to create necessary tables and set up the schema.
+4. Use specific methods (e.g., `set_config()`, `get_config()`) to interact 
+   with the database.
+
+Supported Databases:
+- SQLite
+- MySQL (requires MySQL credentials and host information)
+"""
 
 import aiosqlite
 import aiomysql
 import logging
+from discord import Member
 from typing import Any, List, Optional, Tuple, Union, Dict
 
 logger = logging.getLogger("ColossusBot")
@@ -481,6 +511,35 @@ class DatabaseHandler:
             ]
             return dict(zip(keys, row))
         return None
+
+    # ==================== AdminCommands Methods ========================
+    
+    async def log_warning(self, member: Member, reason: str) -> None:
+        """
+        Logs a warning for a member in the database.
+
+        :param member: The member to log the warning for.
+        :param reason: The reason for the warning.
+        """
+        query = """
+        INSERT INTO warnings (user_id, guild_id, reason) 
+        VALUES (?, ?, ?)
+        """
+        await self.execute(query, (member.id, member.guild.id, reason))
+
+    async def fetch_warnings(self, member: Member) -> list:
+        """
+        Fetches all warnings for a specific member.
+
+        :param member: The member whose warnings to fetch.
+        :return: A list of tuples containing the warning reason and timestamp.
+        """
+        query = """
+        SELECT reason, timestamp 
+        FROM warnings 
+        WHERE user_id = ? AND guild_id = ?
+        """
+        return await self.fetchall(query, (member.id, member.guild.id))
 
     # ==================== FlaggedWordsAlert Methods ====================
 

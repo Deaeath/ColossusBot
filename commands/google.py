@@ -1,3 +1,12 @@
+# File: commands/google.py
+
+"""
+Google Command Cog: Perform Google Searches and Return Top Results
+------------------------------------------------------------------
+This cog allows the bot to perform Google searches and sends the top results
+in an embedded message format.
+"""
+
 from discord.ext import commands
 from discord import Embed
 from typing import Optional
@@ -20,34 +29,50 @@ class Google(commands.Cog):
             query (Optional[str]): The search query provided by the user.
 
         Returns:
-            None: Sends an embedded message with the search results or an error message.
+            None: Sends an embedded message with the search results or an error message if no query is provided.
         """
         if query is None:
             embed0 = Embed(
                 title="How to use this command?",
-                description=f"{ctx.message.content} <search>",
+                description=f"Usage: `{ctx.prefix}goog <search>`",
                 color=random.randint(0, 0xFFFFFF)
             )
             await ctx.send(embed=embed0)
             return
-        else:
-            results = ""
-            n = 1
-            for j in search(query, tld="co.in", num=10, stop=10, pause=2):
-                results += f"[{n}] {j}\n"
+
+        # Perform the Google search
+        results = ""
+        n = 1
+        try:
+            # Perform the search with some basic settings
+            search_results = search(query, tld="co.in", num=10, stop=10, pause=2)
+            
+            # Collect the search results
+            for url in search_results:
+                results += f"[{n}] {url}\n"
                 n += 1
+            
+            # If no results found
+            if not results:
+                await ctx.send("No search results found.")
+                return
+
+            # Create an embed with the results
             embed = Embed(
-                title=f"__Search result of:__ {query}",
-                description=f"{results}",
+                title=f"__Search results for:__ {query}",
+                description=results,
                 color=random.randint(0, 0xFFFFFF)
             )
             await ctx.send(embed=embed)
-            return
+
+        except Exception as e:
+            # Handle exceptions like network issues
+            await ctx.send(f"An error occurred while performing the search: {e}")
 
 
 async def setup(client: commands.Bot) -> None:
     """
-    A function to add the GoogCommand cog to the bot.
+    Function to add the Google cog to the bot.
 
     Args:
         client (commands.Bot): The bot instance to which the cog will be added.

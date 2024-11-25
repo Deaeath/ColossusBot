@@ -1,3 +1,12 @@
+# File: commands/image.py
+
+"""
+ImgCommand Cog: Perform Google Image Search and Display Paginated Results
+------------------------------------------------------------------------
+This cog allows the bot to perform Google image searches and send paginated
+results through embeds with navigation.
+"""
+
 from discord.ext import commands
 from discord import Embed, Message, Reaction, User
 from typing import Optional, Dict

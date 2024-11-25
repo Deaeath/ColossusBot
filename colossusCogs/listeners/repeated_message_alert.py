@@ -1,4 +1,14 @@
-# colossusCogs/listeners/repeated_message_alert.py
+# File: colossusCogs/listeners/repeated_message_alert.py
+
+"""
+Repeated Message Alert Listener for ColossusBot
+-----------------------------------------------
+This cog monitors repeated messages across multiple guilds in ColossusBot.
+When a user sends a message that matches previously sent content, the bot records it in the database and checks if the message has been repeated by other users in different guilds.
+If repeated messages are detected, the bot alerts staff in a dedicated channel for further action.
+
+Actions available to staff include warning, muting, kicking, or banning the user responsible for the repeated message.
+"""
 
 import discord
 from discord.ext import commands
@@ -9,6 +19,10 @@ from handlers.database_handler import DatabaseHandler
 class RepeatedMessageAlert(commands.Cog):
     """
     Cog to monitor and alert for repeated messages across multiple guilds.
+
+    This cog listens for new messages, checks if they are repeated across multiple guilds, 
+    and sends alerts to staff channels. Staff can then take action such as warning, muting, 
+    kicking, or banning the user responsible for repeated messages.
     """
 
     def __init__(self, client: commands.Bot, db_handler: DatabaseHandler):
@@ -16,27 +30,30 @@ class RepeatedMessageAlert(commands.Cog):
         Initializes the RepeatedMessageAlert cog.
 
         :param client: The Discord bot instance.
-        :param db_handler: The DatabaseHandler instance.
+        :param db_handler: The DatabaseHandler instance to interact with the database.
         """
         self.client = client
         self.db_handler = db_handler
-        self.SINGLE_USER_REPEAT_THRESHOLD = 5
-        self.MIN_WORD_COUNT = 5
+        self.SINGLE_USER_REPEAT_THRESHOLD = 5  # Threshold for repeated messages by a single user
+        self.MIN_WORD_COUNT = 5  # Minimum word count to consider for repeated message detection
         print("RepeatedMessageAlert initialized.")
 
-    @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         """
         Listener for new messages. Records messages and checks for repetitions.
 
+        If a message contains more than `MIN_WORD_COUNT` words, it is stored in the database 
+        for repeated message checks. The method then triggers a check for repeated messages.
+
         :param message: The Discord message.
         """
         if message.author == self.client.user:
-            return
+            return  # Ignore the bot's own messages
 
         if len(message.content.split()) < self.MIN_WORD_COUNT:
             return  # Ignore messages with fewer than MIN_WORD_COUNT words
 
+        # Insert message into the database
         await self.db_handler.insert_repeated_message(
             content=message.content,
             user_id=message.author.id,
@@ -48,24 +65,27 @@ class RepeatedMessageAlert(commands.Cog):
 
         await self.check_for_repeated_messages(message)
 
-    @commands.Cog.listener()
-    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.User) -> None:
+    async def on_reaction(self, reaction: discord.Reaction, user: discord.User) -> None:
         """
         Listener for reaction additions. Handles actions based on reactions to repeated message alerts.
 
-        :param reaction: The reaction added.
+        This method responds to reactions such as ✅ (confirm action), ❌ (ignore), and others
+        that might trigger certain actions based on the repeated message alerts.
+
+        :param reaction: The reaction added to a message.
         :param user: The user who added the reaction.
         """
         if user == self.client.user:
-            return
+            return  # Ignore reactions from the bot
 
         valid_reactions = ["✅", "❌", "⚠️", "🔇", "👢", "🔨"]
         if str(reaction.emoji) not in valid_reactions:
-            return
+            return  # Ignore invalid reactions
 
         if user.bot:
-            return
+            return  # Ignore reactions from other bots
 
+        # Fetch alert information based on the reaction
         alert_info = await self.db_handler.fetch_repeated_alert_message(reaction.message.id)
         if alert_info:
             user_id, channel_id, guild_id = alert_info
@@ -105,7 +125,11 @@ class RepeatedMessageAlert(commands.Cog):
         """
         Checks if the message content has been repeated across multiple guilds.
 
-        :param message: The Discord message to check.
+        Queries the database for occurrences of the same message across different guilds.
+        If the message has been repeated by more than one user across different guilds, 
+        an alert is triggered.
+
+        :param message: The Discord message to check for repetitions.
         """
         user_repeated_messages = await self.db_handler.fetchall(
             """
@@ -139,8 +163,11 @@ class RepeatedMessageAlert(commands.Cog):
         """
         Sends an alert to the staff channel about the repeated messages.
 
+        The alert includes details of the repeated message occurrences, such as user IDs, 
+        channels, and timestamps. It allows staff to take action based on their judgment.
+
         :param message: The Discord message that triggered the alert.
-        :param repeated_messages: List of tuples containing repeated message details.
+        :param repeated_messages: List of repeated message occurrences to display in the alert.
         """
         config = await self.db_handler.get_config(message.guild.id)
         if not config:
@@ -215,9 +242,12 @@ class RepeatedMessageAlert(commands.Cog):
         """
         Takes action against the user based on staff's decision.
 
+        Based on the staff's reaction, the bot will perform actions like warning, muting,
+        kicking, or banning the user for repeated messages.
+
         :param user: The user to take action against.
         :param originating_channel: The channel where the original message was sent.
-        :param staff_channel: The staff thread/channel where actions are discussed.
+        :param staff_channel: The staff channel where actions are discussed.
         :param staff_thread: The staff thread object if staff_channel is a thread.
         """
         action_embed = discord.Embed(
@@ -253,7 +283,7 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     Sets up the RepeatedMessageAlert cog.
 
     :param client: The Discord bot instance.
-    :param db_handler: The DatabaseHandler instance.
+    :param db_handler: The DatabaseHandler instance to interact with the database.
     """
     print("Setting up RepeatedMessageAlert cog...")
     cog = RepeatedMessageAlert(client, db_handler)

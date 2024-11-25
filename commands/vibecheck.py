@@ -1,19 +1,34 @@
+# File: commands/vibecheck.py
+
+"""
+VibeCheckCommand: Performs Sentiment Analysis on Messages
+-------------------------------------------------------
+A cog that provides a command to perform sentiment analysis on messages
+in a Discord channel or from specific users based on configurable parameters.
+"""
+
 from discord.ext import commands
 from discord import Embed, TextChannel, Member
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict
 from datetime import datetime
 import asyncio
 import random
 import json
 from vaderSentiment import SentimentIntensityAnalyzer
 
+
 class VibeCheckCommand(commands.Cog):
     """
-    A cog that provides a command to perform sentiment analysis on messages
-    in a Discord server based on user-specified parameters.
+    A cog that allows for sentiment analysis on messages in a Discord server.
     """
 
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initializes the VibeCheckCommand.
+
+        Args:
+            client (commands.Bot): The bot instance to associate with the command.
+        """
         self.client = client
 
     @commands.command()
@@ -22,15 +37,15 @@ class VibeCheckCommand(commands.Cog):
         self, ctx: commands.Context, messages_count: Optional[int] = None, *, setup: Optional[str] = None
     ) -> None:
         """
-        Analyze the sentiment of messages in a Discord channel or from a specific user.
+        Perform sentiment analysis on messages in a channel or from a specific user.
 
         Args:
             ctx (commands.Context): The context of the command invocation.
-            messages_count (Optional[int]): The number of messages to analyze.
-            setup (Optional[str]): A JSON string specifying parameters for the sentiment analysis.
+            messages_count (Optional[int]): Number of messages to analyze.
+            setup (Optional[str]): A JSON string with parameters for sentiment analysis.
 
         Returns:
-            None: Sends analysis results as an embed message.
+            None: Sends an embed message with the analysis results.
         """
         # Default embed for usage instructions
         embed_help = Embed(
@@ -136,17 +151,17 @@ class VibeCheckCommand(commands.Cog):
         Fetch messages from a specified channel or member.
 
         Args:
-            ctx: Command context.
-            channel: Target channel.
-            member: Target user.
-            messages_count: Number of messages to retrieve.
-            month: Filter by month.
-            day: Filter by day.
-            hour_start: Start of hour range.
-            hour_end: End of hour range.
+            ctx (commands.Context): The command context.
+            channel (Optional[TextChannel]): The target channel.
+            member (Optional[Member]): The target user.
+            messages_count (int): The number of messages to retrieve.
+            month (str): The month of analysis.
+            day (str): The day of analysis.
+            hour_start (str): The start of the hour range.
+            hour_end (str): The end of the hour range.
 
         Returns:
-            List[str]: Retrieved messages.
+            List[str]: A list of messages to analyze.
         """
         message_list = []
         search_limit = 1000
@@ -185,10 +200,10 @@ class VibeCheckCommand(commands.Cog):
         Perform sentiment analysis on the collected messages.
 
         Args:
-            messages: List of messages to analyze.
+            messages (List[str]): The messages to analyze.
 
         Returns:
-            Dict[str, float]: Sentiment scores for positive, neutral, and negative sentiments.
+            Dict[str, float]: The sentiment analysis results.
         """
         analyser = SentimentIntensityAnalyzer()
         combined_message = " ".join(messages)
@@ -213,20 +228,20 @@ class VibeCheckCommand(commands.Cog):
         hour_end: str,
     ) -> None:
         """
-        Send the sentiment analysis results as an embed.
+        Sends the results of the sentiment analysis.
 
         Args:
-            ctx: Command context.
-            sentiment_results: Sentiment analysis results.
-            channel: Target channel (if applicable).
-            member: Target user (if applicable).
-            month: Month of analysis.
-            day: Day of analysis.
-            hour_start: Start hour.
-            hour_end: End hour.
+            ctx (commands.Context): The context for the command.
+            sentiment_results (Dict[str, float]): The sentiment analysis results.
+            channel (Optional[TextChannel]): The target channel (if applicable).
+            member (Optional[Member]): The target member (if applicable).
+            month (str): The month of analysis.
+            day (str): The day of analysis.
+            hour_start (str): The start of the hour range.
+            hour_end (str): The end of the hour range.
 
         Returns:
-            None: Sends an embed message.
+            None: Sends an embed message with the results.
         """
         state = (
             "Based" if sentiment_results["compound"] >= 0.05 else
@@ -249,12 +264,12 @@ class VibeCheckCommand(commands.Cog):
 
 async def setup(client: commands.Bot) -> None:
     """
-    Add the VibeCheckCommand cog to the bot.
+    Adds the VibeCheckCommand cog to the bot.
 
     Args:
-        client: The bot instance.
+        client (commands.Bot): The bot instance.
 
     Returns:
-        None
+        None: Adds the cog to the bot.
     """
     await client.add_cog(VibeCheckCommand(client))

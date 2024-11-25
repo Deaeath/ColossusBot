@@ -1,7 +1,10 @@
+# File: commands/command_template.py
+
 """
-Template Command: Example Command for ColossusBot
--------------------------------------------------
-Use this template to create and add new commands to the bot.
+CommandTemplate Cog: A Template for Command Creation in ColossusBot
+------------------------------------------------------------------
+This cog serves as a template for creating and managing commands in 
+the ColossusBot, with logging capabilities for debugging and error handling.
 """
 
 from discord.ext import commands
@@ -10,6 +13,7 @@ import logging
 
 # Initialize logging for debugging purposes
 logger = logging.getLogger("ColossusBot")
+logger.setLevel(logging.INFO)  # Set logging level to INFO to capture logs
 
 class CommandTemplate(commands.Cog):
     """
@@ -35,13 +39,18 @@ class CommandTemplate(commands.Cog):
         """
         logger.info(f"Executing 'example_command' with input: {input_text}")
 
-        # Create an embed to display the response
-        embed = Embed(
-            title="Example Command",
-            description=f"You said: {input_text}",
-            color=0x00FF00
-        )
-        await ctx.send(embed=embed)
+        try:
+            # Create an embed to display the response
+            embed = Embed(
+                title="Example Command",
+                description=f"You said: {input_text}",
+                color=0x00FF00  # Green color for success
+            )
+            await ctx.send(embed=embed)
+        except Exception as e:
+            # Log and send an error message if something goes wrong
+            logger.error(f"Error executing 'example_command': {str(e)}")
+            await ctx.send("Oops! Something went wrong while processing your request.")
 
     @commands.command(name="another_example", help="Another example command to show usage with arguments.")
     async def another_example_command(self, ctx: commands.Context, number: int) -> None:
@@ -53,8 +62,35 @@ class CommandTemplate(commands.Cog):
         """
         logger.info(f"Executing 'another_example_command' with number: {number}")
 
-        result = number * 2
-        await ctx.send(f"Double of {number} is {result}!")
+        try:
+            result = number * 2
+            await ctx.send(f"Double of {number} is {result}!")
+        except Exception as e:
+            # Log and send an error message if something goes wrong
+            logger.error(f"Error executing 'another_example_command': {str(e)}")
+            await ctx.send("Oops! Something went wrong while processing your request.")
+
+    @example_command.error
+    async def example_command_error(self, ctx: commands.Context, error: Exception) -> None:
+        """
+        Catches errors specific to 'example_command' and handles them.
+
+        :param ctx: The command context.
+        :param error: The error that was raised.
+        """
+        logger.error(f"Error in 'example_command': {str(error)}")
+        await ctx.send("There was an error processing your example command.")
+
+    @another_example_command.error
+    async def another_example_command_error(self, ctx: commands.Context, error: Exception) -> None:
+        """
+        Catches errors specific to 'another_example_command' and handles them.
+
+        :param ctx: The command context.
+        :param error: The error that was raised.
+        """
+        logger.error(f"Error in 'another_example_command': {str(error)}")
+        await ctx.send("There was an error processing your another example command.")
 
 
 async def setup(client: commands.Bot) -> None:

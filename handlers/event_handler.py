@@ -7,10 +7,11 @@ Manages Discord event listeners and delegates processing to appropriate modules.
 import logging
 from discord.ext import commands, tasks
 import discord
-from colossusCogs.listeners.nsfw_checker import NSFWChecker
-from colossusCogs.listeners.flagged_words_alert import FlaggedWordsAlert
-from colossusCogs.listeners.repeated_message_alert import RepeatedMessageAlert
+from colossusCogs.aichatbot import AIChatbot
 from colossusCogs.listeners.active_alert_checker import ActiveAlertChecker
+from colossusCogs.listeners.flagged_words_alert import FlaggedWordsAlert
+from colossusCogs.listeners.nsfw_checker import NSFWChecker
+from colossusCogs.listeners.repeated_message_alert import RepeatedMessageAlert
 import asyncio 
 
 logger = logging.getLogger("ColossusBot")
@@ -32,6 +33,7 @@ class EventsHandler(commands.Cog):
         self.db_handler = db_handler
 
         # Instantiate modular event-handling classes
+        self.ai_chat_bot = AIChatbot(client)
         self.nsfw_checker = NSFWChecker(client)
         self.flagged_words_alert = FlaggedWordsAlert(client)
         self.repeated_message_alert = RepeatedMessageAlert(client)
@@ -48,6 +50,7 @@ class EventsHandler(commands.Cog):
         logger.debug(f"Processing message from {message.author}: {message.content}")
 
         # Delegate message handling to respective modules
+        await self.ai_chat_bot.on_message(message)
         await self.nsfw_checker.on_message(message)
         await self.flagged_words_alert.on_message(message)
         await self.repeated_message_alert.on_message(message)

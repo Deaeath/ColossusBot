@@ -1,3 +1,5 @@
+# File: colossusCogs/channel_access_manager.py
+
 """
 ChannelAccessManager: Manage Channel Access with DatabaseHandler
 ----------------------------------------------------------------
@@ -29,7 +31,6 @@ class ChannelAccessManager(commands.Cog):
         self.db_handler = db_handler
         logger.info("ChannelAccessManager initialized.")
 
-    @commands.command(name="channels")
     async def channels(self, ctx: commands.Context):
         """
         Entry point command for channel access management.
@@ -65,7 +66,6 @@ class ChannelAccessManager(commands.Cog):
         await channel.set_permissions(member, overwrite=overwrite)
         await ctx.send(f"✅ {action} access for {member.mention} to {channel.mention}.")
 
-    @commands.command(name="view_logs")
     async def view_logs(self, ctx: commands.Context):
         """
         Displays channel permission change logs using DatabaseHandler.
@@ -88,7 +88,7 @@ class ChannelAccessManager(commands.Cog):
             channel_display = channel.mention if channel else f"Channel ID: {log[1]}"
             embed.add_field(
                 name=f"{user_display} in {channel_display}",
-                value=(
+                value=( 
                     f"Previous: {'✅' if log[2] else '❌'}\n"
                     f"New: {'✅' if log[3] else '❌'}\n"
                     f"Time: {log[4]}"
@@ -98,7 +98,6 @@ class ChannelAccessManager(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command(name="reset_permissions")
     async def reset_permissions(self, ctx: commands.Context):
         """
         Resets all custom permissions via DatabaseHandler.

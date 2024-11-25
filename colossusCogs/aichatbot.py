@@ -55,7 +55,6 @@ class AIChatbot(commands.Cog):
         """
         return self.conversation_history.get(user_id, [])
 
-    @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         """
         Listener for new messages. Triggers AI chat interaction.

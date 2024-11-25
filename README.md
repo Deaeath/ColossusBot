@@ -1,26 +1,28 @@
 # **ColossusBot**
 
-ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord bot** designed for **community management, event automation, and advanced moderation**. It comes with a **modern web dashboard**, centralized database integration, and a highly customizable architecture, making it a powerful tool for both developers and server administrators. This thing is better than every other open-source general purpose bot and it isn't even close.
+ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord bot** designed for **community management, event automation, and advanced moderation**. It comes with a **modern web dashboard**, centralized database integration, and a highly customizable architecture, making it a powerful tool for both developers and server administrators. This thing is better than every other open-source general-purpose bot and it isn't even close.
 
 ---
 
 ## **Table of Contents**
 
 1. [Key Features](#key-features)
-2. [Project Structure](#project-structure)
-3. [Detailed Component Overview](#detailed-component-overview)
+1. [Project Structure](#project-structure)
+1. [Detailed Component Overview](#detailed-component-overview)
     - [Database Handling](#databasehandler)
     - [Web Application](#web-dashboard)
     - [Client Handling](#clienthandler)
     - [Event Handling](#event-handling)
-4. [Setup Instructions](#setup-instructions)
-5. [Development Practices](#development-practices)
-6. [Command and Cog Templates](#command-and-cog-templates)
-7. [Configuration Options](#configuration-options)
-8. [Dependencies](#dependencies)
-9. [Contribution Guidelines](#contribution-guidelines)
-10. [Future Enhancements](#future-enhancements)
-11. [License](#license)
+1. [Setup Instructions](#setup-instructions)
+1. [Development Practices](#development-practices)
+1. [Command and Cog Templates](#command-and-cog-templates)
+1. [Cog Reference](#cog-reference)
+1. [Command Reference](#command-reference)
+1. [Configuration Options](#configuration-options)
+1. [Dependencies](#dependencies)
+1.. [Contribution Guidelines](#contribution-guidelines)
+1.. [Future Enhancements](#future-enhancements)
+1.. [License](#license)
 
 ---
 
@@ -63,79 +65,127 @@ ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord 
 
 ---
 
+---
+
+## **Security Features**
+
+**Security** is one of the **biggest selling points** of ColossusBot. In the world of self-hosted bots, **Discord** provides very little protection once a server or account is compromised. With ColossusBot, however, you have complete control over your server's security, especially in the event that an admin or mod account becomes compromised.
+
+### **How ColossusBot Protects Your Server**:
+
+1. **Self-Hosting with Elevated Bot Permissions**:
+   ColossusBot is designed to be self-hosted, giving you full control over its configuration. Once hosted, you can assign the bot the **highest role** in your server, giving it ultimate control over sensitive server actions. This ensures that the bot can manage potentially dangerous situations that would otherwise be beyond its control.
+
+2. **Event Listeners to Prevent Malicious Actions**:
+   ColossusBot uses **event listeners** to detect any suspicious activity, such as changes to roles, permissions, or server settings. These event listeners are built to **prevent compromised mods or admins from causing harm**—for instance, it will stop malicious users from:
+   - Changing key server configurations.
+   - Kicking or banning high-level users.
+   - Deleting important channels or messages.
+   - Mass moderation actions by hacked accounts.
+   
+   This built-in protection is an essential feature, as it provides a safeguard against those who have taken control of admin privileges but cannot take full control of the bot.
+
+3. **Server Ownership and Role Hierarchy Best Practices**:
+   - **Lock the server behind a burner account**: A **burner account** should be used as a first line of defense to **lock down** access to your server. This account is used to prevent anyone from gaining unauthorized access or making drastic changes to server settings.
+   
+   - **Rotate ownership regularly**: **Rotate bot ownership** periodically to ensure it remains under the control of a trusted individual. This can help mitigate risks from potential internal threats or external hacks.
+
+   - **Bot Role Above Everyone Except the Owner**: The bot's role should be positioned **above** all other users, including moderators and admins. This ensures that only the bot itself (or the owner) can execute important actions such as:
+     - Preventing server nuking.
+     - Reversing permission changes made by compromised accounts.
+
+   - **Use your main account with limited permissions**: After setting up the bot with a high-level role, the **main user** should place their main account **below the bot** in the role hierarchy and limit permissions. This way, even if the main account is compromised, the bot cannot be controlled or its actions undone by malicious users.
+
+4. **A Full Security Barrier Against Hacks**:
+   With these techniques, ColossusBot helps ensure that **hackers cannot easily take over or nuke your server**. ColossusBot will effectively act as an additional line of defense, providing real-time monitoring of the server’s activities and mitigating risks before they escalate.
+
+By combining these self-hosting best practices with the bot's built-in event listeners and role configurations, **ColossusBot offers robust protection against the threats of server takeover** and helps ensure the integrity of your server.
+
+---
+
 ## **Project Structure**
 
 Below is the directory structure of ColossusBot:
 
 ```plaintext
 ColossusBot/
-├── .env
-├── .gitignore
-├── config.py
-├── LICENSE
-├── main.py
-├── README.md
-├── requirements.txt
-├── runtime.txt
-├── colossusCogs/
-│   ├── admin_commands.py
-│   ├── aichatbot.py
-│   ├── channel_access_manager.py
-│   ├── channel_archiver.py
-│   ├── _cog_template.py
+├── .env                          # Default environment variables (editable)
+├── .gitignore                    # Excluded files and directories
+├── config.py                     # Centralized bot configuration
+├── FolderStructure.py            # Tool for analyzing folder structure
+├── keep_alive.py                 # Keeps the bot process alive in hosted environments
+├── LICENSE                       # License for the project
+├── main.py                       # Entry point for the bot
+├── README.md                     # Documentation
+├── requirements.txt              # Python dependencies
+├── runtime.txt                   # Runtime environment file for hosting
+├── colossusCogs/                 # Modular bot features (cogs)
+│   ├── _cog_template.py          # Template for creating new cogs
+│   ├── admin_commands.py         # Administrative commands (mute, kick, warn, etc.)
+│   ├── aichatbot.py              # AI-powered chatbot and moderation
+│   ├── channel_access_manager.py # Manage user access to categories and channels
+│   ├── channel_archiver.py       # Archive inactive channels
+│   ├── listeners.py              # Event listeners for message monitoring
+│   ├── manual.py                 # Manual moderation tools
+│   ├── pings.py                  # Ping monitoring
+│   ├── roles.py                  # Role management commands
+│   ├── utility.py                # Miscellaneous utility commands
 │   ├── .gitignore/
-│   │   └── .gitkeep
-│   ├── config/
-│   │   └── .gitkeep
-│   └── listeners/
-│       ├── active_alert_checker.py
-│       ├── flagged_words_alert.py
-│       ├── nsfw_checker.py
-│       ├── repeated_message_alert.py
+│   │   └── .gitkeep              # Placeholder for ignored content
+│   ├── Config/
+│   │   └── activeAlertsConfig.py # Configuration for active alerts
+│   └── Listeners/
+│       ├── active_alert_checker.py  # Checks for active alerts
+│       ├── flagged_words_alert.py   # Detects flagged words
+│       ├── nsfw_checker.py          # Scans for NSFW content
+│       ├── repeated_message_alert.py # Detects repeated messages
 │       └── Flags/
-│           ├── flagged_words.py
-│           └── nsfw_words.py
-├── commands/
-│   ├── active.py
-│   ├── catfish.py
-│   ├── define.py
-│   ├── google.py
-│   ├── image.py
-│   ├── keywords.py
-│   ├── purge_user.py
-│   ├── restrict_role.py
-│   ├── say.py
-│   ├── suggest.py
-│   ├── todo.py
-│   ├── vibecheck.py
-│   ├── vote.py
-│   ├── wiki.py
-│   ├── _command_template.py
+│           ├── flagged_words.py      # List of flagged words
+│           └── nsfw_words.py         # List of NSFW words
+├── commands/                     # Command-specific handlers (standalone and simple features)
+│   ├── _command_template.py      # Template for creating new commands
+│   ├── active.py                 # Active channel commands
+│   ├── catfish.py                # Catfish detection commands
+│   ├── define.py                 # Word definition commands
+│   ├── google.py                 # Google search integration
+│   ├── image.py                  # Image manipulation commands
+│   ├── keywords.py               # Keyword management commands
+│   ├── purge_user.py             # User message purge commands
+│   ├── restrict_role.py          # Role restriction commands
+│   ├── say.py                    # Echo a message
+│   ├── suggest.py                # Suggestions command
+│   ├── todo.py                   # Task management
+│   ├── vibecheck.py              # Vibe check command
+│   ├── vote.py                   # Voting system
+│   ├── wiki.py                   # Wikipedia search
 │   └── helpers/
-│       └── progress_bar.py
-├── dashboard/
-│   ├── renderer.py
+│       └── progress_bar.py       # Progress bar generation utility
+├── dashboard/                    # Web interface and templates
+│   ├── renderer.py               # Flask template renderer
+│   ├── __init__.py               # Marks the directory as a Python module
 │   ├── static/
-│   │   ├── icon.ico
+│   │   ├── icon.ico              # Favicon
 │   │   ├── css/
-│   │   │   └── style.css
+│   │   │   └── style.css         # Dashboard styles
 │   │   └── js/
-│   │       └── script.js
+│   │       └── script.js         # Dashboard scripts
 │   └── templates/
-│       ├── base.html
-│       ├── console.html
-│       └── index.html
-└── handlers/
-    ├── client_handler.py
-    ├── commands_handler.py
-    ├── database_handler.py
-    ├── event_handler.py
-    └── web_handler.py
+│       ├── base.html             # Base HTML layout
+│       ├── index.html            # Dashboard home page
+│       └── console.html          # Console logs view
+└── handlers/                     # Core backend logic
+    ├── client_handler.py         # Initializes the bot client
+    ├── commands_handler.py       # Routes and executes commands
+    ├── database_handler.py       # Database operations
+    ├── event_handler.py          # Handles Discord events
+    └── web_handler.py            # Manages web interface routes and APIs
 ```
 
 ---
 
 ## **Detailed Component Overview**
+
+---
 
 ### **DatabaseHandler**
 
@@ -143,16 +193,20 @@ The `DatabaseHandler` is a **centralized solution for managing SQL queries** and
 
 #### **Key Features**
 1. **Schema Management**:
-   - Automatically creates tables on startup.
-   - Handles schema migrations when tables are updated.
+   - Automatically creates and manages tables on startup, ensuring necessary structures are in place.
+   - Handles schema migrations when tables or columns are updated, ensuring smooth transitions.
 2. **Centralized Queries**:
-   - Encapsulates all SQL logic to keep other files clean.
-   - Use functions like `execute`, `fetchone`, and `fetchall` for consistent query execution.
+   - Encapsulates all SQL logic, keeping other parts of the codebase clean and focused on business logic.
+   - Use functions like `execute`, `fetchone`, and `fetchall` for consistent query execution across the bot.
 3. **Thread-Safe**:
-   - Supports asynchronous connections for high-performance environments.
+   - Supports asynchronous connections, allowing for high-performance environments with minimal blocking operations.
+4. **Flexible Database Support**:
+   - Seamlessly supports both SQLite and MySQL, offering scalability from small to large production environments.
+   - Automatically adjusts to the database engine provided in the configuration (SQLite or MySQL).
 
 #### **Example Usage**
-Define a schema in `setup` and access it from other components:
+Define a schema in `setup()` and access it from other components:
+
 ```python
 # Create a guild configuration table
 async def setup(self):
@@ -175,8 +229,6 @@ async def set_guild_config(self, guild_id: int, log_channel_id: int, owner_id: i
     """
     await self.execute(query, (guild_id, log_channel_id, owner_id, log_channel_id, owner_id))
 ```
-
----
 
 ### **Web Dashboard**
 
@@ -208,14 +260,63 @@ The `ClientHandler` manages **Discord bot initialization**, including the setup 
 
 ---
 
+Thank you for sharing the code! Based on this context, here's an updated and detailed **Event Handling** section, tailored to reflect the exact functionality in the code you've provided. I'll ensure the description matches the structure and flow of the `EventsHandler` class and its listeners.
+
+---
+
 ### **Event Handling**
 
-The `EventHandler` organizes listeners for:
-1. **Message Events**:
-   - NSFW detection.
-   - Flagged keyword alerts.
-2. **Reaction Events**:
-   - Custom behavior on specific emoji reactions.
+The `EventHandler` cog serves as the centralized controller for handling a wide variety of Discord events. It listens to key events, such as incoming messages and reactions, and routes them to the appropriate listeners or modules for processing. This architecture enables the bot to react to different types of interactions in an organized and modular way.
+
+The `EventHandler` also runs periodic tasks, such as checking the activity of ticket channels, ensuring the bot can handle long-running processes while still focusing on real-time event handling.
+
+#### **1. Message Events**
+
+- **Message Processing**:
+  The `EventHandler` listens for all incoming messages across the bot's active guilds. When a message is received:
+  - It is routed through multiple specialized listeners to handle various checks and responses:
+    - **AIChatbot**: Processes the message for AI-based responses.
+    - **NSFWChecker**: Detects inappropriate or NSFW content and takes action.
+    - **FlaggedWordsAlert**: Monitors for flagged keywords or phrases in the message.
+    - **RepeatedMessageAlert**: Checks if the message is a repeated message.
+    - **ActiveAlertChecker**: Logs the activity of the channel where the message was posted and checks for active alerts.
+
+  Each listener performs its specific task and handles the message accordingly, whether that means sending alerts, muting users, or performing other actions.
+
+#### **2. Reaction Events**
+
+- **Reaction Handling**:
+  The `EventHandler` also listens for reaction events, triggered when a user adds a reaction to a message. This is commonly used for alerting or processing actions like approvals or rejections:
+    - **NSFWChecker**: Checks if the reaction is related to an NSFW content alert, and handles it accordingly.
+    - **FlaggedWordsAlert**: Processes reactions on flagged word alerts, enabling staff to take actions like issuing warnings or muting the user.
+    - **RepeatedMessageAlert**: Handles reactions for actions related to repeated message detection, allowing staff to decide on the severity of the action to take.
+
+  These reactions are processed in real-time, allowing staff to take appropriate actions based on the severity of the alert or content.
+
+#### **3. Periodic Tasks**
+
+- **Ticket Channel Activity**:
+  The `EventHandler` includes a periodic task that checks ticket channels (channels named `ticket-*`) for recent activity. Every 5 minutes:
+  - It checks if there has been activity in any ticket channel. If no messages have been posted within the last 60 minutes, the bot sends a reminder to the user to keep the ticket open.
+  - If there is still no activity after 60 minutes, the bot sends commands to close the ticket, send a transcript, and then delete the channel.
+
+This task ensures that the bot maintains an active and well-managed ticket system, closing inactive tickets to keep the server organized.
+
+---
+
+### **How Event Handling Works in ColossusBot**:
+
+1. The `EventHandler` listens for key events across all active guilds, ensuring that the bot responds to interactions promptly.
+2. For each event type (e.g., messages or reactions), the event handler delegates processing to the appropriate listener modules:
+   - **AIChatbot** for conversational AI responses.
+   - **NSFWChecker** for NSFW detection and alerts.
+   - **FlaggedWordsAlert** for monitoring flagged keywords.
+   - **RepeatedMessageAlert** for detecting and responding to repeated messages.
+   - **ActiveAlertChecker** for logging and checking channel activity.
+3. The bot performs periodic checks for ticket channels, ensuring they are kept up to date and closed when inactive.
+4. The event handler ensures real-time processing of messages and reactions, while managing long-running tasks like ticket monitoring.
+
+This modular, event-driven approach allows ColossusBot to scale efficiently, handling multiple types of events without compromising performance.
 
 ---
 
@@ -268,235 +369,439 @@ To run ColossusBot, you will need the following:
 
 ---
 
-### **Configuration Options**
+## **Configuration Options**
 
 ColossusBot is configured using environment variables stored in the `.env` file.
 
 #### **Core Variables**
 
-| Variable         | Description                                    | Default Value         |
-|------------------|------------------------------------------------|-----------------------|
-| `BOT_TOKEN`      | Discord bot token.                            | Required              |
-| `BOT_PREFIX`     | Command prefix for bot commands.              | `!`                  |
-| `DB_ENGINE`      | Database engine (`sqlite` or `mysql`).        | `sqlite`             |
-| `DB_NAME`        | SQLite file name or MySQL database name.      | `colossusbot.db`     |
-| `DB_HOST`        | MySQL server hostname.                        | `localhost`          |
-| `DB_USER`        | MySQL username.                               | `root`               |
-| `DB_PASSWORD`    | MySQL password.                               | Empty                |
-| `OPENAI_API_KEY` | API key for OpenAI features.                  | None                 |
+| Variable         | Description                                    | Default |
 
-#### **Local Overrides**
 
-For development, create an `.env.local` file to override variables. These will take precedence over `.env`.
+|------------------|------------------------------------------------|---------|
+| `BOT_TOKEN`      | The token for the Discord bot.                 | None    |
+| `BOT_PREFIX`     | The prefix for bot commands.                   | `!`     |
+| `DB_ENGINE`      | The type of database to use (`sqlite` or `mysql`). | `sqlite` |
+| `DB_NAME`        | The name of the SQLite database file or MySQL database. | `colossusbot.db` |
+| `OPENAI_API_KEY` | API key for OpenAI integrations.               | None    |
 
 ---
 
-## **Development Practices**
-
-### **Best Practices for Development**
-
-1. **Use the Provided Templates**:
-   - Leverage the `_command_template.py` and `_cog_template.py` files for creating new commands and features.
-   - Keep logic modular to avoid duplicating code.
-
-2. **Centralize Database Operations**:
-   - Avoid writing SQL queries directly in cogs or commands.
-   - Use the `DatabaseHandler` for consistent and maintainable query management.
-
-3. **Separate Logic and Presentation**:
-   - Keep UI logic (dashboard HTML/CSS) separate from backend operations (handlers).
-   - Use the `Renderer` class to manage HTML rendering.
-
-4. **Logging**:
-   - Use the built-in logging framework to log errors and events.
-   - Avoid printing directly to the console unless necessary for debugging.
+Here’s the updated section for the `listeners/` directory, with **excruciating detail** about each file’s purpose and functionality:
 
 ---
 
-### **Command and Cog Templates**
+## **Cog Reference**
 
-#### **Command Template**
+This section provides an overview of the core cogs integrated with ColossusBot. Each cog is responsible for a specific set of functionalities, often leveraging handlers for efficient operation.
 
-The `commands/` directory is for **simple, self-contained commands**. Use the `_command_template.py` to create new commands.
+### **1. `admin_commands.py`**
 
-Example:
-```python
-"""
-Template Command: Example Command for ColossusBot
--------------------------------------------------
-Use this template to create and add new commands to the bot.
-"""
+**Description**: Provides commands for administrators to manage server operations, such as muting, kicking, banning, and issuing warnings to users.
 
-from discord.ext import commands
-from discord import Embed
-import logging
+**Handlers Involved**: `CommandsHandler`, `DatabaseHandler`, `EventHandler`.
 
-# Initialize logging for debugging purposes
-logger = logging.getLogger("ColossusBot")
+---
 
-class CommandTemplate(commands.Cog):
-    """
-    A template cog for creating commands in ColossusBot.
-    """
+### **2. `aichatbot.py`**
 
-    def __init__(self, client: commands.Bot) -> None:
-        """
-        Initializes the CommandTemplate cog.
+**Description**: Integrates AI-powered features like natural language processing for chatbot functionalities, including moderation insights, automatic responses, and sentiment analysis.
 
-        :param client: The Discord bot client instance.
-        """
-        self.client = client
-        logger.info("CommandTemplate initialized successfully.")
+**Handlers Involved**: `CommandsHandler`, `EventHandler`, `WebHandler`, `DatabaseHandler`.
 
-    @commands.command(name="example", help="An example command to demonstrate functionality.")
-    async def example_command(self, ctx: commands.Context, *, input_text: str = "Default Response") -> None:
-        """
-        Responds with a user-provided message or a default response.
+---
 
-        :param ctx: The command context.
-        :param input_text: The input text provided by the user (optional).
-        """
-        logger.info(f"Executing 'example_command' with input: {input_text}")
+### **3. `channel_access_manager.py`**
 
-        # Create an embed to display the response
-        embed = Embed(
-            title="Example Command",
-            description=f"You said: {input_text}",
-            color=0x00FF00
-        )
-        await ctx.send(embed=embed)
+**Description**: Manages access control for channels based on roles and permissions, ensuring that only authorized users can interact with sensitive channels.
 
-    @commands.command(name="another_example", help="Another example command to show usage with arguments.")
-    async def another_example_command(self, ctx: commands.Context, number: int) -> None:
-        """
-        Multiplies a number by 2 and returns the result.
+**Handlers Involved**: `CommandsHandler`, `EventHandler`, `DatabaseHandler`.
 
-        :param ctx: The command context.
-        :param number: A number provided by the user.
-        """
-        logger.info(f"Executing 'another_example_command' with number: {number}")
+---
 
-        result = number * 2
-        await ctx.send(f"Double of {number} is {result}!")
+### **4. `channel_archiver.py`**
 
+**Description**: Handles the archiving and unarchiving of channels, either manually or automatically based on activity. This includes moving inactive channels to an archive category or restoring them when needed.
 
-async def setup(client: commands.Bot) -> None:
-    """
-    Registers the CommandTemplate cog with the bot.
+**Handlers Involved**: `CommandsHandler`, `EventHandler`, `DatabaseHandler`.
 
-    :param client: The Discord bot client instance.
-    """
-    logger.info("Setting up CommandTemplate cog...")
-    await client.add_cog(CommandTemplate(client))
-    logger.info("CommandTemplate cog setup complete.")
+---
+
+Got it! Here's the updated README with the inclusion of the various **reaction sets** across the different listeners (excluding `active_alert_checker.py`, which doesn't have reactions). I've also expanded the list of emojis to cover all available reactions mentioned:
+
+---
+
+### **5. `listeners/`**
+
+The `listeners/` directory contains cogs that handle various types of event-driven actions in ColossusBot. These listeners provide core functionality such as monitoring activity, handling flagged content, detecting NSFW material, and tracking repeated messages. Each listener responds to specific events within Discord and takes action based on those events. Here is an overview of the listeners in this directory:
+
+---
+
+#### **1. `active_alert_checker.py`**
+
+**Purpose**: The `active_alert_checker.py` listener is designed to track and log channel activity. It monitors the time difference between the last message sent in a channel and the current message. When a channel becomes active again (after inactivity), it logs the activity in a designated log channel.
+
+- **Key Features**:
+  - **Channel Activity Tracking**: This listener keeps track of when a channel becomes active by comparing the time difference between the last message and the current message.
+  - **Log Channel**: Once a channel becomes active, it sends an activity log message to a designated log channel.
+  - **No Reaction Handling**: Unlike other listeners, the `active_alert_checker.py` does not involve reactions. Instead, it purely logs channel activity.
+
+- **Note**: This listener does **not** use reactions or require staff interaction. It simply logs the channel's activity in a dedicated log channel.
+
+---
+
+#### **2. `flagged_words_alert.py`**
+
+**Purpose**: The `flagged_words_alert.py` listener detects and alerts staff when potentially harmful or inappropriate words are used in messages.
+
+- **Key Features**:
+  - **Flagged Words Detection**: Monitors messages for words or phrases from a predefined list of flagged terms.
+  - **Real-Time Alerts**: Sends alerts to staff when flagged words are detected in a message.
+  - **Reactions Handling**: Staff can use reactions like ✅ (approve action) or ❌ (ignore) to take actions on the flagged content.
+
+- **Take Action**:
+  When a flagged word is detected, staff are notified, and they can:
+  - **✅**: Approve the alert (issue a penalty).
+  - **❌**: Dismiss the alert.
+
+- **Penalty Emojis**:
+  - **⚠️**: Issue a warning to the user.
+  - **🔇**: Mute the user.
+  - **👢**: Kick the user from the server.
+  - **🔨**: Ban the user.
+
+---
+
+#### **3. `nsfw_checker.py`**
+
+**Purpose**: The `nsfw_checker.py` listener scans messages for NSFW (Not Safe For Work) content, including explicit images, videos, and text.
+
+- **Key Features**:
+  - **NSFW Content Detection**: Uses integrated tools to scan messages for explicit content, both in text and media (e.g., images, videos).
+  - **Automatic Actions**: Can automatically take actions such as deleting inappropriate messages or warning the user.
+  - **Reactions Handling**: Allows staff to react to alerts to take further action.
+
+- **Take Action**:
+  When NSFW content is detected:
+  - **✅**: Approve the alert (issue a penalty).
+  - **❌**: Dismiss the alert.
+
+- **Penalty Emojis**:
+  - **⚠️**: Issue a warning to the user.
+  - **🔇**: Mute the user.
+  - **👢**: Kick the user from the server.
+  - **🔨**: Ban the user.
+
+---
+
+#### **4. `repeated_message_alert.py`**
+
+**Purpose**: The `repeated_message_alert.py` listener detects when the same or similar messages are repeatedly sent across different guilds or channels, helping to flag spammy behavior.
+
+- **Key Features**:
+  - **Repeated Message Detection**: Monitors for repeated messages that are identical or nearly identical across different servers or channels.
+  - **Cross-Guild Monitoring**: Can detect repeated messages from users in different guilds.
+  - **Staff Alerts**: Sends alerts to staff when repeated messages are detected, enabling quick action to be taken.
+  - **Reactions Handling**: Staff can react to alerts to approve or dismiss actions on the repeated message.
+
+- **Take Action**:
+  When a repeated message is detected, staff can take actions such as:
+  - **✅**: Approve the alert (issue a penalty).
+  - **❌**: Dismiss the alert.
+
+- **Penalty Emojis**:
+  - **⚠️**: Issue a warning to the user.
+  - **🔇**: Mute the user.
+  - **👢**: Kick the user from the server.
+  - **🔨**: Ban the user.
+
+---
+
+#### **How Reactions Work in Listeners**
+
+The following listeners use reactions as a way to quickly take action on alerts:
+
+- **Flagged Words Alert Listener (`flagged_words_alert.py`)**
+- **NSFW Checker Listener (`nsfw_checker.py`)**
+- **Repeated Message Alert Listener (`repeated_message_alert.py`)**
+
+In these listeners, reactions are used by moderators or staff to confirm, approve, or dismiss alerts generated by the bot. The reactions include:
+
+- **✅**: Confirm the alert (e.g., deleting a message, issuing a penalty).
+- **❌**: Dismiss the alert.
+- **⚠️**: Issue a warning to the user.
+- **🔇**: Mute the user.
+- **👢**: Kick the user from the server.
+- **🔨**: Ban the user.
+
+Each listener is designed to help staff manage and moderate their servers by making it easier to interact with alerts and take action swiftly.
+
+---
+
+### **In Summary**
+
+The `listeners/` directory contains several event-driven cogs designed to enhance server management in ColossusBot. These listeners monitor different aspects of server activity, such as message content, NSFW material, repeated messages, and overall channel activity. By using reactions, staff can take immediate actions based on the alerts generated by the bot.
+
+The `active_alert_checker.py` listener is unique in that it doesn’t require reactions or direct staff interaction but instead focuses on tracking and logging channel activity to a designated log channel.
+
+## **Command Reference**
+
+This section provides a detailed list of available commands for ColossusBot, including usage examples and descriptions. As commands are polished or newly developed, they will be added here.
+
+---
+
+### **1. `!active`**
+
+**Description**: Displays the current activity status of the bot in the server.
+
+**Usage**:
+```plaintext
+!active
+```
+
+**Example**:
+```plaintext
+User: !active
+Bot: The bot is currently active and processing commands.
 ```
 
 ---
 
-#### **Cog Template**
+### **2. `!catfish`**
 
-For **complex features with database or event integrations**, use the `_cog_template.py`.
+**Description**: Searches for a catfish-related term or phrase and returns a list of relevant search results.
 
-Example:
-```python
-"""
-Template Cog for ColossusBot
-----------------------------
-Use this template for creating new cogs with handler integration.
-"""
+**Usage**:
+```plaintext
+!catfish [search_term]
+```
 
-from discord.ext import commands
-import logging
-from handlers.database_handler import DatabaseHandler
-
-logger = logging.getLogger("ColossusBot")
-
-
-class CogTemplate(commands.Cog):
-    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
-        self.client = client
-        self.db_handler = db_handler
-
-    @commands.command(name="example", help="An example command with database integration.")
-    async def example_command(self, ctx: commands.Context) -> None:
-        await self.db_handler.insert_record("example_table", {"key": "value"})
-        await ctx.send("Record added to the database.")
-
-    async def background_task(self) -> None:
-        records = await self.db_handler.fetch_records("example_table")
-        logger.info(f"Fetched {len(records)} records from example_table.")
-
-
-async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
-    await client.add_cog(CogTemplate(client, db_handler))
+**Example**:
+```plaintext
+User: !catfish fishing
+Bot: Here are the top search results for "fishing" related to catfish.
 ```
 
 ---
 
-### **Web Dashboard**
+### **3. `!define`**
 
-The web dashboard provides a **real-time interface** for managing and monitoring ColossusBot.
+**Description**: Defines a word or phrase using an online dictionary.
 
-#### **Features**
-1. **Index Page (`index.html`)**:
-   - Displays a welcome message and links to other sections.
-2. **Console Logs (`console.html`)**:
-   - Shows real-time logs with a toggle for autoscroll.
-3. **API Endpoints**:
-   - `/api/status`: Returns bot status (online, latency, guild count).
-   - `/api/console`: Fetches the latest console logs.
-   - `/api/commands`: Returns metadata for all available commands.
+**Usage**:
+```plaintext
+!define [word]
+```
 
----
-
-## **Dependencies**
-
-ColossusBot relies on the following Python libraries:
-
-| Dependency         | Purpose                                   |
-|--------------------|-------------------------------------------|
-| `aiohttp`          | Asynchronous HTTP client library.        |
-| `aiosqlite`        | Async SQLite integration.                |
-| `aiomysql`         | Async MySQL integration.                 |
-| `asyncio`          | Async programming framework.             |
-| `Flask`            | Web dashboard framework.                 |
-| `googlesearch-python` | Google search API wrapper.            |
-| `numpy`            | Numerical computations.                  |
-| `openai`           | Integration with OpenAI's API.           |
-| `Pillow`           | Image processing and manipulation.       |
-| `vaderSentiment`   | Sentiment analysis.                      |
-| `wikipedia-api`    | Modern Wikipedia API wrapper.            |
-
-To install dependencies, run:
-```bash
-pip install -r requirements.txt
+**Example**:
+```plaintext
+User: !define colloquialism
+Bot: "Colloquialism" is defined as a word or phrase used in informal language.
 ```
 
 ---
 
-## **Contribution Guidelines**
+### **4. `!google`**
 
-1. Fork the repository.
-2. Create a feature branch.
-3. Use templates in `commands/` or `colossusCogs/`.
-4. Ensure all new database queries use the `DatabaseHandler`.
-5. Submit a pull request with a detailed description.
+**Description**: Performs a Google search and returns the top search results.
+
+**Usage**:
+```plaintext
+!google [query]
+```
+
+**Example**:
+```plaintext
+User: !google python programming
+Bot: Here are the top results for "python programming":
+- https://www.python.org/
+- https://realpython.com/
+```
+
+---
+
+### **5. `!image`**
+
+**Description**: Returns an image based on a search query.
+
+**Usage**:
+```plaintext
+!image [search_term]
+```
+
+**Example**:
+```plaintext
+User: !image sunset
+Bot: [returns image of a sunset]
+```
 
 ---
 
-## **Future Enhancements**
+### **6. `!keywords`**
 
-- **Bot Analytics**:
-   - Add visualizations for message activity and command usage.
-- **Docker Support**:
-   - Streamline deployment with containerization.
-- **Plugin System**:
-   - Enable admins to dynamically add or remove cogs via the dashboard.
-- **Multi-language Support**:
-   - Add localization options for the dashboard and commands.
+**Description**: Detects flagged keywords or phrases within the server chat.
+
+**Usage**:
+```plaintext
+!keywords
+```
+
+**Example**:
+```plaintext
+User: !keywords
+Bot: The following flagged keywords were detected: "example_word_1", "example_word_2".
+```
 
 ---
+
+### **7. `!purge_user`**
+
+**Description**: Purges a user's messages within the chat for a specified period.
+
+**Usage**:
+```plaintext
+!purge_user [user_id] [time_frame]
+```
+
+**Example**:
+```plaintext
+User: !purge_user 123456789012345678 24h
+Bot: Purged all messages from user 123456789012345678 for the past 24 hours.
+```
+
+---
+
+### **8. `!restrict_role`**
+
+**Description**: Restricts a user’s role to prevent them from performing certain actions within the server.
+
+**Usage**:
+```plaintext
+!restrict_role [user_id] [role]
+```
+
+**Example**:
+```plaintext
+User: !restrict_role 123456789012345678 Moderator
+Bot: The user 123456789012345678 is now restricted from performing moderator actions.
+```
+
+---
+
+### **9. `!say`**
+
+**Description**: Makes the bot say a specified message.
+
+**Usage**:
+```plaintext
+!say [message]
+```
+
+**Example**:
+```plaintext
+User: !say Hello, everyone!
+Bot: Hello, everyone!
+```
+
+---
+
+### **10. `!suggest`**
+
+**Description**: Allows users to make suggestions for improving the server.
+
+**Usage**:
+```plaintext
+!suggest [suggestion]
+```
+
+**Example**:
+```plaintext
+User: !suggest Add more fun bot games
+Bot: Your suggestion "Add more fun bot games" has been noted. Thank you!
+```
+
+---
+
+### **11. `!todo`**
+
+**Description**: Adds a task to the bot's to-do list.
+
+**Usage**:
+```plaintext
+!todo [task]
+```
+
+**Example**:
+```plaintext
+User: !todo Finish the documentation
+Bot: Task "Finish the documentation" added to the to-do list.
+```
+
+---
+
+### **12. `!vibecheck`**
+
+**Description**: Checks the "vibe" of the chat based on a sentiment analysis.
+
+**Usage**:
+```plaintext
+!vibecheck
+```
+
+**Example**:
+```plaintext
+User: !vibecheck
+Bot: The vibe of the chat is 85% positive!
+```
+
+---
+
+### **13. `!vote`**
+
+**Description**: Starts a voting poll in the server.
+
+**Usage**:
+```plaintext
+!vote [question] [option1] [option2] ...
+```
+
+**Example**:
+```plaintext
+User: !vote Should we add more emotes? Yes No
+Bot: Poll started: Should we add more emotes? Yes / No
+```
+
+---
+
+### **14. `!wiki`**
+
+**Description**: Fetches a summary of a Wikipedia article.
+
+**Usage**:
+```plaintext
+!wiki [search_term]
+```
+
+**Example**:
+```plaintext
+User: !wiki Python programming language
+Bot: Python is an interpreted, high-level programming language with dynamic semantics...
+```
+
+---
+
+## **Command Development**
+
+As ColossusBot is constantly evolving, we also include **command templates** for developers looking to add or modify commands. You can use the following templates:
+
+- **Command Template**: For self-contained, simple commands like `!active` and `!catfish`.
+- **Cog Template**: For more complex commands involving databases or event handling.
+
+See the [Command and Cog Templates](#command-and-cog-templates) section for detailed instructions.
+
+---
+
 
 ## **License**
 
-ColossusBot is licensed under the MIT License. See `LICENSE` for details.
+ColossusBot is open-source and released under the MIT License.

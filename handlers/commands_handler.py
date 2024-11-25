@@ -1,3 +1,5 @@
+# File: handlers/commands_handler.py
+
 """
 CommandsHandler: Routes Commands to Cog Implementations
 -------------------------------------------------------
@@ -5,7 +7,7 @@ Handles user command registration and directly invokes cog methods.
 """
 from discord.ext import commands
 from discord import abc as discord_abc
-from discord import Member, Role, Guild
+from discord import Member
 from typing import Optional, Union
 from colossusCogs.aichatbot import AIChatbot
 from colossusCogs.channel_access_manager import ChannelAccessManager

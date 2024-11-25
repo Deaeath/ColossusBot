@@ -1,3 +1,11 @@
+# File: commands/todo.py
+
+"""
+Todo Command: Manage a Personal To-Do List
+-------------------------------------------
+A cog to manage a user's personal to-do list. Users can add, remove, and list items in their to-do list.
+"""
+
 import discord
 from discord.ext import commands
 from typing import Optional, List
@@ -5,22 +13,29 @@ from typing import Optional, List
 
 class Todo(commands.Cog):
     """
-    A cog to manage a user's to-do list.
+    A cog that manages a user's to-do list, allowing actions such as adding, removing, and listing tasks.
     """
 
     def __init__(self, client: commands.Bot, db_handler) -> None:
+        """
+        Initializes the Todo cog.
+
+        Args:
+            client (commands.Bot): The bot instance that will interact with Discord.
+            db_handler: A database handler instance for managing the to-do list.
+        """
         self.client = client
         self.db_handler = db_handler
 
     @commands.command(name="todo")
     async def todo(self, ctx: commands.Context, action: Optional[str] = None, *, message: Optional[str] = None) -> None:
         """
-        Manages the user's to-do list.
+        Manages the user's to-do list by allowing actions to add, remove, or list items.
 
         Args:
-            ctx: The command invocation context.
-            action: The action to perform (add, remove, list).
-            message: The message to add or remove.
+            ctx (commands.Context): The context of the command invocation.
+            action (Optional[str]): The action to perform on the to-do list (`add`, `remove`, `list`).
+            message (Optional[str]): The message to add or the index to remove.
         """
         if not action:
             await ctx.send("Usage: `!todo <add|remove|list> [message]`")
@@ -62,6 +77,6 @@ async def setup(client: commands.Bot) -> None:
     Loads the Todo cog.
 
     Args:
-        client: The bot instance.
+        client (commands.Bot): The bot instance.
     """
     await client.add_cog(Todo(client, client.db_handler))

@@ -1,31 +1,59 @@
+# File: commands/wiki.py
+
+"""
+WikiCommand: Fetches Wikipedia Page Information
+------------------------------------------------
+Handles the searching of terms on Wikipedia, managing disambiguation errors, 
+suggesting alternatives, and providing helpful feedback when no results are found.
+"""
+
 from discord.ext import commands
 from discord import Embed
 import wikipedia
 from typing import Optional
 import random
 
-
 class WikiCommand(commands.Cog):
     """
     A cog to fetch Wikipedia page information and suggest alternatives for invalid terms.
+    
+    This cog contains a command that allows users to search for a term on Wikipedia and
+    receive the page URL. If the term is invalid, the bot will suggest alternative terms,
+    handle disambiguation errors, and provide helpful feedback for users.
+
+    Attributes:
+        client (commands.Bot): The instance of the Discord bot client.
     """
 
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initializes the WikiCommand cog.
+
+        Args:
+            client (commands.Bot): The instance of the Discord bot client.
+        """
         self.client = client
 
     @commands.command(aliases=["wikipedia"])
-    async def wiki(self, ctx: commands.Context, *, term: Optional[str] = None):
+    async def wiki(self, ctx: commands.Context, *, term: Optional[str] = None) -> None:
         """
         Search for a term on Wikipedia and return the page URL. Suggest alternatives if the term is invalid.
 
+        This command performs a Wikipedia search for the provided term and sends the URL of the result.
+        If the search term is ambiguous (disambiguation error) or not found (page error), it suggests
+        alternative terms or provides an error message.
+
         Args:
             ctx (commands.Context): The context of the command.
-            term (Optional[str]): The term to search for on Wikipedia.
+            term (Optional[str]): The term to search for on Wikipedia. Defaults to None.
+
+        Returns:
+            None
         """
         if term is None:
             embed = Embed(
                 title="How to use this command?",
-                description=f"`{ctx.message.content} <term>`",
+                description=f"Usage: `{ctx.prefix}wiki <term>`",
                 color=random.randint(0, 0xFFFFFF),
             )
             await ctx.send(embed=embed)
@@ -40,7 +68,7 @@ class WikiCommand(commands.Cog):
             alternative_terms = e.options
             alternatives = "\n".join(f"`{term}`" for term in alternative_terms)
             embed = Embed(
-                title=f"No exact match found for: {term}",
+                title=f"No exact match found for: `{term}`",
                 description=f"Did you mean one of these?\n{alternatives}",
                 color=random.randint(0, 0xFFFFFF),
             )
@@ -53,6 +81,14 @@ class WikiCommand(commands.Cog):
                 color=random.randint(0, 0xFFFFFF),
             )
             await ctx.send(embed=embed)
+        except wikipedia.RedirectError:
+            # Handle redirect errors if Wikipedia redirects the term
+            embed = Embed(
+                title="Redirect Detected",
+                description=f"The term `{term}` redirected to another page. Try the following link:\n{wikipedia.page(term).url}",
+                color=random.randint(0, 0xFFFFFF),
+            )
+            await ctx.send(embed=embed)
         except Exception as e:
             # Handle other unexpected errors
             embed = Embed(
@@ -62,12 +98,16 @@ class WikiCommand(commands.Cog):
             )
             await ctx.send(embed=embed)
 
-
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
     """
-    Asynchronous setup function to add the cog to the bot.
+    Asynchronously loads the WikiCommand cog.
+
+    This function is called to add the WikiCommand cog to the bot.
 
     Args:
-        client (commands.Bot): The bot instance.
+        client (commands.Bot): The instance of the bot.
+
+    Returns:
+        None
     """
     await client.add_cog(WikiCommand(client))

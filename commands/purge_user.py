@@ -1,3 +1,11 @@
+# File: commands/purge_user.py
+
+"""
+Purge Messages: Purge Messages Sent by a Specific User
+------------------------------------------------------
+A cog for purging messages sent by a specific user across all channels in a guild.
+"""
+
 from discord.ext import commands
 from discord import Guild, Embed, Member, TextChannel
 from typing import Callable, Dict, Optional
@@ -6,10 +14,16 @@ import discord
 
 class PurgeMessages(commands.Cog):
     """
-    A cog for purging messages sent by a specific user across all channels in a guild.
+    A cog for purging messages sent by a specific user across all text channels in a guild.
     """
 
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initializes the PurgeMessages cog.
+
+        Args:
+            client (commands.Bot): The bot instance.
+        """
         self.client = client
 
     async def purge_messages_from_user(
@@ -64,7 +78,7 @@ class PurgeMessages(commands.Cog):
 
     @commands.command(name="purge_user")
     @commands.has_any_role("owner", "head_staff", "moderator", "administrator")
-    async def purge_user(self, ctx: commands.Context, user_id: int):
+    async def purge_user(self, ctx: commands.Context, user_id: int) -> None:
         """
         A command to initiate the purge of messages from a specific user across all channels.
 
@@ -75,7 +89,14 @@ class PurgeMessages(commands.Cog):
         embed = Embed(title="Purge Operation Started", description="Please wait...", color=discord.Color.blue())
         progress_message = await ctx.send(embed=embed)
 
-        async def update_progress(total_channels: int, processed_channels: int):
+        async def update_progress(total_channels: int, processed_channels: int) -> None:
+            """
+            Updates the progress message during the purge operation.
+
+            Args:
+                total_channels (int): The total number of text channels in the guild.
+                processed_channels (int): The number of channels that have been processed so far.
+            """
             progress_embed = Embed(title="Purging Progress", color=discord.Color.blue())
             progress_embed.add_field(name="User ID", value=str(user_id), inline=False)
             progress_embed.add_field(
@@ -85,8 +106,10 @@ class PurgeMessages(commands.Cog):
             )
             await progress_message.edit(embed=progress_embed)
 
+        # Purge messages and update progress
         summary = await self.purge_messages_from_user(ctx.guild, user_id, progress_callback=update_progress)
 
+        # Create a summary embed with results
         final_embed = Embed(title="Purge Summary", color=discord.Color.green())
         final_embed.add_field(name="User ID", value=str(user_id), inline=False)
         for channel, result in summary.items():
@@ -94,7 +117,7 @@ class PurgeMessages(commands.Cog):
         await progress_message.edit(embed=final_embed)
 
     @purge_user.error
-    async def purge_user_error(self, ctx: commands.Context, error: commands.CommandError):
+    async def purge_user_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
         """
         Error handler for the purge_user command.
 
@@ -123,7 +146,7 @@ class PurgeMessages(commands.Cog):
             await ctx.send(f"An unexpected error occurred: {error}")
 
 
-async def setup(client: commands.Bot):
+async def setup(client: commands.Bot) -> None:
     """
     Asynchronous setup function to add the cog to the bot.
 

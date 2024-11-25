@@ -1,10 +1,22 @@
+# File: colossusCogs/admin_commands.py
+
+"""
+AdminCommands Cog: Handles Administrative Actions
+-------------------------------------------------
+This cog is responsible for managing core administrative actions such as:
+- Muting users
+- Kicking users
+- Banning users
+- Warning users and logging those warnings
+It interacts with the DatabaseHandler to store and retrieve warning data.
+"""
+
 from discord.ext import commands
-from discord import Embed, Member, Role, Message
+from discord import Embed, Member
 import discord
 import random
-import aiosqlite
-import time
-from typing import List, Tuple, Optional
+from typing import Optional
+from handlers.database_handler import DatabaseHandler
 
 
 class AdminCommands(commands.Cog):
@@ -12,67 +24,21 @@ class AdminCommands(commands.Cog):
     Handles the core logic for administrative actions like muting, kicking, banning, and warnings.
     """
 
-    def __init__(self, client: commands.Bot) -> None:
+    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
         """
         Initializes the AdminCommands cog.
 
         :param client: The Discord bot client instance.
+        :param db_handler: The DatabaseHandler instance for handling database operations.
         """
         self.client = client
-        self.db_path = 'administrative_actions.db'
-        self.user_actions: dict[int, List[float]] = {}
-        self.ACTION_THRESHOLD = 15  # Actions in a short time
-        self.TIME_WINDOW = 5  # Time window in seconds
+        self.db_handler = db_handler
 
     async def cog_load(self) -> None:
         """Handles logic to execute when the cog is loaded."""
         print("AdminCommands.cog_load: AdminCommands is starting...")
-        await self.create_warning_table()
+        await self.db_handler.connect()
         print("AdminCommands.cog_load: AdminCommands is ready.")
-
-    async def create_warning_table(self) -> None:
-        """Creates the database table for storing user warnings."""
-        print("AdminCommands.create_warning_table: Creating the warning table...")
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute('''
-                CREATE TABLE IF NOT EXISTS warnings (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER NOT NULL,
-                    guild_id INTEGER NOT NULL,
-                    reason TEXT NOT NULL,
-                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-            await db.commit()
-        print("AdminCommands.create_warning_table: Warning table created.")
-
-    async def log_warning(self, member: Member, reason: str) -> None:
-        """
-        Logs a warning for a member in the database.
-
-        :param member: The member to log the warning for.
-        :param reason: The reason for the warning.
-        """
-        async with aiosqlite.connect(self.db_path) as db:
-            await db.execute(
-                'INSERT INTO warnings (user_id, guild_id, reason) VALUES (?, ?, ?)',
-                (member.id, member.guild.id, reason)
-            )
-            await db.commit()
-
-    async def fetch_warnings(self, member: Member) -> List[Tuple[str, str]]:
-        """
-        Fetches all warnings for a specific member.
-
-        :param member: The member whose warnings to fetch.
-        :return: A list of tuples containing the warning reason and timestamp.
-        """
-        async with aiosqlite.connect(self.db_path) as db:
-            cursor = await db.execute(
-                'SELECT reason, timestamp FROM warnings WHERE user_id = ? AND guild_id = ?',
-                (member.id, member.guild.id)
-            )
-            return await cursor.fetchall()
 
     async def send_embed(
         self,
@@ -141,8 +107,19 @@ class AdminCommands(commands.Cog):
         :param member: The member to warn.
         :param reason: The reason for the warning.
         """
-        await self.log_warning(member, reason)
+        # Log the warning in the database
+        await self.db_handler.log_warning(member, reason)
+        # Send embed summarizing the warning action
         await self.send_embed(ctx, ctx.author, member, reason, "Warned")
+
+    async def fetch_warnings(self, member: Member) -> list:
+        """
+        Fetches all warnings for a specific member.
+
+        :param member: The member whose warnings to fetch.
+        :return: A list of tuples containing the warning reason and timestamp.
+        """
+        return await self.db_handler.fetch_warnings(member)
 
 
 async def setup(client: commands.Bot) -> None:
@@ -151,4 +128,8 @@ async def setup(client: commands.Bot) -> None:
 
     :param client: The Discord bot client instance.
     """
-    await client.add_cog(AdminCommands(client))
+    db_handler = DatabaseHandler({
+        "engine": "sqlite",  # Or MySQL config here
+        "database": "colossusbot.db"
+    })
+    await client.add_cog(AdminCommands(client, db_handler))

@@ -1,13 +1,25 @@
+# File: commands/say.py
+
+"""
+Say Command: Send a Message to a Specified Channel
+--------------------------------------------------
+A cog for sending messages to a specific channel by providing its ID.
+"""
+
 import discord
 from discord.ext import commands
 from discord.ext.commands import Context
+from typing import Optional
 
 
 class SayCommand(commands.Cog):
-    """Cog for the `say` command."""
+    """
+    Cog for the `say` command, which allows sending a message to a specified channel by its ID.
+    """
 
     def __init__(self, client: commands.Bot) -> None:
-        """Initialize the SayCommand cog.
+        """
+        Initializes the SayCommand cog.
 
         Args:
             client (commands.Bot): The bot instance.
@@ -20,7 +32,8 @@ class SayCommand(commands.Cog):
     )
     @commands.has_permissions(administrator=True)
     async def say(self, ctx: Context, channel_id: int, *, message: str) -> None:
-        """Send a message to a specific channel.
+        """
+        Send a message to a specified channel.
 
         Args:
             ctx (Context): The context of the command invocation.
@@ -35,7 +48,8 @@ class SayCommand(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    """Setup function to load the SayCommand cog.
+    """
+    Asynchronous setup function to load the SayCommand cog.
 
     Args:
         client (commands.Bot): The bot instance.

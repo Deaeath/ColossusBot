@@ -1,3 +1,13 @@
+# File: commands/catfish.py
+
+"""
+Catfish Command: Perform Reverse Image Search Using SerpAPI
+---------------------------------------------------------
+A cog for performing reverse image searches by checking the authenticity of images 
+using SerpAPI's Google Reverse Image Search engine.
+"""
+
+import discord
 from discord.ext import commands
 from discord import Embed, Message
 from typing import Optional
@@ -27,7 +37,7 @@ class CatfishCommand(commands.Cog):
         if ctx.message.attachments:
             image_url = ctx.message.attachments[0].url
 
-        # Use provided image URL
+        # Use provided image URL if it's available
         elif image_url:
             pass
 
@@ -64,39 +74,57 @@ class CatfishCommand(commands.Cog):
             "api_key": self.SERPAPI_KEY
         }
 
-        # Perform the API request
-        async with aiohttp.ClientSession() as session:
-            async with session.get("https://serpapi.com/search", params=params) as response:
-                data = await response.json()
+        try:
+            # Perform the API request
+            async with aiohttp.ClientSession() as session:
+                async with session.get("https://serpapi.com/search", params=params) as response:
+                    data = await response.json()
 
-        # Handle errors in the API response
-        if "error" in data:
+            # Handle errors in the API response
+            if "error" in data:
+                embed = Embed(
+                    title="Error",
+                    description=f"Error: {data['error']}",
+                    color=0xFF0000
+                )
+                await ctx.send(embed=embed)
+                return
+
+            # Process and display search results
+            search_results = data.get("image_results", [])
+            if search_results:
+                results = ""
+                for idx, result in enumerate(search_results, start=1):
+                    results += f"[{idx}] [{result.get('title', 'No Title')}]({result.get('link', '')})\n"
+
+                embed = Embed(
+                    title="🔍 Reverse Image Search Results",
+                    description=results,
+                    color=0x00FF00
+                )
+                await ctx.send(embed=embed)
+            else:
+                embed = Embed(
+                    title="No Matches Found",
+                    description="No matches were found for the provided image.",
+                    color=0xFFA500
+                )
+                await ctx.send(embed=embed)
+
+        except aiohttp.ClientError as e:
+            # Handle network-related errors
             embed = Embed(
-                title="Error",
-                description=f"Error: {data['error']}",
+                title="Network Error",
+                description=f"An error occurred while contacting the API: {str(e)}",
                 color=0xFF0000
             )
             await ctx.send(embed=embed)
-            return
-
-        # Process and display search results
-        search_results = data.get("image_results", [])
-        if search_results:
-            results = ""
-            for idx, result in enumerate(search_results, start=1):
-                results += f"[{idx}] [{result.get('title', 'No Title')}]({result.get('link', '')})\n"
-
+        except Exception as e:
+            # Handle any other unexpected errors
             embed = Embed(
-                title="🔍 Reverse Image Search Results",
-                description=results,
-                color=0x00FF00
-            )
-            await ctx.send(embed=embed)
-        else:
-            embed = Embed(
-                title="No Matches Found",
-                description="No matches were found for the provided image.",
-                color=0xFFA500
+                title="Unexpected Error",
+                description=f"An unexpected error occurred: {str(e)}",
+                color=0xFF0000
             )
             await ctx.send(embed=embed)
 

@@ -1,5 +1,14 @@
+# File: commands/suggest.py
+
+"""
+Suggestion Command: Manage and Submit Suggestions
+-------------------------------------------------
+A cog that handles suggestion-related commands such as setting the suggestion channel
+and submitting suggestions to it.
+"""
+
 from discord.ext import commands
-from discord import Embed, TextChannel, Member
+from discord import Embed, TextChannel
 from datetime import datetime
 from typing import Optional
 import random
@@ -7,17 +16,24 @@ import random
 
 class SuggestionCommands(commands.Cog):
     """
-    A cog to handle suggestion-related commands such as setting the suggestion channel
+    A cog that handles commands related to suggestions, including setting the suggestion channel
     and submitting suggestions.
     """
 
-    def __init__(self, client: commands.Bot, db_handler):
+    def __init__(self, client: commands.Bot, db_handler) -> None:
+        """
+        Initializes the SuggestionCommands cog.
+
+        Args:
+            client (commands.Bot): The bot instance to interact with Discord.
+            db_handler: The database handler for saving and retrieving suggestion data.
+        """
         self.client = client
         self.db_handler = db_handler
 
     @commands.command(aliases=["suggestion-channel"])
     @commands.has_any_role("owner", "head_staff")
-    async def suggestion_channel(self, ctx: commands.Context, channel: Optional[TextChannel] = None):
+    async def suggestion_channel(self, ctx: commands.Context, channel: Optional[TextChannel] = None) -> None:
         """
         Set or update the suggestion channel for the server.
 
@@ -54,7 +70,7 @@ class SuggestionCommands(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def suggest(self, ctx: commands.Context, *, suggestion: Optional[str] = None):
+    async def suggest(self, ctx: commands.Context, *, suggestion: Optional[str] = None) -> None:
         """
         Submit a suggestion to the configured suggestion channel.
 
@@ -117,7 +133,7 @@ class SuggestionCommands(commands.Cog):
         await ctx.send(embed=confirmation_embed)
 
 
-async def setup(client: commands.Bot, db_handler):
+async def setup(client: commands.Bot, db_handler) -> None:
     """
     Asynchronous setup function to add the cog to the bot.
 

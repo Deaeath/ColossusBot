@@ -1,3 +1,13 @@
+# File: commands/helpers/progress_bar.py
+
+"""
+ProgressBar Utility Class: Generate and Format Progress Bars
+------------------------------------------------------------
+This utility class allows for the creation of progress bars, useful for 
+displaying task progress in the Discord bot. It includes functionality 
+for both a basic progress bar and one that includes a percentage.
+"""
+
 class ProgressBar:
     """
     A utility class for generating progress bars.
@@ -28,8 +38,9 @@ class ProgressBar:
             raise ValueError("Current progress cannot exceed total.")
 
         progress = float(current) / float(self.total)
-        arrow = '♠️' * int(round(progress * self.bar_length))
-        spaces = '-' * (self.bar_length - len(arrow))
+        filled_length = int(round(progress * self.bar_length))
+        arrow = '#' * filled_length
+        spaces = '-' * (self.bar_length - filled_length)
         return f"[{arrow}{spaces}]"
 
     def with_percentage(self, current: int) -> str:
