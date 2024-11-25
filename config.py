@@ -39,3 +39,16 @@ DATABASE_CONFIG: Dict[str, Optional[str]] = {
     "user": os.getenv("DB_USER", "root"),
     "password": os.getenv("DB_PASSWORD", ""),
 }
+
+# Google Cloud Configuration
+GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY", "your-google-cloud-api-key")
+CX_ID: str = os.getenv("GOOGLE_CX_ID", "your-google-custom-search-api-key")
+
+# OCR Configuration
+OCR_SPACE_API_KEY: str = os.getenv("OCR_SPACE_API_KEY", "your-ocr-space-api-key")
+
+# SERP Configuration
+SERPAPI_KEY: str = os.getenv('SERPAPI_KEY', "your-serp-api-key")
+
+# X-RapidAPI Configuration
+RAPIDAPI_KEY: str = os.getenv("RAPIDAPI_KEY", "your-rapidapi-key")

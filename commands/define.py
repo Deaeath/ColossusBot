@@ -11,6 +11,7 @@ import discord
 from discord.ext import commands
 import requests
 import json
+import os
 from typing import Optional
 
 
@@ -42,8 +43,13 @@ class Define(commands.Cog):
             return
 
         url = "https://mashape-community-urban-dictionary.p.rapidapi.com/define"
+        api_key = os.getenv("RAPIDAPI_KEY")  # Fetch the RapidAPI key from environment variables
+        if not api_key:
+            await ctx.send("API key is missing. Please set the RAPIDAPI_KEY environment variable.")
+            return
+
         headers = {
-            'x-rapidapi-key': "YOUR_RAPIDAPI_KEY",  # Replace with your RapidAPI key
+            'x-rapidapi-key': api_key,
             'x-rapidapi-host': "mashape-community-urban-dictionary.p.rapidapi.com",
         }
 

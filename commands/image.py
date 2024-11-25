@@ -12,7 +12,9 @@ from discord import Embed, Message, Reaction, User
 from typing import Optional, Dict
 import asyncio
 import aiohttp
+import os
 import random
+
 
 
 class ImgCommand(commands.Cog):
@@ -20,8 +22,8 @@ class ImgCommand(commands.Cog):
     A Discord bot cog for performing Google image searches and returning paginated results.
     """
 
-    API_KEY = "YOUR_GOOGLE_API_KEY"  # Replace with your Google API key
-    CX_ID = "YOUR_CX_ID"  # Replace with your Custom Search Engine ID
+    GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+    CX_ID = os.getenv('GOOGLE_CX_ID')
 
     async def get_json(self, url: str) -> dict:
         """
@@ -66,7 +68,7 @@ class ImgCommand(commands.Cog):
         while start_index <= 100:
             api_url = (
                 f"https://www.googleapis.com/customsearch/v1"
-                f"?key={self.API_KEY}&cx={self.CX_ID}&searchType=image&safe={safety_level}&q={query}&start={start_index}"
+                f"?key={self.GOOGLE_API_KEY}&cx={self.CX_ID}&searchType=image&safe={safety_level}&q={query}&start={start_index}"
             )
             response = await self.get_json(api_url)
             try:

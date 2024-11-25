@@ -12,6 +12,7 @@ from discord.ext import commands
 from discord import Embed, Message
 from typing import Optional
 import aiohttp
+import os
 
 
 class CatfishCommand(commands.Cog):
@@ -19,7 +20,7 @@ class CatfishCommand(commands.Cog):
     A Discord bot cog for performing reverse image searches using SerpAPI.
     """
 
-    SERPAPI_KEY = "YOUR_SERPAPI_KEY"  # Replace with your SerpAPI key
+    SERPAPI_KEY = os.getenv('SERPAPI_KEY')
 
     @commands.command(aliases=["catfishcheck", "reverseimage"])
     async def catfish(self, ctx: commands.Context, image_url: Optional[str] = None) -> None:

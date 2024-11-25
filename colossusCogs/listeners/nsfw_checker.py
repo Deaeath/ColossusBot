@@ -48,7 +48,7 @@ class NSFWChecker(commands.Cog):
         self.client = client
         self.db_handler = db_handler
         self.nsfw_word_list = nsfw_words.nsfw_words
-        self.OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY")  # Ensure it's loaded from .env
+        self.OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY")
         print("NSFWChecker initialized.")
 
     async def on_message(self, message: discord.Message) -> None:
