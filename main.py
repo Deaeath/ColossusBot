@@ -7,6 +7,9 @@ Initializes the bot, sets up handlers, and starts the bot lifecycle.
 """
 
 import logging
+import os
+import traceback
+import asyncio
 from discord.ext.commands import Bot
 from config import BOT_TOKEN
 from handlers.client_handler import ClientHandler
@@ -27,7 +30,7 @@ logging.basicConfig(
 logger = logging.getLogger("ColossusBot")
 
 
-def main() -> None:
+async def main() -> None:
     """
     Main entry point for ColossusBot.
     Initializes the client, handlers, and starts the bot application.
@@ -65,7 +68,7 @@ def main() -> None:
         """
         logger.info(f"{client.user} has connected to Discord!")
         await setup_client()
-        
+
     async def load_cogs():
         """Load all stand-alone commands from the ./commands directory."""
         logger.info("[load_cogs] Loading cogs!")
@@ -84,13 +87,18 @@ def main() -> None:
     # Run the client
     try:
         logger.info("Starting ColossusBot...")
-        load_cogs()
-        client.run(BOT_TOKEN)
+        await load_cogs()
+        await client.start(BOT_TOKEN)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        traceback.print_exc()
     finally:
         # Close the database connection gracefully
         logger.info("Closing ColossusBot...")
-        database_handler.close()  # Await closing of database handler
+        await database_handler.close()
+        await client.close()
+        web_handler.stop()
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

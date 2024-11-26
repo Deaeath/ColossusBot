@@ -204,3 +204,14 @@ class WebHandler:
         thread.daemon = True
         thread.start()
         logger.info("Web interface is now running.")
+
+    def stop(self) -> None:
+        """
+        Stops the Flask app.
+        """
+        logger.info("Stopping web interface...")
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+        logger.info("Web interface stopped.")
