@@ -10,6 +10,7 @@ debugging and logging capabilities.
 import logging
 import os
 from flask import render_template, current_app
+from typing import Dict, Any
 
 # Configure logging for debugging
 logging.basicConfig(level=logging.DEBUG)
