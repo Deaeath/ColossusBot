@@ -13,6 +13,11 @@ import requests
 import json
 import os
 from typing import Optional
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class Define(commands.Cog):
@@ -28,6 +33,7 @@ class Define(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
+        logger.info("Define cog initialized.")
 
     @commands.command(name="define")
     async def define(self, ctx: commands.Context, term: Optional[str] = None) -> None:

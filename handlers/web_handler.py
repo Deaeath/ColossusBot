@@ -49,6 +49,7 @@ class WebHandler:
         logger.debug(f"Template directory set to: {template_dir}")
         logger.debug(f"Static directory set to: {static_dir}")
 
+        # Initialize Flask app with static and template folders
         self.app = Flask(
             __name__,
             static_folder=static_dir,
@@ -60,100 +61,111 @@ class WebHandler:
         """
         Sets up Flask routes for the web interface.
         """
-        @self.app.route('/')
-        def index() -> str:
-            """
-            Renders the dashboard home page.
-            """
-            logger.debug("Accessed '/' route for index.")
-            try:
-                return Renderer.render_index()
-            except Exception as e:
-                logger.error(f"Error rendering index page: {e}", exc_info=True)
-                return jsonify({"error": "Failed to load index page."}), 500
+        self._add_route('/', self.index)
+        self._add_route('/console', self.console)
+        self._add_route('/commands', self.commands)
+        self._add_route('/api/console', self.get_console_logs, methods=['GET'])
+        self._add_route('/api/commands', self.get_commands, methods=['GET'])
+        self._add_route('/api/status', self.get_status, methods=['GET'])
+        self._add_route('/api/action/<action>', self.trigger_action, methods=['POST'])
 
-        @self.app.route('/console')
-        def console() -> str:
-            """
-            Renders the console logs page.
-            """
-            logger.debug("Accessed '/console' route for console logs.")
-            try:
-                return Renderer.render_console()
-            except Exception as e:
-                logger.error(f"Error rendering console page: {e}", exc_info=True)
-                return jsonify({"error": "Failed to load console page."}), 500
+    def _add_route(self, route: str, view_func, methods: List[str] = ['GET']) -> None:
+        """
+        Helper function to add a route to the Flask app.
 
-        @self.app.route('/commands')
-        def commands() -> str:
-            """
-            Renders the commands page with dynamic commands data.
-            """
-            logger.debug("Accessed '/commands' route for commands page.")
-            try:
-                commands_metadata = self._fetch_commands_metadata()
-                return Renderer.render_commands(commands_metadata)
-            except Exception as e:
-                logger.error(f"Error rendering commands page: {e}", exc_info=True)
-                return jsonify({"error": "Failed to load commands page."}), 500
+        :param route: The route URL.
+        :param view_func: The view function to associate with the route.
+        :param methods: The HTTP methods allowed for this route.
+        """
+        self.app.route(route, methods=methods)(view_func)
 
-        @self.app.route('/api/console', methods=['GET'])
-        def get_console_logs() -> Dict[str, Any]:
-            """
-            API endpoint to fetch the latest console logs.
-            """
-            logger.debug("Accessed '/api/console' route to fetch console logs.")
-            return jsonify({"logs": self.console_buffer[-100:]})  # Return last 100 log entries
+    def index(self) -> str:
+        """
+        Renders the dashboard home page.
+        """
+        logger.debug("Accessed '/' route for index.")
+        try:
+            return Renderer.render_index()
+        except Exception as e:
+            logger.error(f"Error rendering index page: {e}", exc_info=True)
+            return jsonify({"error": "Failed to load index page."}), 500
 
-        @self.app.route('/api/commands', methods=['GET'])
-        def get_commands() -> Dict[str, Any]:
-            """
-            API endpoint to fetch the list of available commands and their metadata.
-            """
-            logger.debug("Accessed '/api/commands' route to fetch bot commands.")
+    def console(self) -> str:
+        """
+        Renders the console logs page.
+        """
+        logger.debug("Accessed '/console' route for console logs.")
+        try:
+            return Renderer.render_console()
+        except Exception as e:
+            logger.error(f"Error rendering console page: {e}", exc_info=True)
+            return jsonify({"error": "Failed to load console page."}), 500
+
+    def commands(self) -> str:
+        """
+        Renders the commands page with dynamic commands data.
+        """
+        logger.debug("Accessed '/commands' route for commands page.")
+        try:
             commands_metadata = self._fetch_commands_metadata()
-            return jsonify(commands_metadata)
+            return Renderer.render_commands(commands_metadata)
+        except Exception as e:
+            logger.error(f"Error rendering commands page: {e}", exc_info=True)
+            return jsonify({"error": "Failed to load commands page."}), 500
 
-        @self.app.route('/api/status', methods=['GET'])
-        def get_status() -> Dict[str, Any]:
-            """
-            API endpoint to fetch the bot's current status.
-            """
-            logger.debug("Accessed '/api/status' route to fetch bot status.")
-            return jsonify({
-                "status": "online" if self.client.is_ready() else "offline",
-                "guilds": len(self.client.guilds),
-                "latency": round(self.client.latency * 1000, 2),  # ms
-            })
+    def get_console_logs(self) -> Dict[str, Any]:
+        """
+        API endpoint to fetch the latest console logs.
+        """
+        logger.debug("Accessed '/api/console' route to fetch console logs.")
+        return jsonify({"logs": self.console_buffer[-100:]})  # Return last 100 log entries
 
-        @self.app.route('/api/action/<action>', methods=['POST'])
-        def trigger_action(action: str) -> Dict[str, Any]:
-            """
-            API endpoint to trigger specific bot actions.
+    def get_commands(self) -> Dict[str, Any]:
+        """
+        API endpoint to fetch the list of available commands and their metadata.
+        """
+        logger.debug("Accessed '/api/commands' route to fetch bot commands.")
+        commands_metadata = self._fetch_commands_metadata()
+        return jsonify(commands_metadata)
 
-            :param action: The action to trigger (e.g., restart, reload).
-            """
-            logger.debug(f"Accessed '/api/action/{action}' route to trigger an action.")
-            try:
-                if action == "restart":
-                    logger.info("Restart action triggered. Closing client.")
-                    # Assuming you have a mechanism to restart the bot after closing
-                    self.client.loop.create_task(self.client.close())
-                    return jsonify({"success": True, "result": "Client is restarting."})
-                elif action == "reload":
-                    cog_name = request.json.get("cog")
-                    if cog_name:
-                        logger.info(f"Reloading cog: {cog_name}")
-                        self.client.reload_extension(cog_name)
-                        return jsonify({"success": True, "result": f"Cog {cog_name} reloaded."})
-                    logger.warning("Reload action triggered without specifying a cog.")
-                    return jsonify({"success": False, "error": "No cog specified for reload."}), 400
-                else:
-                    logger.error(f"Unknown action attempted: {action}")
-                    raise ValueError(f"Unknown action: {action}")
-            except Exception as e:
-                logger.error(f"Error performing action '{action}': {e}", exc_info=True)
-                return jsonify({"success": False, "error": str(e)}), 400
+    def get_status(self) -> Dict[str, Any]:
+        """
+        API endpoint to fetch the bot's current status.
+        """
+        logger.debug("Accessed '/api/status' route to fetch bot status.")
+        return jsonify({
+            "status": "online" if self.client.is_ready() else "offline",
+            "guilds": len(self.client.guilds),
+            "latency": round(self.client.latency * 1000, 2),  # ms
+        })
+
+    def trigger_action(self, action: str) -> Dict[str, Any]:
+        """
+        API endpoint to trigger specific bot actions.
+
+        :param action: The action to trigger (e.g., restart, reload).
+        """
+        logger.debug(f"Accessed '/api/action/{action}' route to trigger an action.")
+        try:
+            if action == "restart":
+                logger.info("Restart action triggered. Closing client.")
+                # Assuming you have a mechanism to restart the bot after closing
+                self.client.loop.create_task(self.client.close())
+                return jsonify({"success": True, "result": "Client is restarting."})
+            elif action == "reload":
+                cog_name = request.json.get("cog")
+                if cog_name:
+                    logger.info(f"Reloading cog: {cog_name}")
+                    self.client.reload_extension(cog_name)
+                    return jsonify({"success": True, "result": f"Cog {cog_name} reloaded."})
+                logger.warning("Reload action triggered without specifying a cog.")
+                return jsonify({"success": False, "error": "No cog specified for reload."}), 400
+            else:
+                logger.error(f"Unknown action attempted: {action}")
+                raise ValueError(f"Unknown action: {action}")
+        except Exception as e:
+            logger.error(f"Error performing action '{action}': {e}", exc_info=True)
+            return jsonify({"success": False, "error": str(e)}), 400
 
     def _fetch_commands_metadata(self) -> Dict[str, Any]:
         """

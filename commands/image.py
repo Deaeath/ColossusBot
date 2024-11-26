@@ -14,7 +14,11 @@ import asyncio
 import aiohttp
 import os
 import random
+import logging
 
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class ImgCommand(commands.Cog):
@@ -24,6 +28,16 @@ class ImgCommand(commands.Cog):
 
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
     CX_ID = os.getenv('GOOGLE_CX_ID')
+
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initialize the ImgCommand cog.
+
+        Args:
+            client (commands.Bot): The bot instance.
+        """
+        self.client = client
+        logger.info("ImgCommand cog initialized.")
 
     async def get_json(self, url: str) -> dict:
         """

@@ -11,6 +11,11 @@ from discord.ext import commands
 from discord import Embed, Reaction, User
 from typing import Dict
 import random
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class KeyWordsCommand(commands.Cog):
@@ -26,6 +31,7 @@ class KeyWordsCommand(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
+        logging.info("KeyWordsCommand cog initialized.")
 
     @commands.command(aliases=["key-words"])
     @commands.has_any_role("owner", "head_staff")

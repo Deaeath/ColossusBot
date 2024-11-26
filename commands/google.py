@@ -12,12 +12,24 @@ from discord import Embed
 from typing import Optional
 from googlesearch import search
 import random
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class Google(commands.Cog):
     """
     A Discord bot cog for performing Google searches and returning the top results.
     """
+
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initializes the Google cog.
+        """
+        self.client = client
+        logger.info("Google cog initialized.")
 
     @commands.command(aliases=["google", "googlesearch"])
     async def goog(self, ctx: commands.Context, *, query: Optional[str] = None) -> None:

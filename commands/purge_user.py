@@ -10,6 +10,11 @@ from discord.ext import commands
 from discord import Guild, Embed, Member, TextChannel
 from typing import Callable, Dict, Optional
 import discord
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class PurgeMessages(commands.Cog):
@@ -25,6 +30,7 @@ class PurgeMessages(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
+        logging.info("PurgeMessages cog initialized.")
 
     async def purge_messages_from_user(
         self,

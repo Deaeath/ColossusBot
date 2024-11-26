@@ -12,6 +12,12 @@ from discord import Embed
 import wikipedia
 from typing import Optional
 import random
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 class WikiCommand(commands.Cog):
     """
@@ -33,6 +39,7 @@ class WikiCommand(commands.Cog):
             client (commands.Bot): The instance of the Discord bot client.
         """
         self.client = client
+        logging.info("WikiCommand cog initialized.")
 
     @commands.command(aliases=["wikipedia"])
     async def wiki(self, ctx: commands.Context, *, term: Optional[str] = None) -> None:

@@ -8,15 +8,17 @@ VoteCommands: Handles Voting Features
 Provides commands for users to vote for the server and check their vote status.
 """
 
-import logging
 import random
 from datetime import datetime
 from typing import Optional
+import logging
 
 from discord import Embed, Member
 from discord.ext import commands
 
-logger = logging.getLogger("ColossusBot")
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class VoteCommands(commands.Cog):
@@ -34,6 +36,7 @@ class VoteCommands(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
+        logging.info("VoteCommands cog initialized.")
 
     @commands.command(name="vote", help="Get the link to vote for the server.")
     async def vote(self, ctx: commands.Context) -> None:

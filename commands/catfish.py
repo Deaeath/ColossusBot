@@ -13,7 +13,11 @@ from discord import Embed, Message
 from typing import Optional
 import aiohttp
 import os
+import logging
 
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class CatfishCommand(commands.Cog):
     """
@@ -21,6 +25,16 @@ class CatfishCommand(commands.Cog):
     """
 
     SERPAPI_KEY = os.getenv('SERPAPI_KEY')
+    
+    def __init__(self, client: commands.Bot) -> None:
+        """
+        Initialize the CatfishCommand cog.
+        
+        Args:
+            self: The CatfishCommand instance.
+        """
+        self.client = client
+        logger.info("CatfishCommand cog initialized.")
 
     @commands.command(aliases=["catfishcheck", "reverseimage"])
     async def catfish(self, ctx: commands.Context, image_url: Optional[str] = None) -> None:

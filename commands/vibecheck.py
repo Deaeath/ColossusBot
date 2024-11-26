@@ -15,6 +15,11 @@ import asyncio
 import random
 import json
 from vaderSentiment import SentimentIntensityAnalyzer
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class VibeCheckCommand(commands.Cog):
@@ -30,6 +35,7 @@ class VibeCheckCommand(commands.Cog):
             client (commands.Bot): The bot instance to associate with the command.
         """
         self.client = client
+        logging.info("VibeCheckCommand cog initialized.")
 
     @commands.command()
     @commands.has_any_role("owner", "head_staff", "moderator", "administrator")

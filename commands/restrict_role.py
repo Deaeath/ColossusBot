@@ -9,6 +9,11 @@ A cog for restricting a role to view only one specific channel in the server.
 import discord
 from discord.ext import commands
 from typing import Optional
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class RestrictRole(commands.Cog):
@@ -24,6 +29,7 @@ class RestrictRole(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
+        logger.info("RestrictRole cog initialized.")
 
     @commands.command(name="restrict_role")
     @commands.has_permissions(administrator=True)

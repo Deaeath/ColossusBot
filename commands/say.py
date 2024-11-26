@@ -10,6 +10,11 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from typing import Optional
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class SayCommand(commands.Cog):
@@ -25,6 +30,7 @@ class SayCommand(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
+        logging.info("SayCommand cog initialized.")
 
     @commands.command(
         help="Sends a message to a specified channel.",

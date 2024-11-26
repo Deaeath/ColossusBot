@@ -12,6 +12,11 @@ from discord import Embed, TextChannel
 from datetime import datetime
 from typing import Optional
 import random
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class SuggestionCommands(commands.Cog):
@@ -30,6 +35,7 @@ class SuggestionCommands(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
+        logging.info("SuggestionCommands cog initialized.")
 
     @commands.command(aliases=["suggestion-channel"])
     @commands.has_any_role("owner", "head_staff")

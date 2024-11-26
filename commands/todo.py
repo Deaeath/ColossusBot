@@ -9,7 +9,11 @@ A cog to manage a user's personal to-do list. Users can add, remove, and list it
 import discord
 from discord.ext import commands
 from typing import Optional, List
+import logging
 
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 class Todo(commands.Cog):
     """
@@ -26,6 +30,7 @@ class Todo(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
+        logging.info("Todo cog initialized.")
 
     @commands.command(name="todo")
     async def todo(self, ctx: commands.Context, action: Optional[str] = None, *, message: Optional[str] = None) -> None:

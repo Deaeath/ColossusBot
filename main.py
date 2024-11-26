@@ -15,8 +15,6 @@ from handlers.event_handler import EventsHandler
 from handlers.commands_handler import CommandsHandler
 from handlers.web_handler import WebHandler
 
-print(BOT_TOKEN)
-
 # Configure Logging
 logging.basicConfig(
     level=logging.INFO,
