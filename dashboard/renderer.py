@@ -70,3 +70,20 @@ class Renderer:
         except Exception as e:
             logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
             raise
+
+    @staticmethod
+    def render_commands(commands: Dict[str, Any]) -> str:
+        """
+        Renders the commands page with dynamic commands data.
+
+        :param commands: A dictionary containing command metadata.
+        :return: Rendered HTML for the commands page.
+        """
+        template_name = "commands.html"
+        Renderer._log_debug_info(template_name)
+        try:
+            logger.info(f"Rendering template: {template_name}")
+            return render_template(template_name, commands=commands)
+        except Exception as e:
+            logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
+            raise

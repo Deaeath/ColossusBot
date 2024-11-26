@@ -84,6 +84,19 @@ class WebHandler:
                 logger.error(f"Error rendering console page: {e}", exc_info=True)
                 return jsonify({"error": "Failed to load console page."}), 500
 
+        @self.app.route('/commands')
+        def commands() -> str:
+            """
+            Renders the commands page with dynamic commands data.
+            """
+            logger.debug("Accessed '/commands' route for commands page.")
+            try:
+                commands_metadata = self._fetch_commands_metadata()
+                return Renderer.render_commands(commands_metadata)
+            except Exception as e:
+                logger.error(f"Error rendering commands page: {e}", exc_info=True)
+                return jsonify({"error": "Failed to load commands page."}), 500
+
         @self.app.route('/api/console', methods=['GET'])
         def get_console_logs() -> Dict[str, Any]:
             """
@@ -98,14 +111,7 @@ class WebHandler:
             API endpoint to fetch the list of available commands and their metadata.
             """
             logger.debug("Accessed '/api/commands' route to fetch bot commands.")
-            commands_metadata = {}
-            for cog_name, cog in self.client.cogs.items():
-                for command in cog.get_commands():
-                    commands_metadata[command.name] = {
-                        "description": command.help or "No description provided.",
-                        "example": command.usage or "No example available.",
-                        "arguments": [str(arg) for arg in command.clean_params],
-                    }
+            commands_metadata = self._fetch_commands_metadata()
             return jsonify(commands_metadata)
 
         @self.app.route('/api/status', methods=['GET'])
@@ -115,7 +121,7 @@ class WebHandler:
             """
             logger.debug("Accessed '/api/status' route to fetch bot status.")
             return jsonify({
-                "status": "online",
+                "status": "online" if self.client.is_ready() else "offline",
                 "guilds": len(self.client.guilds),
                 "latency": round(self.client.latency * 1000, 2),  # ms
             })
@@ -131,6 +137,7 @@ class WebHandler:
             try:
                 if action == "restart":
                     logger.info("Restart action triggered. Closing client.")
+                    # Assuming you have a mechanism to restart the bot after closing
                     self.client.loop.create_task(self.client.close())
                     return jsonify({"success": True, "result": "Client is restarting."})
                 elif action == "reload":
@@ -147,6 +154,27 @@ class WebHandler:
             except Exception as e:
                 logger.error(f"Error performing action '{action}': {e}", exc_info=True)
                 return jsonify({"success": False, "error": str(e)}), 400
+
+    def _fetch_commands_metadata(self) -> Dict[str, Any]:
+        """
+        Retrieves the commands metadata from the bot's cogs.
+
+        :return: A dictionary containing commands and their metadata.
+        """
+        logger.debug("Fetching commands metadata from bot's cogs.")
+        commands_metadata = {}
+        try:
+            for cog_name, cog in self.client.cogs.items():
+                for command in cog.get_commands():
+                    commands_metadata[command.name] = {
+                        "description": command.help or "No description provided.",
+                        "usage": command.usage or "No usage provided.",
+                        "permissions": ", ".join([perm for perm in getattr(command, 'permissions', ['Default'])]),
+                    }
+            logger.debug("Successfully fetched commands metadata.")
+        except Exception as e:
+            logger.error(f"Error fetching commands metadata: {e}", exc_info=True)
+        return commands_metadata
 
     def run(self) -> None:
         """

@@ -1,0 +1,33 @@
+<!-- File: dashboard/templates/commands.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h2 class="mb-4">Available Commands</h2>
+    {% if commands %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Command</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Usage</th>
+                        <th scope="col">Permissions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, command in commands.items() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td>{{ command.description }}</td>
+                            <td><code>{{ command.usage }}</code></td>
+                            <td>{{ command.permissions }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No commands available at the moment.</p>
+    {% endif %}
+{% endblock %}
