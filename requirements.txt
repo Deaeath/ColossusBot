@@ -1,4 +1,5 @@
 aiohttp
+aiomysql
 aiosqlite
 asyncio
 discord
