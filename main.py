@@ -65,10 +65,26 @@ def main() -> None:
         """
         logger.info(f"{client.user} has connected to Discord!")
         await setup_client()
+        
+    async def load_cogs():
+        """Load all stand-alone commands from the ./commands directory."""
+        logger.info("[load_cogs] Loading cogs!")
+        for root, dirs, files in os.walk('./commands'):
+            for filename in files:
+                if filename.endswith('.py') and not filename.endswith('Config.py'):
+                    cog_path = f'commands.{filename[:-3]}'
+                    try:
+                        await client.load_extension(cog_path)
+                        logger.info(f'[load_cogs] {filename} loaded successfully.')
+                    except Exception as e:
+                        logger.error(f"[load_cogs] Failed to load {filename}: {e}")
+                        traceback.print_exc()
+        logger.info("[load_cogs] All cogs loaded!\n")
 
     # Run the client
     try:
         logger.info("Starting ColossusBot...")
+        load_cogs()
         client.run(BOT_TOKEN)
     finally:
         # Close the database connection gracefully
