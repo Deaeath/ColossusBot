@@ -4,14 +4,16 @@
  * State for managing auto-scroll functionality in the console log viewer.
  */
 let autoScroll = true;
+let isFetching = false;
 
 /**
  * Toggles the auto-scroll feature on or off and updates the button label.
  */
-function toggleAutoScroll() {
+export function toggleAutoScroll() {
     autoScroll = !autoScroll;
     const button = document.getElementById('toggleButton');
     button.textContent = autoScroll ? 'Disable Autoscroll' : 'Enable Autoscroll';
+    button.setAttribute('aria-pressed', autoScroll);
 }
 
 /**
@@ -21,7 +23,12 @@ function toggleAutoScroll() {
 function showLoading(show) {
     const consoleOutput = document.getElementById('consoleOutput');
     if (show) {
-        consoleOutput.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>';
+        consoleOutput.innerHTML = `
+            <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>`;
     }
 }
 
@@ -57,7 +64,9 @@ function updateConsoleLogs(logs) {
 /**
  * Fetches the latest console logs from the server and updates the console log viewer.
  */
-async function fetchConsoleLogs() {
+export async function fetchConsoleLogs() {
+    if (isFetching) return; // Prevent overlapping fetches
+    isFetching = true;
     try {
         showLoading(true);
         const response = await fetch('/api/console');
@@ -71,10 +80,11 @@ async function fetchConsoleLogs() {
         displayError(`Failed to fetch console logs: ${error.message}`);
     } finally {
         showLoading(false);
+        isFetching = false;
     }
 }
 
-// Event listener for DOM content loaded to initiate log fetching and set interval
+// Initialize log fetching on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
     fetchConsoleLogs(); // Initial fetch
     setInterval(fetchConsoleLogs, 5000); // Fetch every 5 seconds
