@@ -20,7 +20,7 @@ class WebHandler:
     A handler for managing the web interface of ColossusBot.
     """
 
-    def __init__(self, bot: Any, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8049) -> None:
+    def __init__(self, bot: Any, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8119) -> None:
         """
         Initializes the WebHandler.
 
