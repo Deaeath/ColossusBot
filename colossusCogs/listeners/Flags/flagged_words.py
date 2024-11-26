@@ -1,4 +1,4 @@
-# colossusCogs/listeners/Flags/flagged_words.py
+# colossusCogs/listeners/flags/flagged_words.py
 
 """
 Flagged Words List for ColossusBot

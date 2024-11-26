@@ -11,7 +11,7 @@ Staff actions include warning, muting, kicking, or banning the user based on the
 import discord
 from discord.ext import commands
 import re
-from flags.flagged_words import flagged_phrases
+from colossusCogs.listeners.flags.flagged_words import flagged_phrases
 from handlers.database_handler import DatabaseHandler
 from typing import Optional, Tuple, Union
 import logging

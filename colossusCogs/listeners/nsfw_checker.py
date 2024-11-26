@@ -30,7 +30,7 @@ from handlers.database_handler import DatabaseHandler
 from PIL import Image
 import io
 import re
-from flags.nsfw_words import nsfw_words
+from colossusCogs.listeners.flags.nsfw_words import nsfw_words
 import os
 import logging
 

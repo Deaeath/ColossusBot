@@ -1,4 +1,4 @@
-# colossusCogs/listeners/Flags/nsfw_words.py
+# colossusCogs/listeners/flags/nsfw_words.py
 
 """
 NSFW Words List for ColossusBot
