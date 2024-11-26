@@ -37,7 +37,7 @@ class Renderer:
             else:
                 logger.warning("No active Flask application context detected.")
         except Exception as e:
-            logger.error(f"Error while logging template debug info: {e}")
+            logger.error(f"Error while logging template debug info: {e}", exc_info=True)
 
     @staticmethod
     def render_index() -> str:
@@ -52,8 +52,7 @@ class Renderer:
             logger.info(f"Rendering template: {template_name}")
             return render_template(template_name)
         except Exception as e:
-            logger.error(f"Failed to render template '{template_name}': {e}")
-            logger.debug("Detailed Error Traceback:", exc_info=True)
+            logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
             raise
 
     @staticmethod
@@ -69,6 +68,5 @@ class Renderer:
             logger.info(f"Rendering template: {template_name}")
             return render_template(template_name)
         except Exception as e:
-            logger.error(f"Failed to render template '{template_name}': {e}")
-            logger.debug("Detailed Error Traceback:", exc_info=True)
+            logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
             raise

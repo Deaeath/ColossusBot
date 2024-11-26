@@ -6,9 +6,10 @@ WebHandler: Middleware Between Backend and Dashboard
 Provides Flask routes to serve the dashboard and backend data for ColossusBot.
 """
 
+import os
+import logging
 from flask import Flask, jsonify, request
 from threading import Thread
-import logging
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer
 
@@ -35,10 +36,23 @@ class WebHandler:
         self.console_buffer = console_buffer
         self.host = host
         self.port = port
+
+        # Determine the absolute paths for templates and static folders
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        template_dir = os.path.join(current_dir, '..', 'dashboard', 'templates')
+        static_dir = os.path.join(current_dir, '..', 'dashboard', 'static')
+
+        # Normalize paths
+        template_dir = os.path.normpath(template_dir)
+        static_dir = os.path.normpath(static_dir)
+
+        logger.debug(f"Template directory set to: {template_dir}")
+        logger.debug(f"Static directory set to: {static_dir}")
+
         self.app = Flask(
             __name__,
-            static_folder="dashboard/static",
-            template_folder="dashboard/templates",
+            static_folder=static_dir,
+            template_folder=template_dir,
         )
         self._setup_routes()
 
@@ -55,7 +69,7 @@ class WebHandler:
             try:
                 return Renderer.render_index()
             except Exception as e:
-                logger.error(f"Error rendering index page: {e}")
+                logger.error(f"Error rendering index page: {e}", exc_info=True)
                 return jsonify({"error": "Failed to load index page."}), 500
 
         @self.app.route('/console')
@@ -67,7 +81,7 @@ class WebHandler:
             try:
                 return Renderer.render_console()
             except Exception as e:
-                logger.error(f"Error rendering console page: {e}")
+                logger.error(f"Error rendering console page: {e}", exc_info=True)
                 return jsonify({"error": "Failed to load console page."}), 500
 
         @self.app.route('/api/console', methods=['GET'])
@@ -116,18 +130,22 @@ class WebHandler:
             logger.debug(f"Accessed '/api/action/{action}' route to trigger an action.")
             try:
                 if action == "restart":
+                    logger.info("Restart action triggered. Closing client.")
                     self.client.loop.create_task(self.client.close())
                     return jsonify({"success": True, "result": "Client is restarting."})
                 elif action == "reload":
                     cog_name = request.json.get("cog")
                     if cog_name:
+                        logger.info(f"Reloading cog: {cog_name}")
                         self.client.reload_extension(cog_name)
                         return jsonify({"success": True, "result": f"Cog {cog_name} reloaded."})
+                    logger.warning("Reload action triggered without specifying a cog.")
                     return jsonify({"success": False, "error": "No cog specified for reload."}), 400
                 else:
+                    logger.error(f"Unknown action attempted: {action}")
                     raise ValueError(f"Unknown action: {action}")
             except Exception as e:
-                logger.error(f"Error performing action '{action}': {e}")
+                logger.error(f"Error performing action '{action}': {e}", exc_info=True)
                 return jsonify({"success": False, "error": str(e)}), 400
 
     def run(self) -> None:
