@@ -3,7 +3,8 @@
 """
 Renderer: Renders HTML Templates for the Dashboard
 --------------------------------------------------
-Provides a clean interface for rendering dashboard templates.
+Provides a clean interface for rendering dashboard templates with detailed
+debugging and logging capabilities.
 """
 
 import logging
