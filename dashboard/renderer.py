@@ -1,11 +1,18 @@
+# File: dashboard/renderer.py
+
 """
 Renderer: Renders HTML Templates for the Dashboard
 --------------------------------------------------
 Provides a clean interface for rendering dashboard templates.
 """
 
+import logging
 import os
 from flask import render_template, current_app
+
+# Configure logging for debugging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class Renderer:
@@ -14,19 +21,22 @@ class Renderer:
     """
 
     @staticmethod
-    def log_template_info(template_name: str):
+    def _log_debug_info(template_name: str):
         """
-        Logs debugging information about template loading.
+        Logs debugging information about the template rendering process.
 
         :param template_name: Name of the template being rendered.
         """
         try:
-            print(f"Attempting to render template: {template_name}")
-            print(f"Current Working Directory: {os.getcwd()}")
-            print(f"Configured Template Folder: {current_app.template_folder}")
-            print(f"Available Templates: {current_app.jinja_env.list_templates()}")
+            logger.debug(f"Attempting to render template: {template_name}")
+            logger.debug(f"Current Working Directory: {os.getcwd()}")
+            if current_app:
+                logger.debug(f"Configured Template Folder: {current_app.template_folder}")
+                logger.debug(f"Available Templates: {current_app.jinja_env.list_templates()}")
+            else:
+                logger.warning("No active Flask application context detected.")
         except Exception as e:
-            print(f"Error while logging template information: {e}")
+            logger.error(f"Error while logging template debug info: {e}")
 
     @staticmethod
     def render_index() -> str:
@@ -35,8 +45,15 @@ class Renderer:
 
         :return: Rendered HTML for the index page.
         """
-        Renderer.log_template_info("index.html")
-        return render_template("index.html")
+        template_name = "index.html"
+        Renderer._log_debug_info(template_name)
+        try:
+            logger.info(f"Rendering template: {template_name}")
+            return render_template(template_name)
+        except Exception as e:
+            logger.error(f"Failed to render template '{template_name}': {e}")
+            logger.debug("Detailed Error Traceback:", exc_info=True)
+            raise
 
     @staticmethod
     def render_console() -> str:
@@ -45,5 +62,12 @@ class Renderer:
 
         :return: Rendered HTML for the console logs page.
         """
-        Renderer.log_template_info("console.html")
-        return render_template("console.html")
+        template_name = "console.html"
+        Renderer._log_debug_info(template_name)
+        try:
+            logger.info(f"Rendering template: {template_name}")
+            return render_template(template_name)
+        except Exception as e:
+            logger.error(f"Failed to render template '{template_name}': {e}")
+            logger.debug("Detailed Error Traceback:", exc_info=True)
+            raise
