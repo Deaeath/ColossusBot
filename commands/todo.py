@@ -78,12 +78,13 @@ class Todo(commands.Cog):
                 await ctx.send(f"Your Todo List:\n{formatted_list}")
 
 
-async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
+async def setup(client: commands.Bot) -> None:
     """
     Loads the Todo cog.
 
     Args:
         client (commands.Bot): The bot instance.
     """
+    db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(Todo(client, client.db_handler))
     logging.info("Todo cog loaded successfully.")

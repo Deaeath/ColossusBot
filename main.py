@@ -73,6 +73,8 @@ async def main() -> None:
         """Load all stand-alone commands from the ./commands directory."""
         logger.info("[load_cogs] Loading cogs!")
         for root, dirs, files in os.walk('./commands'):
+            if 'helpers' in dirs:
+                dirs.remove('helpers')
             for filename in files:
                 if filename.endswith('.py') and not filename.endswith('Config.py'):
                     cog_path = f'commands.{filename[:-3]}'

@@ -140,7 +140,7 @@ class SuggestionCommands(commands.Cog):
         await ctx.send(embed=confirmation_embed)
 
 
-async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
+async def setup(client: commands.Bot) -> None:
     """
     Asynchronous setup function to add the cog to the bot.
 
@@ -148,5 +148,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
         client (commands.Bot): The bot instance.
         db_handler: The database handler instance.
     """
+    db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(SuggestionCommands(client, db_handler))
     logging.info("SuggestionCommands cog loaded")

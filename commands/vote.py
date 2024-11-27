@@ -11,6 +11,7 @@ Provides commands for users to vote for the server and check their vote status.
 import random
 from datetime import datetime
 from typing import Optional
+from handlers.database_handler import DatabaseHandler
 import logging
 
 from discord import Embed, Member
@@ -26,7 +27,7 @@ class VoteCommands(commands.Cog):
     A cog to handle voting commands, allowing users to vote and check their vote status.
     """
 
-    def __init__(self, client: commands.Bot, db_handler):
+    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
         """
         Initializes the VoteCommands cog.
 
@@ -127,6 +128,6 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
-    db_handler = client.db_handler  # Replace with the actual database handler
+    db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(VoteCommands(client, db_handler))
     logger.info("VoteCommands cog added successfully.")
