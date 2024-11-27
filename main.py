@@ -103,7 +103,7 @@ async def load_cogs(client: Bot):
                 cog_path = f'commands.{filename[:-3]}'
                 try:
                     await client.load_extension(cog_path)
-                    logger.info(f'[load_cogs] {filename} loaded successfully.')
+                    # logger.info(f'[load_cogs] {filename} loaded successfully.')
                 except Exception as e:
                     logger.error(f"[load_cogs] Failed to load {filename}: {e}")
                     traceback.print_exc()
