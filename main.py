@@ -41,55 +41,45 @@ async def main() -> None:
     client_handler: ClientHandler = ClientHandler()
     client: Bot = client_handler.get_client()
 
-    database_handler: DatabaseHandler = DatabaseHandler(client_handler.get_database_config())
+    database_config = client_handler.get_database_config()
+    database_handler: DatabaseHandler = DatabaseHandler(database_config)
     web_handler: WebHandler = WebHandler(client, client_handler.console_buffer)
     event_handler: EventsHandler = EventsHandler(client, database_handler)
     commands_handler: CommandsHandler = CommandsHandler(client, database_handler)
 
-    async def setup_client() -> None:
-        """
-        Asynchronous client setup for initializing the database and loading extensions.
-        """
-        logger.info("Setting up client...")
-        await database_handler.connect()
-        await database_handler.setup()
+    # Attach database_handler to client
+    client.db_handler = database_handler
 
-        # Register Handlers as cogs
-        await client.add_cog(event_handler)
-        await client.add_cog(commands_handler)
+    # Connect to the database
+    logger.info("Connecting to the database...")
+    await database_handler.connect()
+    await database_handler.setup()
+    logger.info("Database connected and setup completed.")
 
-        # Start the web interface
-        web_handler.start()
+    # Register Handlers as cogs
+    await client.add_cog(event_handler)
+    await client.add_cog(commands_handler)
+    logger.info("Registered event_handler and commands_handler cogs.")
 
+    # Load cogs
+    await load_cogs(client)
+
+    # Start the web interface
+    web_handler.start()
+    logger.info("Web interface started.")
+
+    # Define on_ready event
     @client.event
     async def on_ready() -> None:
         """
         Triggered when the bot successfully connects to Discord.
         """
         logger.info(f"{client.user} has connected to Discord!")
-        await setup_client()
-
-    async def load_cogs():
-        """Load all stand-alone commands from the ./commands directory."""
-        logger.info("[load_cogs] Loading cogs!")
-        for root, dirs, files in os.walk('./commands'):
-            if 'helpers' in dirs:
-                dirs.remove('helpers')
-            for filename in files:
-                if filename.endswith('.py') and not filename.endswith('Config.py'):
-                    cog_path = f'commands.{filename[:-3]}'
-                    try:
-                        await client.load_extension(cog_path)
-                        logger.info(f'[load_cogs] {filename} loaded successfully.')
-                    except Exception as e:
-                        logger.error(f"[load_cogs] Failed to load {filename}: {e}")
-                        traceback.print_exc()
-        logger.info("[load_cogs] All cogs loaded!\n")
+        # Additional actions can be performed here if needed
 
     # Run the client
     try:
         logger.info("Starting ColossusBot...")
-        await load_cogs()
         await client.start(BOT_TOKEN)
     except Exception as e:
         logger.error(f"An error occurred: {e}")
@@ -100,6 +90,24 @@ async def main() -> None:
         await database_handler.close()
         await client.close()
         web_handler.stop()
+
+
+async def load_cogs(client: Bot):
+    """Load all stand-alone commands from the ./commands directory."""
+    logger.info("[load_cogs] Loading cogs!")
+    for root, dirs, files in os.walk('./commands'):
+        if 'helpers' in dirs:
+            dirs.remove('helpers')  # Prevents walking into 'helpers' directories
+        for filename in files:
+            if filename.endswith('.py') and not filename.endswith('Config.py'):
+                cog_path = f'commands.{filename[:-3]}'
+                try:
+                    await client.load_extension(cog_path)
+                    logger.info(f'[load_cogs] {filename} loaded successfully.')
+                except Exception as e:
+                    logger.error(f"[load_cogs] Failed to load {filename}: {e}")
+                    traceback.print_exc()
+    logger.info("[load_cogs] All cogs loaded!\n")
 
 
 if __name__ == "__main__":

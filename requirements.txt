@@ -9,6 +9,7 @@ googlesearch
 numpy
 openai>=1.0.0
 pillow
+PyNaCl
 python-dotenv
 vaderSentiment
 wikipedia
