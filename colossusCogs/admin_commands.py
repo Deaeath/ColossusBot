@@ -17,6 +17,11 @@ import discord
 import random
 from typing import Optional
 from handlers.database_handler import DatabaseHandler
+import logging
+
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class AdminCommands(commands.Cog):
@@ -33,6 +38,7 @@ class AdminCommands(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
+        logging.info("AdminCommands cog initialized.")
 
     async def cog_load(self) -> None:
         """Handles logic to execute when the cog is loaded."""
@@ -122,14 +128,11 @@ class AdminCommands(commands.Cog):
         return await self.db_handler.fetch_warnings(member)
 
 
-async def setup(client: commands.Bot) -> None:
+async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     Registers the AdminCommands cog with the bot.
 
     :param client: The Discord bot client instance.
     """
-    db_handler = DatabaseHandler({
-        "engine": "sqlite",  # Or MySQL config here
-        "database": "colossusbot.db"
-    })
     await client.add_cog(AdminCommands(client, db_handler))
+    logging.info("AdminCommands cog loaded successfully.")

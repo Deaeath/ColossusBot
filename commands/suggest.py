@@ -148,3 +148,4 @@ async def setup(client: commands.Bot, db_handler) -> None:
         db_handler: The database handler instance.
     """
     await client.add_cog(SuggestionCommands(client, db_handler))
+    logging.info("SuggestionCommands cog loaded")

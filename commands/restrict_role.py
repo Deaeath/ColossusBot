@@ -92,3 +92,4 @@ async def setup(client: commands.Bot) -> None:
         client (commands.Bot): The bot instance.
     """
     await client.add_cog(RestrictRole(client))
+    logging.info("RestrictRole cog loaded")

@@ -154,4 +154,4 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
-    await client.add_cog(CatfishCommand())
+    await client.add_cog(CatfishCommand(client))

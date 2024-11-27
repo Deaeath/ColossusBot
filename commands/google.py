@@ -92,4 +92,4 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
-    await client.add_cog(Google())
+    await client.add_cog(Google(client))

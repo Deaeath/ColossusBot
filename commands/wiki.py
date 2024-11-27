@@ -118,3 +118,4 @@ async def setup(client: commands.Bot) -> None:
         None
     """
     await client.add_cog(WikiCommand(client))
+    logging.info("Added WikiCommand cog to the bot.")

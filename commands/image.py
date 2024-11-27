@@ -156,4 +156,4 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
-    await client.add_cog(ImgCommand())
+    await client.add_cog(ImgCommand(client))

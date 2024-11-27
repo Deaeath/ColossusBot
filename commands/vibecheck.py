@@ -279,3 +279,4 @@ async def setup(client: commands.Bot) -> None:
         None: Adds the cog to the bot.
     """
     await client.add_cog(VibeCheckCommand(client))
+    logging.info("VibeCheckCommand cog loaded.")

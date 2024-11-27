@@ -85,3 +85,4 @@ async def setup(client: commands.Bot) -> None:
         client (commands.Bot): The bot instance.
     """
     await client.add_cog(Todo(client, client.db_handler))
+    logging.info("Todo cog loaded successfully.")
