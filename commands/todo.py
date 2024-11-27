@@ -9,6 +9,7 @@ A cog to manage a user's personal to-do list. Users can add, remove, and list it
 import discord
 from discord.ext import commands
 from typing import Optional, List
+from handlers.database_handler import DatabaseHandler
 import logging
 
 # Set up logger
@@ -20,7 +21,7 @@ class Todo(commands.Cog):
     A cog that manages a user's to-do list, allowing actions such as adding, removing, and listing tasks.
     """
 
-    def __init__(self, client: commands.Bot, db_handler) -> None:
+    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
         """
         Initializes the Todo cog.
 
@@ -77,7 +78,7 @@ class Todo(commands.Cog):
                 await ctx.send(f"Your Todo List:\n{formatted_list}")
 
 
-async def setup(client: commands.Bot) -> None:
+async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     Loads the Todo cog.
 

@@ -12,6 +12,7 @@ from discord import Embed, TextChannel
 from datetime import datetime
 from typing import Optional
 import random
+from handlers.database_handler import DatabaseHandler
 import logging
 
 # Set up logger
@@ -25,7 +26,7 @@ class SuggestionCommands(commands.Cog):
     and submitting suggestions.
     """
 
-    def __init__(self, client: commands.Bot, db_handler) -> None:
+    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
         """
         Initializes the SuggestionCommands cog.
 
@@ -139,7 +140,7 @@ class SuggestionCommands(commands.Cog):
         await ctx.send(embed=confirmation_embed)
 
 
-async def setup(client: commands.Bot, db_handler) -> None:
+async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     Asynchronous setup function to add the cog to the bot.
 

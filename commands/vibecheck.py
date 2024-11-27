@@ -14,7 +14,7 @@ from datetime import datetime
 import asyncio
 import random
 import json
-from vaderSentiment import SentimentIntensityAnalyzer
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import logging
 
 # Set up logger
