@@ -41,7 +41,7 @@ class CogTemplate(commands.Cog):
         self.client = client
         self.db_handler = db_handler
 
-    @commands.command(name="example", help="An example command with database integration.")
+    @commands.command(name="example", help="An example command with database integration.", usage="!example_command [input_text]")
     async def example_command(self, ctx: commands.Context) -> None:
         """
         Example command that inserts a record into the database.

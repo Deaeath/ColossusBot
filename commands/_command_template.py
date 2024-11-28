@@ -29,7 +29,7 @@ class CommandTemplate(commands.Cog):
         self.client = client
         logger.info("CommandTemplate initialized successfully.")
 
-    @commands.command(name="example", help="An example command to demonstrate functionality.")
+    @commands.command(name="example", help="An example command to demonstrate functionality.", usage="!example [input_text]")
     async def example_command(self, ctx: commands.Context, *, input_text: str = "Default Response") -> None:
         """
         Responds with a user-provided message or a default response.

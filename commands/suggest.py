@@ -78,7 +78,7 @@ class SuggestionCommands(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(help="Submit a suggestion to the configured suggestion channel.", usage="!suggest <suggestion>")
     async def suggest(self, ctx: commands.Context, *, suggestion: Optional[str] = None) -> None:
         """
         Submit a suggestion to the configured suggestion channel.
