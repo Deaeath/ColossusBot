@@ -36,7 +36,10 @@ class CatfishCommand(commands.Cog):
         self.client = client
         logger.info("CatfishCommand cog initialized.")
 
-    @commands.command(aliases=["catfishcheck", "reverseimage"])
+    @commands.command(
+        help="Perform a reverse image search using SerpAPI.",
+        usage="!catfish [image_url]",
+        aliases=["catfishcheck", "reverseimage"])
     async def catfish(self, ctx: commands.Context, image_url: Optional[str] = None) -> None:
         """
         Perform a reverse image search using SerpAPI.

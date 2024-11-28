@@ -82,8 +82,10 @@ class PurgeMessages(commands.Cog):
 
         return summary
 
-    @commands.command(name="purge_user")
-    @commands.has_any_role("owner", "head_staff", "moderator", "administrator")
+    @commands.command(name="purge_user",
+                      help="Purge messages from a specific user across all text channels.",
+                      usage="!purge_user <user_id>",)
+    @commands.has_permissions(manage_messages=True)
     async def purge_user(self, ctx: commands.Context, user_id: int) -> None:
         """
         A command to initiate the purge of messages from a specific user across all channels.

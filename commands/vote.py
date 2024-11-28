@@ -39,7 +39,7 @@ class VoteCommands(commands.Cog):
         self.db_handler = db_handler
         logging.info("VoteCommands cog initialized.")
 
-    @commands.command(name="vote", help="Get the link to vote for the server.")
+    @commands.command(name="vote", help="Get the link to vote for the server.", usage="!vote")
     async def vote(self, ctx: commands.Context) -> None:
         """
         Sends a link for the user to vote for the server.
@@ -59,7 +59,7 @@ class VoteCommands(commands.Cog):
         embed.set_footer(text="Thanks for voting for us!")
         await ctx.send(ctx.author.mention, embed=embed)
 
-    @commands.command(name="votes", help="Check your vote count and time until the next vote.")
+    @commands.command(name="votes", help="Check your vote count and time until the next vote.", usage="!votes [user]")
     async def votes(self, ctx: commands.Context, member: Optional[Member] = None) -> None:
         """
         Displays the number of votes a user has and the time until their next vote.

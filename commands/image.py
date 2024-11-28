@@ -53,7 +53,9 @@ class ImgCommand(commands.Cog):
             async with session.get(url) as response:
                 return await response.json()
 
-    @commands.command(aliases=["image"])
+    @commands.command(aliases=["image"],
+                      help="Perform a Google image search and display paginated results.",
+                      usage="!img <search_query>")
     async def img(self, ctx: commands.Context, *, query: Optional[str] = None) -> None:
         """
         Perform a Google image search and display paginated results.

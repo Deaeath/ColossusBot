@@ -38,8 +38,10 @@ class SuggestionCommands(commands.Cog):
         self.db_handler = db_handler
         logging.info("SuggestionCommands cog initialized.")
 
-    @commands.command(aliases=["suggestion-channel"])
-    @commands.has_any_role("owner", "head_staff")
+    @commands.command(aliases=["suggestion-channel"],
+                      help="Set or update the suggestion channel for the server.",
+                      usage="!suggestion_channel <#channel>")
+    @commands.has_permissions(manage_guild=True)
     async def suggestion_channel(self, ctx: commands.Context, channel: Optional[TextChannel] = None) -> None:
         """
         Set or update the suggestion channel for the server.

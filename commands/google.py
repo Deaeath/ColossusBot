@@ -31,7 +31,9 @@ class Google(commands.Cog):
         self.client = client
         logger.info("Google cog initialized.")
 
-    @commands.command(aliases=["google", "googlesearch"])
+    @commands.command(aliases=["google", "googlesearch"],
+                      help="Perform a Google search and return the top results.",
+                      usage="!goog <search_query>")
     async def goog(self, ctx: commands.Context, *, query: Optional[str] = None) -> None:
         """
         Perform a Google search and return the top results.

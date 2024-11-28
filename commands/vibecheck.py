@@ -37,7 +37,9 @@ class VibeCheckCommand(commands.Cog):
         self.client = client
         logging.info("VibeCheckCommand cog initialized.")
 
-    @commands.command()
+    @commands.command(aliases=["vibecheck"],
+                      help="Perform sentiment analysis on messages in a channel or from a specific user.",
+                      usage="!vibecheck <messageCount> <setup>")
     @commands.has_any_role("owner", "head_staff", "moderator", "administrator")
     async def vibecheck(
         self, ctx: commands.Context, messages_count: Optional[int] = None, *, setup: Optional[str] = None

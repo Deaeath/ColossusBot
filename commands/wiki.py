@@ -41,7 +41,9 @@ class WikiCommand(commands.Cog):
         self.client = client
         logging.info("WikiCommand cog initialized.")
 
-    @commands.command(aliases=["wikipedia"])
+    @commands.command(aliases=["wikipedia"],
+                      help="Search for a term on Wikipedia and return the page URL.",
+                      usage="!wiki <term>")
     async def wiki(self, ctx: commands.Context, *, term: Optional[str] = None) -> None:
         """
         Search for a term on Wikipedia and return the page URL. Suggest alternatives if the term is invalid.

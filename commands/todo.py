@@ -33,7 +33,9 @@ class Todo(commands.Cog):
         self.db_handler = db_handler
         logging.info("Todo cog initialized.")
 
-    @commands.command(name="todo")
+    @commands.command(name="todo",
+                      help="Manage your to-do list by adding, removing, or listing items.",
+                      usage="!todo <add|remove|list> [message]",)
     async def todo(self, ctx: commands.Context, action: Optional[str] = None, *, message: Optional[str] = None) -> None:
         """
         Manages the user's to-do list by allowing actions to add, remove, or list items.

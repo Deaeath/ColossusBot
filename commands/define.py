@@ -35,7 +35,10 @@ class Define(commands.Cog):
         self.client = client
         logger.info("Define cog initialized.")
 
-    @commands.command(name="define")
+    @commands.command(name="define",
+                      help="Fetch the definition of a term from Urban Dictionary.",
+                      usage="!define <term>",
+                      aliases=["definition"])
     async def define(self, ctx: commands.Context, term: Optional[str] = None) -> None:
         """
         Fetches the definition of a term from Urban Dictionary.

@@ -33,8 +33,9 @@ class KeyWordsCommand(commands.Cog):
         self.client = client
         logging.info("KeyWordsCommand cog initialized.")
 
-    @commands.command(aliases=["key-words"])
-    @commands.has_any_role("owner", "head_staff")
+    @commands.command(aliases=["key-words"],
+                      help="Display an interactive embed to explain and list available key words.",
+                      usage="!key-words")
     async def key_words(self, ctx: commands.Context) -> None:
         """
         Display an interactive embed to explain and list available key words.
