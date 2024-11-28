@@ -16,15 +16,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for name in commands.keys|sort %}
-                        {% with command=commands[name] %}
-                            <tr>
-                                <td>{{ name }}</td>
-                                <td>{{ command.description }}</td>
-                                <td><code>{{ command.usage }}</code></td>
-                                <td>{{ command.permissions }}</td>
-                            </tr>
-                        {% endwith %}
+                    {% for name, command in commands.items() %}
+                        <tr>
+                            <td>{{ name }}</td>
+                            <td>{{ command.description }}</td>
+                            <td><code>{{ command.usage }}</code></td>
+                            <td>{{ command.permissions }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
