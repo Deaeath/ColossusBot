@@ -512,6 +512,19 @@ class DatabaseHandler:
             return dict(zip(keys, row))
         return None
 
+    async def get_log_channel_id(self, guild_id: int) -> Optional[int]:
+        """
+        Retrieves the log_channel_id for a specific guild.
+
+        :param guild_id: ID of the guild.
+        :return: The log_channel_id if found, else None.
+        """
+        query = "SELECT log_channel_id FROM guild_config WHERE guild_id = ?"
+        result = await self.fetchone(query, (guild_id,))
+        if result:
+            return result[0]  # Assuming the first element is log_channel_id
+        return None
+    
     # ==================== AdminCommands Methods ========================
     
     async def log_warning(self, member: Member, reason: str) -> None:
