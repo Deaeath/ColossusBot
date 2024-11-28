@@ -52,7 +52,7 @@ class CommandTemplate(commands.Cog):
             logger.error(f"Error executing 'example_command': {str(e)}")
             await ctx.send("Oops! Something went wrong while processing your request.")
 
-    @commands.command(name="another_example", help="Another example command to show usage with arguments.")
+    @commands.command(name="another_example", help="Another example command to show usage with arguments.", usage="!another_example [number]")
     async def another_example_command(self, ctx: commands.Context, number: int) -> None:
         """
         Multiplies a number by 2 and returns the result.
