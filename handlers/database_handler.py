@@ -324,6 +324,16 @@ class DatabaseHandler:
                 channel_id BIGINT
             )
             """,
+            
+            # Ticket Table
+            """
+            CREATE TABLE IF NOT EXISTS ticket_channels (
+                channel_id BIGINT PRIMARY KEY,
+                guild_id BIGINT NOT NULL,
+                user_id BIGINT NOT NULL,
+                created_at TIMESTAMP NOT NULL
+            )
+            """,
         ]
 
         # Execute all table creation queries
@@ -1374,3 +1384,28 @@ class DatabaseHandler:
         
         result = await self.fetchone(check_query)
         return result[0] > 0 if result else False
+
+    # ==================== Ticket Methods ====================
+    
+    async def set_channel_paused(self, channel_id: int, paused: bool):
+        async with self.pool.acquire() as connection:
+            await connection.execute(
+                """
+                INSERT INTO ticket_channels (channel_id, is_paused)
+                VALUES ($1, $2)
+                ON CONFLICT (channel_id)
+                DO UPDATE SET is_paused = $2
+                """,
+                channel_id,
+                paused
+            )
+
+    async def is_channel_paused(self, channel_id: int) -> bool:
+        async with self.pool.acquire() as connection:
+            result = await connection.fetchval(
+                """
+                SELECT is_paused FROM ticket_channels WHERE channel_id = $1
+                """,
+                channel_id
+            )
+            return result if result is not None else False

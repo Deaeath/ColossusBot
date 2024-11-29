@@ -6,8 +6,9 @@
     Manages Discord event listeners and delegates processing to appropriate modules.
 """
 
-from datetime import datetime, timedelta  # Correctly import timedelta
+from datetime import datetime, timedelta
 import logging
+import re  # Import the re module for regex operations
 from discord.ext import commands, tasks
 import discord
 from colossusCogs.aichatbot import AIChatbot
@@ -21,6 +22,9 @@ from handlers.database_handler import DatabaseHandler
 import asyncio
 
 logger = logging.getLogger("ColossusBot")
+
+# Compile the regex pattern once for efficiency
+TICKET_CHANNEL_PATTERN = re.compile(r'^ticket-\d+$')
 
 
 class EventsHandler(commands.Cog):
@@ -60,11 +64,29 @@ class EventsHandler(commands.Cog):
     async def on_message(self, message: discord.Message):
         """
         Handles incoming messages and delegates processing to appropriate modules.
+        Also checks for the "pause" command in ticket channels to pause ticket checking.
+
+        :param message: The message object.
         """
         if message.author.bot or not message.guild:
             return
 
         logger.debug(f"Processing message from {message.author}: {message.content}")
+
+        # Check if the message is in a ticket channel
+        if TICKET_CHANNEL_PATTERN.match(message.channel.name):
+            # Check if the message content is "pause" (case-insensitive)
+            if message.content.strip().lower() == "pause":
+                # Set the channel as paused in the database
+                await self.db_handler.set_channel_paused(message.channel.id, True)
+                try:
+                    await message.channel.send("✅ Ticket checking and closing has been **paused** for this channel.")
+                    logger.info(f"Paused ticket checking for channel: {message.channel.name} (ID: {message.channel.id})")
+                except discord.Forbidden:
+                    logger.error(f"Insufficient permissions to send messages in channel: {message.channel.name}")
+                except discord.HTTPException as e:
+                    logger.error(f"HTTPException when sending pause confirmation in channel {message.channel.name}: {e}")
+                return  # Optionally, stop further processing if needed
 
         # Delegate message handling to respective modules
         await self.ai_chat_bot.on_message(message)
@@ -149,12 +171,19 @@ class EventsHandler(commands.Cog):
     async def check_tickets(self):
         """
         Background task that periodically checks ticket channels for inactivity and handles them accordingly.
+        Skips channels that are paused.
         """
         logger.info("Starting ticket check loop")
         for guild in self.client.guilds:
             for channel in guild.text_channels:
-                if channel.name.startswith("ticket-"):
-                    logger.info(f"Checking channel: {channel.name}")
+                if TICKET_CHANNEL_PATTERN.match(channel.name):
+                    # Check if the channel is paused
+                    is_paused = await self.db_handler.is_channel_paused(channel.id)
+                    if is_paused:
+                        logger.info(f"Skipping paused channel: {channel.name} (ID: {channel.id})")
+                        continue  # Skip this channel
+
+                    logger.info(f"Checking channel: {channel.name} (ID: {channel.id})")
                     recent_activity = await self.has_recent_activity(channel)
                     if not recent_activity:
                         logger.info(f"No recent activity in channel: {channel.name}, notifying user")
@@ -167,6 +196,7 @@ class EventsHandler(commands.Cog):
 
                         await asyncio.sleep(3600)  # Wait for 1 hour
 
+                        # Re-check for recent activity after waiting
                         recent_activity = await self.has_recent_activity(channel)
                         if not recent_activity:
                             logger.info(f"No recent activity after 60 minutes in channel: {channel.name}, closing ticket")
