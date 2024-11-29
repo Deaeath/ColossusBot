@@ -63,10 +63,59 @@ class EventsHandler(commands.Cog):
         """
         logger.debug(f"Processing reaction: emoji={payload.emoji.name}, message_id={payload.message_id}")
 
-        # Delegate reaction handling to respective modules
-        await self.nsfw_checker.on_reaction(payload)
-        await self.flagged_words_alert.on_reaction(payload)
-        await self.repeated_message_alert.on_reaction(payload)
+        # Fetch the user who reacted
+        try:
+            user = self.client.get_user(payload.user_id)
+            if user is None:
+                user = await self.client.fetch_user(payload.user_id)
+        except discord.NotFound:
+            logger.warning(f"User with ID {payload.user_id} not found.")
+            return
+        except discord.HTTPException as e:
+            logger.error(f"Failed to fetch user with ID {payload.user_id}: {e}")
+            return
+
+        # Fetch the channel
+        try:
+            channel = self.client.get_channel(payload.channel_id)
+            if channel is None:
+                channel = await self.client.fetch_channel(payload.channel_id)
+        except discord.NotFound:
+            logger.warning(f"Channel with ID {payload.channel_id} not found.")
+            return
+        except discord.HTTPException as e:
+            logger.error(f"Failed to fetch channel with ID {payload.channel_id}: {e}")
+            return
+
+        # Fetch the message
+        try:
+            message = await channel.fetch_message(payload.message_id)
+        except discord.NotFound:
+            logger.warning(f"Message with ID {payload.message_id} not found.")
+            return
+        except discord.HTTPException as e:
+            logger.error(f"Failed to fetch message with ID {payload.message_id}: {e}")
+            return
+
+        # Get the reaction object
+        reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+        if reaction is None:
+            # If the reaction is not found, create a partial reaction
+            reaction = discord.Reaction(
+                emoji=payload.emoji,
+                message=message,
+                count=payload.count,
+                me=False,
+                # The following attributes are placeholders and may need to be adjusted
+                # based on your specific implementation
+                custom_emoji=None,
+                animation=None
+            )
+
+        # Delegate reaction handling to respective modules with both reaction and user
+        await self.nsfw_checker.on_reaction(reaction, user)
+        await self.flagged_words_alert.on_reaction(reaction, user)
+        await self.repeated_message_alert.on_reaction(reaction, user)
 
     @tasks.loop(minutes=5)
     async def check_tickets(self):
