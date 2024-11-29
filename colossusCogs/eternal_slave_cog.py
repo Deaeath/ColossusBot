@@ -50,6 +50,12 @@ class EternalSlaveCog(commands.Cog):
         self.setup_task = self.client.loop.create_task(self.setup_database())
         logger.info("EternalSlaveCog initialized.")
 
+    async def cog_load(self) -> None:
+        """Handles logic to execute when the cog is loaded."""
+        logger.info("EternalSlaveCog is starting...")
+        await self.setup_task
+        logger.info("EternalSlaveCog is ready.")
+        
     async def setup_database(self) -> None:
         """
         Sets up the necessary database tables for the Eternal Slave functionality.
