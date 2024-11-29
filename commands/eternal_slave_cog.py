@@ -45,7 +45,7 @@ class EternalSlaveCog(commands.Cog):
         :param client: The instance of the Discord bot.
         :param db_handler: Instance of the DatabaseHandler to interact with the database.
         """
-        self.client = client
+        self.client = client    
         self.db_handler = db_handler
         # self.setup_task = self.client.loop.create_task(self.setup_database())
         logger.info("EternalSlaveCog initialized.")
@@ -1853,14 +1853,13 @@ class EternalSlaveCog(commands.Cog):
 # Cog Setup Function
 # -------------------------------
 
-async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
+async def setup(client: commands.Bot) -> None:
     """
     Loads the EternalSlaveCog.
 
     :param client: The instance of the Discord bot.
-    :param db_handler: Instance of the DatabaseHandler to interact with the database.
     """
     logger.info("Loading EternalSlaveCog...")
-    db_handler = client.db_handler
+    db_handler = client.db_handler  # Access db_handler from the bot instance
     await client.add_cog(EternalSlaveCog(client, db_handler))
     logger.info("EternalSlaveCog has been loaded.")
