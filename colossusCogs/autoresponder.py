@@ -22,6 +22,7 @@ Commands:
 - `!list_autoresponses`: Lists all configured autoresponses.
 """
 
+import discord
 from discord.ext import commands
 import logging
 from handlers.database_handler import DatabaseHandler
@@ -92,7 +93,7 @@ class Autoresponder(commands.Cog):
         logger.info(f"Fetched {len(records)} autoresponses for guild ID: {guild_id}")
         return records
 
-    async def handle_message(self, message: commands.Context.message) -> None:
+    async def handle_message(self, message: discord.Message) -> None:
         """
         Processes incoming messages and sends automatic responses if triggers match.
 
