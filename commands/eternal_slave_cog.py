@@ -407,9 +407,9 @@ class EternalSlaveCog(commands.Cog):
             logger.error(f"Error gagging user {sub.id} by {ctx.author.id}: {e}")
 
     @commands.command(
-        name="mute",
+        name="mute-sub",
         help="Mute one of your subs.",
-        usage="!mute [@sub]",
+        usage="!mute-sub [@sub]",
     )
     @commands.cooldown(rate=1, per=8, type=commands.BucketType.user)  # Adjusted cooldown to integer
     async def mute_sub(self, ctx: commands.Context, sub: discord.Member) -> None:
