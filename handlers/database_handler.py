@@ -299,6 +299,20 @@ class DatabaseHandler:
                 guild_id INTEGER
             )
             """,
+
+            # Tables for ReactionRoleMenu Cog
+            """
+            CREATE TABLE IF NOT EXISTS reaction_role_menus (
+                menu_id UUID PRIMARY KEY,
+                guild_id BIGINT NOT NULL,
+                channel_id BIGINT NOT NULL,
+                message_id BIGINT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                emoji TEXT NOT NULL,
+                role_id BIGINT NOT NULL
+            )
+            """,
         ]
 
         # Execute all table creation queries
@@ -524,9 +538,9 @@ class DatabaseHandler:
         if result:
             return result[0]  # Assuming the first element is log_channel_id
         return None
-    
+
     # ==================== AdminCommands Methods ========================
-    
+
     async def log_warning(self, member: Member, reason: str) -> None:
         """
         Logs a warning for a member in the database.
@@ -1037,3 +1051,194 @@ class DatabaseHandler:
         query = f"DELETE FROM repeated_messages WHERE message_id IN ({placeholders})"
         await self.execute(query, tuple(message_ids))
         logger.info("RepeatedMessageAlert: Deleted repeated messages from the database.")
+
+    # ==================== ReactionRoleMenu Methods ====================
+
+    async def setup_reaction_role_menu_database(self) -> None:
+        """
+        Sets up the database tables for the ReactionRoleMenu cog.
+        """
+        queries = [
+            """
+            CREATE TABLE IF NOT EXISTS reaction_role_menus (
+                menu_id UUID PRIMARY KEY,
+                guild_id BIGINT NOT NULL,
+                channel_id BIGINT NOT NULL,
+                message_id BIGINT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                emoji TEXT NOT NULL,
+                role_id BIGINT NOT NULL
+            )
+            """
+        ]
+        for query in queries:
+            await self.execute(query)
+        logger.info("ReactionRoleMenu database setup completed.")
+
+    async def insert_reaction_role_menu(
+        self,
+        menu_id: str,
+        guild_id: int,
+        channel_id: int,
+        message_id: int,
+        name: str,
+        description: Optional[str],
+        emoji: str,
+        role_id: int
+    ) -> None:
+        """
+        Inserts a new reaction role menu into the database.
+
+        :param menu_id: UUID of the menu.
+        :param guild_id: ID of the guild.
+        :param channel_id: ID of the channel where the menu message is located.
+        :param message_id: ID of the menu message.
+        :param name: Name of the menu.
+        :param description: Description of the menu.
+        :param emoji: Emoji associated with the role.
+        :param role_id: ID of the role to assign.
+        """
+        query = """
+            INSERT INTO reaction_role_menus (
+                menu_id, guild_id, channel_id, message_id, name, description, emoji, role_id
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        await self.execute(query, (menu_id, guild_id, channel_id, message_id, name, description, emoji, role_id))
+
+    async def fetch_reaction_role_menus_by_message(
+        self,
+        guild_id: int,
+        message_id: int
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetches all reaction role menu entries associated with a specific message.
+
+        :param guild_id: ID of the guild.
+        :param message_id: ID of the message.
+        :return: List of dictionaries containing reaction role menu data.
+        """
+        query = """
+            SELECT * FROM reaction_role_menus
+            WHERE guild_id = ? AND message_id = ?
+        """
+        rows = await self.fetchall(query, (guild_id, message_id))
+        if rows:
+            columns = [
+                "menu_id", "guild_id", "channel_id", "message_id",
+                "name", "description", "emoji", "role_id"
+            ]
+            return [dict(zip(columns, row)) for row in rows]
+        return []
+
+    async def fetch_reaction_role_menu(
+        self,
+        menu_id: str
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetches a reaction role menu by its menu ID.
+
+        :param menu_id: UUID of the menu.
+        :return: Dictionary containing reaction role menu data or None if not found.
+        """
+        query = "SELECT * FROM reaction_role_menus WHERE menu_id = ?"
+        row = await self.fetchone(query, (menu_id,))
+        if row:
+            keys = [
+                "menu_id", "guild_id", "channel_id", "message_id",
+                "name", "description", "emoji", "role_id"
+            ]
+            return dict(zip(keys, row))
+        return None
+
+    async def delete_reaction_role_menu(
+        self,
+        menu_id: str
+    ) -> None:
+        """
+        Deletes a reaction role menu by its menu ID.
+
+        :param menu_id: UUID of the menu.
+        """
+        query = "DELETE FROM reaction_role_menus WHERE menu_id = ?"
+        await self.execute(query, (menu_id,))
+        logger.info(f"ReactionRoleMenu: Deleted menu with ID {menu_id} from the database.")
+
+    async def update_reaction_role_menu_description(
+        self,
+        menu_id: str,
+        new_description: Optional[str]
+    ) -> None:
+        """
+        Updates the description of a reaction role menu.
+
+        :param menu_id: UUID of the menu.
+        :param new_description: New description text.
+        """
+        query = """
+            UPDATE reaction_role_menus
+            SET description = ?
+            WHERE menu_id = ?
+        """
+        await self.execute(query, (new_description, menu_id))
+        logger.info(f"ReactionRoleMenu: Updated description for menu ID {menu_id}.")
+
+    async def add_reaction_to_menu(
+        self,
+        menu_id: str,
+        emoji: str,
+        role_id: int
+    ) -> None:
+        """
+        Adds a new emoji-role pair to an existing reaction role menu.
+
+        :param menu_id: UUID of the menu.
+        :param emoji: Emoji to associate with the role.
+        :param role_id: ID of the role to assign.
+        """
+        query = """
+            INSERT INTO reaction_role_menus (
+                menu_id, guild_id, channel_id, message_id, name, description, emoji, role_id
+            )
+            SELECT menu_id, guild_id, channel_id, message_id, name, description, ?, ?
+            FROM reaction_role_menus
+            WHERE menu_id = ?
+        """
+        await self.execute(query, (emoji, role_id, menu_id))
+        logger.info(f"ReactionRoleMenu: Added emoji {emoji} with role ID {role_id} to menu ID {menu_id}.")
+
+    async def remove_reaction_from_menu(
+        self,
+        menu_id: str,
+        emoji: str
+    ) -> None:
+        """
+        Removes an emoji-role pair from a reaction role menu.
+
+        :param menu_id: UUID of the menu.
+        :param emoji: Emoji to remove.
+        """
+        query = """
+            DELETE FROM reaction_role_menus
+            WHERE menu_id = ? AND emoji = ?
+        """
+        await self.execute(query, (menu_id, emoji))
+        logger.info(f"ReactionRoleMenu: Removed emoji {emoji} from menu ID {menu_id}.")
+
+    async def fetch_all_reaction_role_menus(self, guild_id: int) -> List[Dict[str, Any]]:
+        """
+        Fetches all reaction role menus for a specific guild.
+
+        :param guild_id: ID of the guild.
+        :return: List of dictionaries containing reaction role menu data.
+        """
+        query = "SELECT * FROM reaction_role_menus WHERE guild_id = ?"
+        rows = await self.fetchall(query, (guild_id,))
+        if rows:
+            columns = [
+                "menu_id", "guild_id", "channel_id", "message_id",
+                "name", "description", "emoji", "role_id"
+            ]
+            return [dict(zip(columns, row)) for row in rows]
+        return []
