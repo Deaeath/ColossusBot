@@ -316,6 +316,9 @@ class DatabaseHandler:
 
             # Autoresponses Table
             """
+            DROP TABLE IF EXISTS autoresponses
+            """
+            """
             CREATE TABLE IF NOT EXISTS autoresponses (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 guild_id BIGINT NOT NULL,
