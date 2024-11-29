@@ -29,14 +29,14 @@ class CommandsHandler(commands.Cog):
     A handler for routing commands directly to their respective cog methods.
     """
 
-    def __init__(self, client: commands.Bot) -> None:
+    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
         """
         Initializes the CommandsHandler.
 
         :param client: The Discord bot client instance.
         """
         self.client = client
-        self.db_handler = DatabaseHandler.get_instance()
+        self.db_handler = db_handler
         self.aichatbot = AIChatbot(client, self.db_handler)
         self.channel_manager = ChannelAccessManager(client, self.db_handler)
         self.admin_commands = AdminCommands(client, self.db_handler)
