@@ -53,7 +53,7 @@ class EternalSlaveCog(commands.Cog):
     async def cog_load(self) -> None:
         """Handles logic to execute when the cog is loaded."""
         logger.info("EternalSlaveCog is starting...")
-        await self.setup_database
+        await self.setup_database()
         logger.info("EternalSlaveCog is ready.")
         
     async def setup_database(self) -> None:
