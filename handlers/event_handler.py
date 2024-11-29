@@ -6,7 +6,7 @@
     Manages Discord event listeners and delegates processing to appropriate modules.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone  # Ensure timezone is imported
 import logging
 import re  # Import the re module for regex operations
 from discord.ext import commands, tasks
@@ -226,8 +226,8 @@ class EventsHandler(commands.Cog):
             async for msg in channel.history(limit=100):
                 messages.append(msg)
             if messages:
-                # Assuming "recent" means within the last hour
-                cutoff = datetime.utcnow() - timedelta(hours=1)
+                # Define "recent" as within the last hour using aware datetime
+                cutoff = datetime.now(timezone.utc) - timedelta(hours=1)
                 for msg in messages:
                     if msg.created_at > cutoff:
                         return True
@@ -235,7 +235,6 @@ class EventsHandler(commands.Cog):
         except Exception as e:
             logger.error(f"Error checking recent activity in channel {channel.id}: {e}")
             return False
-
 
 async def setup(client: commands.Bot):
     """
