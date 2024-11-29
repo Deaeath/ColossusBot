@@ -809,12 +809,12 @@ class EternalSlaveCog(commands.Cog):
             logger.error(f"Error processing safeword for user {sub_id}: {e}")
 
     @commands.command(
-        name="say",
+        name="e-say",
         help="Send a message as one of your subs.",
-        usage="!say [@sub] [message]",
+        usage="!e-say [@sub] [message]",
     )
     @commands.cooldown(rate=1, per=5, type=commands.BucketType.user)
-    async def say(self, ctx: commands.Context, sub: discord.Member, *, message: str) -> None:
+    async def esay(self, ctx: commands.Context, sub: discord.Member, *, message: str) -> None:
         """
         Sends a message as if it were from the specified sub.
 
