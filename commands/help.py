@@ -60,7 +60,6 @@ class HelpCog(commands.Cog):
                 if commands_info:
                     embed.add_field(name=cog_name, value=commands_info, inline=False)
 
-            embed.set_footer(text="Use `!aa active` to set up the bot if this is your first time using it.")
             await ctx.send(embed=embed)
             logger.info(f"[help] Displayed general help to {ctx.author}.")
         else:
@@ -83,7 +82,6 @@ class HelpCog(commands.Cog):
                 if command.aliases:
                     embed.add_field(name="**Aliases**", value=", ".join(command.aliases), inline=False)
 
-                embed.set_footer(text="Use `!aa active` to set up the bot.")
                 await ctx.send(embed=embed)
                 logger.info(f"[help] Displayed help for command '{command.name}' to {ctx.author}.")
             else:
