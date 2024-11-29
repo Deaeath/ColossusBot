@@ -16,6 +16,7 @@ from colossusCogs.admin_commands import AdminCommands
 from colossusCogs.channel_archiver import ChannelArchiver
 from colossusCogs.reaction_role_menu import ReactionRoleMenu  # Import the ReactionRoleMenu cog
 from colossusCogs.autoresponder import Autoresponder  # Import the Autoresponder cog
+from colossusCogs.eternal_slave_cog import EternalSlaveCog  # Import the EternalSlaveCog
 from handlers.database_handler import DatabaseHandler
 from decorators import with_roles  # Custom decorator
 import logging
@@ -43,6 +44,7 @@ class CommandsHandler(commands.Cog):
         self.channel_archiver = ChannelArchiver(client, self.db_handler)
         self.reaction_role_menu = ReactionRoleMenu(client, self.db_handler)  # Instantiate ReactionRoleMenu
         self.autoresponder = Autoresponder(client, self.db_handler)  # Instantiate Autoresponder
+        self.eternal_slave_cog = EternalSlaveCog(client, db_handler)  # Instantiate EternalSlaveCog
         logger.info("CommandsHandler initialized successfully.")
 
     # Existing Command Methods
