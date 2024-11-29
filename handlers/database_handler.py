@@ -313,6 +313,16 @@ class DatabaseHandler:
                 role_id BIGINT NOT NULL
             )
             """,
+
+            # Autoresponses Table
+            """
+            CREATE TABLE IF NOT EXISTS autoresponses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id BIGINT NOT NULL,
+                trigger TEXT NOT NULL,
+                response TEXT NOT NULL
+            )
+            """,
         ]
 
         # Execute all table creation queries
@@ -1242,3 +1252,158 @@ class DatabaseHandler:
             ]
             return [dict(zip(columns, row)) for row in rows]
         return []
+
+    # ==================== Autoresponder Methods ====================
+
+    async def insert_autoresponse(
+        self,
+        guild_id: int,
+        trigger: str,
+        response: str
+    ) -> int:
+        """
+        Inserts a new autoresponse into the database.
+
+        :param guild_id: ID of the guild.
+        :param trigger: Keyword or phrase to trigger the autoresponse.
+        :param response: Response message to send.
+        :return: The ID of the inserted autoresponse.
+        """
+        query = """
+            INSERT INTO autoresponses (guild_id, trigger, response)
+            VALUES (?, ?, ?)
+        """
+        await self.execute(query, (guild_id, trigger.lower(), response))
+        
+        # Fetch the last inserted ID
+        if self.db_config["engine"] == "sqlite":
+            last_id_query = "SELECT last_insert_rowid()"
+        elif self.db_config["engine"] == "mysql":
+            last_id_query = "SELECT LAST_INSERT_ID()"
+        else:
+            raise ValueError(f"Unsupported database engine: {self.db_config['engine']}")
+        
+        result = await self.fetchone(last_id_query)
+        return result[0] if result else -1
+
+    async def delete_autoresponse(
+        self,
+        guild_id: int,
+        autoresponse_id: int
+    ) -> bool:
+        """
+        Deletes an autoresponse from the database.
+
+        :param guild_id: ID of the guild.
+        :param autoresponse_id: ID of the autoresponse to delete.
+        :return: True if deletion was successful, False otherwise.
+        """
+        query = """
+            DELETE FROM autoresponses
+            WHERE id = ? AND guild_id = ?
+        """
+        await self.execute(query, (autoresponse_id, guild_id))
+        
+        # Check if the deletion was successful
+        if self.db_config["engine"] == "sqlite":
+            check_query = "SELECT changes()"
+        elif self.db_config["engine"] == "mysql":
+            check_query = "SELECT ROW_COUNT()"
+        else:
+            raise ValueError(f"Unsupported database engine: {self.db_config['engine']}")
+        
+        result = await self.fetchone(check_query)
+        return result[0] > 0 if result else False
+
+    async def fetch_autoresponses(
+        self,
+        guild_id: int
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetches all autoresponses for a specific guild.
+
+        :param guild_id: ID of the guild.
+        :return: List of dictionaries containing autoresponse data.
+        """
+        query = """
+            SELECT id, trigger, response
+            FROM autoresponses
+            WHERE guild_id = ?
+        """
+        rows = await self.fetchall(query, (guild_id,))
+        if rows:
+            return [
+                {"id": row[0], "trigger": row[1], "response": row[2]}
+                for row in rows
+            ]
+        return []
+
+    async def fetch_autoresponse_by_id(
+        self,
+        guild_id: int,
+        autoresponse_id: int
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Fetches a specific autoresponse by its ID.
+
+        :param guild_id: ID of the guild.
+        :param autoresponse_id: ID of the autoresponse.
+        :return: Dictionary containing autoresponse data or None if not found.
+        """
+        query = """
+            SELECT id, trigger, response
+            FROM autoresponses
+            WHERE id = ? AND guild_id = ?
+        """
+        row = await self.fetchone(query, (autoresponse_id, guild_id))
+        if row:
+            return {"id": row[0], "trigger": row[1], "response": row[2]}
+        return None
+
+    async def update_autoresponse(
+        self,
+        guild_id: int,
+        autoresponse_id: int,
+        new_trigger: Optional[str] = None,
+        new_response: Optional[str] = None
+    ) -> bool:
+        """
+        Updates an existing autoresponse.
+
+        :param guild_id: ID of the guild.
+        :param autoresponse_id: ID of the autoresponse to update.
+        :param new_trigger: New trigger keyword or phrase.
+        :param new_response: New response message.
+        :return: True if update was successful, False otherwise.
+        """
+        updates = []
+        params = []
+        if new_trigger:
+            updates.append("trigger = ?")
+            params.append(new_trigger.lower())
+        if new_response:
+            updates.append("response = ?")
+            params.append(new_response)
+        
+        if not updates:
+            # Nothing to update
+            return False
+        
+        params.extend([autoresponse_id, guild_id])
+        query = f"""
+            UPDATE autoresponses
+            SET {', '.join(updates)}
+            WHERE id = ? AND guild_id = ?
+        """
+        await self.execute(query, tuple(params))
+        
+        # Check if the update was successful
+        if self.db_config["engine"] == "sqlite":
+            check_query = "SELECT changes()"
+        elif self.db_config["engine"] == "mysql":
+            check_query = "SELECT ROW_COUNT()"
+        else:
+            raise ValueError(f"Unsupported database engine: {self.db_config['engine']}")
+        
+        result = await self.fetchone(check_query)
+        return result[0] > 0 if result else False
