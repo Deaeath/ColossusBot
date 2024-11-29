@@ -5,6 +5,7 @@ CommandsHandler: Routes Commands to Cog Implementations
 -------------------------------------------------------
 Handles user command registration and directly invokes cog methods.
 """
+
 from discord.ext import commands
 from discord import abc as discord_abc
 from discord import Member
@@ -13,6 +14,7 @@ from colossusCogs.aichatbot import AIChatbot
 from colossusCogs.channel_access_manager import ChannelAccessManager
 from colossusCogs.admin_commands import AdminCommands
 from colossusCogs.channel_archiver import ChannelArchiver
+from colossusCogs.reaction_role_menu import ReactionRoleMenu  # Import the ReactionRoleMenu cog
 from handlers.database_handler import DatabaseHandler
 from decorators import with_roles  # Custom decorator
 import logging
@@ -38,6 +40,7 @@ class CommandsHandler(commands.Cog):
         self.channel_manager = ChannelAccessManager(client, db_handler)
         self.admin_commands = AdminCommands(client, db_handler)
         self.channel_archiver = ChannelArchiver(client, db_handler)
+        self.reaction_role_menu = ReactionRoleMenu(client, db_handler)  # Instantiate ReactionRoleMenu
         logger.info("CommandsHandler initialized successfully.")
 
     @commands.command(name="clear_chat", help="Clears the conversation history for the user.", usage="!clear_chat")
@@ -136,6 +139,76 @@ class CommandsHandler(commands.Cog):
         """
         logger.info(f"Executing 'unarchive' command for target: {target}")
         await self.channel_archiver.unarchive(ctx, target)
+
+    # Reaction Role Menu Commands
+
+    @commands.command(name="createmenu", help="Create a new Reaction Role Menu.", usage="!createmenu")
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    async def createmenu(self, ctx: commands.Context) -> None:
+        """
+        Creates a new Reaction Role Menu by routing to the ReactionRoleMenu cog.
+
+        :param ctx: The command context.
+        """
+        logger.info("Executing 'createmenu' command.")
+        await self.reaction_role_menu.create_menu(ctx)
+
+    @commands.command(name="listmenus", help="List all Reaction Role Menus.", usage="!listmenus")
+    async def listmenus(self, ctx: commands.Context) -> None:
+        """
+        Lists all Reaction Role Menus by routing to the ReactionRoleMenu cog.
+
+        :param ctx: The command context.
+        """
+        logger.info("Executing 'listmenus' command.")
+        await self.reaction_role_menu.list_menus(ctx)
+
+    @commands.command(name="editmenu", help="Edit an existing Reaction Role Menu.", usage="!editmenu <menu_id>")
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    async def editmenu(self, ctx: commands.Context, menu_id: str) -> None:
+        """
+        Edits an existing Reaction Role Menu by routing to the ReactionRoleMenu cog.
+
+        :param ctx: The command context.
+        :param menu_id: The UUID of the menu to edit.
+        """
+        logger.info(f"Executing 'editmenu' command for menu_id: {menu_id}")
+        await self.reaction_role_menu.edit_menu(ctx, menu_id)
+
+    @commands.command(name="exportmenu", help="Export a Reaction Role Menu to JSON.", usage="!exportmenu <menu_id>")
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    async def exportmenu(self, ctx: commands.Context, menu_id: str) -> None:
+        """
+        Exports a Reaction Role Menu by routing to the ReactionRoleMenu cog.
+
+        :param ctx: The command context.
+        :param menu_id: The UUID of the menu to export.
+        """
+        logger.info(f"Executing 'exportmenu' command for menu_id: {menu_id}")
+        await self.reaction_role_menu.export_menu(ctx, menu_id)
+
+    @commands.command(name="importmenu", help="Import a Reaction Role Menu from JSON.", usage="!importmenu")
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    async def importmenu(self, ctx: commands.Context) -> None:
+        """
+        Imports a Reaction Role Menu by routing to the ReactionRoleMenu cog.
+
+        :param ctx: The command context.
+        """
+        logger.info("Executing 'importmenu' command.")
+        await self.reaction_role_menu.import_menu(ctx)
+
+    @commands.command(name="deletemenu", help="Delete a Reaction Role Menu.", usage="!deletemenu <menu_id>")
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
+    async def deletemenu(self, ctx: commands.Context, menu_id: str) -> None:
+        """
+        Deletes a Reaction Role Menu by routing to the ReactionRoleMenu cog.
+
+        :param ctx: The command context.
+        :param menu_id: The UUID of the menu to delete.
+        """
+        logger.info(f"Executing 'deletemenu' command for menu_id: {menu_id}")
+        await self.reaction_role_menu.delete_menu(ctx, menu_id)
 
 
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
