@@ -320,7 +320,8 @@ class DatabaseHandler:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 guild_id BIGINT NOT NULL,
                 trigger TEXT NOT NULL,
-                response TEXT NOT NULL
+                response TEXT NOT NULL,
+                channel_id BIGINT
             )
             """,
         ]
@@ -1259,23 +1260,15 @@ class DatabaseHandler:
         self,
         guild_id: int,
         trigger: str,
-        response: str
+        response: str,
+        channel_id: Optional[int] = None
     ) -> int:
-        """
-        Inserts a new autoresponse into the database.
-
-        :param guild_id: ID of the guild.
-        :param trigger: Keyword or phrase to trigger the autoresponse.
-        :param response: Response message to send.
-        :return: The ID of the inserted autoresponse.
-        """
         query = """
-            INSERT INTO autoresponses (guild_id, trigger, response)
-            VALUES (?, ?, ?)
+            INSERT INTO autoresponses (guild_id, trigger, response, channel_id)
+            VALUES (?, ?, ?, ?)
         """
-        await self.execute(query, (guild_id, trigger.lower(), response))
+        await self.execute(query, (guild_id, trigger.lower(), response, channel_id))
         
-        # Fetch the last inserted ID
         if self.db_config["engine"] == "sqlite":
             last_id_query = "SELECT last_insert_rowid()"
         elif self.db_config["engine"] == "mysql":
@@ -1291,20 +1284,12 @@ class DatabaseHandler:
         guild_id: int,
         autoresponse_id: int
     ) -> bool:
-        """
-        Deletes an autoresponse from the database.
-
-        :param guild_id: ID of the guild.
-        :param autoresponse_id: ID of the autoresponse to delete.
-        :return: True if deletion was successful, False otherwise.
-        """
         query = """
             DELETE FROM autoresponses
             WHERE id = ? AND guild_id = ?
         """
         await self.execute(query, (autoresponse_id, guild_id))
         
-        # Check if the deletion was successful
         if self.db_config["engine"] == "sqlite":
             check_query = "SELECT changes()"
         elif self.db_config["engine"] == "mysql":
@@ -1319,21 +1304,15 @@ class DatabaseHandler:
         self,
         guild_id: int
     ) -> List[Dict[str, Any]]:
-        """
-        Fetches all autoresponses for a specific guild.
-
-        :param guild_id: ID of the guild.
-        :return: List of dictionaries containing autoresponse data.
-        """
         query = """
-            SELECT id, trigger, response
+            SELECT id, trigger, response, channel_id
             FROM autoresponses
             WHERE guild_id = ?
         """
         rows = await self.fetchall(query, (guild_id,))
         if rows:
             return [
-                {"id": row[0], "trigger": row[1], "response": row[2]}
+                {"id": row[0], "trigger": row[1], "response": row[2], "channel_id": row[3]}
                 for row in rows
             ]
         return []
@@ -1343,53 +1322,42 @@ class DatabaseHandler:
         guild_id: int,
         autoresponse_id: int
     ) -> Optional[Dict[str, Any]]:
-        """
-        Fetches a specific autoresponse by its ID.
-
-        :param guild_id: ID of the guild.
-        :param autoresponse_id: ID of the autoresponse.
-        :return: Dictionary containing autoresponse data or None if not found.
-        """
         query = """
-            SELECT id, trigger, response
+            SELECT id, trigger, response, channel_id
             FROM autoresponses
             WHERE id = ? AND guild_id = ?
         """
         row = await self.fetchone(query, (autoresponse_id, guild_id))
         if row:
-            return {"id": row[0], "trigger": row[1], "response": row[2]}
+            return {"id": row[0], "trigger": row[1], "response": row[2], "channel_id": row[3]}
         return None
 
     async def update_autoresponse(
         self,
         guild_id: int,
         autoresponse_id: int,
-        new_trigger: Optional[str] = None,
-        new_response: Optional[str] = None
+        trigger: Optional[str] = None,
+        response: Optional[str] = None,
+        channel_id: Optional[int] = None
     ) -> bool:
-        """
-        Updates an existing autoresponse.
-
-        :param guild_id: ID of the guild.
-        :param autoresponse_id: ID of the autoresponse to update.
-        :param new_trigger: New trigger keyword or phrase.
-        :param new_response: New response message.
-        :return: True if update was successful, False otherwise.
-        """
         updates = []
         params = []
-        if new_trigger:
+
+        if trigger is not None:
             updates.append("trigger = ?")
-            params.append(new_trigger.lower())
-        if new_response:
+            params.append(trigger.lower())
+        if response is not None:
             updates.append("response = ?")
-            params.append(new_response)
-        
+            params.append(response)
+        if channel_id is not None:
+            updates.append("channel_id = ?")
+            params.append(channel_id)
+
         if not updates:
-            # Nothing to update
             return False
-        
+
         params.extend([autoresponse_id, guild_id])
+
         query = f"""
             UPDATE autoresponses
             SET {', '.join(updates)}
@@ -1397,7 +1365,6 @@ class DatabaseHandler:
         """
         await self.execute(query, tuple(params))
         
-        # Check if the update was successful
         if self.db_config["engine"] == "sqlite":
             check_query = "SELECT changes()"
         elif self.db_config["engine"] == "mysql":
