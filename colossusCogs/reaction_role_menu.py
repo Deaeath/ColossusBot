@@ -39,6 +39,7 @@ class ReactionRoleMenu(commands.Cog):
         self.client = client
         self.db_handler = db_handler
         self.ensure_tables.start()
+        logging.info("ReactionRoleMenu cog initialized.")
 
     def cog_unload(self):
         self.ensure_tables.cancel()
@@ -1280,4 +1281,7 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The instance of the Discord bot.
     :param db_handler: Instance of the DatabaseHandler to interact with the database.
     """
+    logger.info("Loading ReactionRoleMenu cog...")
+    db_handler = client.db_handler
     await client.add_cog(ReactionRoleMenu(client, db_handler))
+    logger.info("ReactionRoleMenu cog loaded.")
