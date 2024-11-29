@@ -334,6 +334,12 @@ class DatabaseHandler:
                 created_at TIMESTAMP NOT NULL
             )
             """,
+            """
+            CREATE TABLE IF NOT EXISTS paused_tickets (
+                channel_id INT PRIMARY KEY,
+                paused_at TIMESTAMP
+            )
+            """,
         ]
 
         # Execute all table creation queries
@@ -1388,19 +1394,37 @@ class DatabaseHandler:
     # ==================== Ticket Methods ====================
     
     async def set_channel_paused(self, channel_id: int, paused: bool):
-        async with self.pool.acquire() as connection:
-            await connection.execute(
-                """
-                INSERT INTO ticket_channels (channel_id, is_paused)
-                VALUES ($1, $2)
-                ON CONFLICT (channel_id)
-                DO UPDATE SET is_paused = $2
-                """,
-                channel_id,
-                paused
-            )
+        """
+        Sets the paused state for a ticket channel.
+
+        :param channel_id: ID of the channel.
+        :param paused: Boolean indicating whether to pause or unpause the channel.
+        """
+        if paused:
+            # Insert or update the paused_tickets table
+            query = """
+                INSERT INTO paused_tickets (channel_id, paused_at)
+                VALUES (?, ?)
+                ON CONFLICT (channel_id) DO UPDATE SET paused_at = ?
+            """
+            params = (channel_id, datetime.utcnow(), datetime.utcnow())
+        else:
+            # Remove the channel from paused_tickets
+            query = "DELETE FROM paused_tickets WHERE channel_id = ?"
+            params = (channel_id,)
+
+        await self.execute(query, params)
 
     async def is_channel_paused(self, channel_id: int) -> bool:
+        """
+        Checks if a ticket channel is paused.
+
+        :param channel_id: ID of the channel.
+        :return: True if paused, False otherwise.
+        """
+        query = "SELECT 1 FROM paused_tickets WHERE channel_id = ?"
+        row = await self.fetchone(query, (channel_id,))
+        return bool(row)
         async with self.pool.acquire() as connection:
             result = await connection.fetchval(
                 """
