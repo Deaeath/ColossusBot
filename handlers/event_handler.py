@@ -1,12 +1,12 @@
 # File: handlers/events_handler.py
 
 """
-EventsHandler: Routes Discord Events
--------------------------------------
-Manages Discord event listeners and delegates processing to appropriate modules.
+    EventsHandler: Routes Discord Events
+    -------------------------------------
+    Manages Discord event listeners and delegates processing to appropriate modules.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # Correctly import timedelta
 import logging
 from discord.ext import commands, tasks
 import discord
@@ -120,13 +120,19 @@ class EventsHandler(commands.Cog):
         # Get the reaction object
         reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
         if reaction is None:
-            # If the reaction is not found in cache, fetch it
+            # If the reaction is not found in cache, attempt to fetch it
             try:
-                await message.add_reaction(payload.emoji)
+                # Note: discord.py does not provide a direct way to fetch a single reaction.
+                # As a workaround, you can re-fetch the message's reactions.
+                await message.remove_reaction(payload.emoji, user)  # Attempt to remove to trigger cache update
                 reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
             except discord.HTTPException as e:
-                logger.error(f"Failed to add/fetch reaction: {e}")
+                logger.error(f"Failed to update/fetch reaction: {e}")
                 return
+
+        if reaction is None:
+            logger.warning(f"Reaction {payload.emoji.name} not found in message {payload.message_id}.")
+            return
 
         # Now, 'reaction' should have the 'count' attribute
         logger.debug(f"Reaction count: {reaction.count}")
@@ -199,8 +205,6 @@ class EventsHandler(commands.Cog):
         except Exception as e:
             logger.error(f"Error checking recent activity in channel {channel.id}: {e}")
             return False
-
-    # You can add more event listeners or background tasks as needed.
 
 
 async def setup(client: commands.Bot):
