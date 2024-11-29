@@ -6,6 +6,7 @@ EventsHandler: Routes Discord Events
 Manages Discord event listeners and delegates processing to appropriate modules.
 """
 
+from datetime import datetime
 import logging
 from discord.ext import commands, tasks
 import discord
@@ -114,17 +115,16 @@ class EventsHandler(commands.Cog):
         # Get the reaction object
         reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
         if reaction is None:
-            # If the reaction is not found, create a partial reaction
-            reaction = discord.Reaction(
-                emoji=payload.emoji,
-                message=message,
-                count=payload.count,
-                me=False,
-                # The following attributes are placeholders and may need to be adjusted
-                # based on your specific implementation
-                custom_emoji=None,
-                animation=None
-            )
+            # If the reaction is not found in cache, fetch it
+            try:
+                reaction = await message.add_reaction(payload.emoji)
+                reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
+            except discord.HTTPException as e:
+                logger.error(f"Failed to add/fetch reaction: {e}")
+                return
+
+        # Now, 'reaction' should have the 'count' attribute
+        logger.debug(f"Reaction count: {reaction.count}")
 
         # Delegate reaction handling to respective modules with both reaction and user
         await self.nsfw_checker.on_reaction(reaction, user)
