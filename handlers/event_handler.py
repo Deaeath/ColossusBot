@@ -6,7 +6,7 @@ EventsHandler: Routes Discord Events
 Manages Discord event listeners and delegates processing to appropriate modules.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from discord.ext import commands, tasks
 import discord
@@ -16,6 +16,7 @@ from colossusCogs.listeners.flagged_words_alert import FlaggedWordsAlert
 from colossusCogs.listeners.nsfw_checker import NSFWChecker
 from colossusCogs.listeners.repeated_message_alert import RepeatedMessageAlert
 from colossusCogs.reaction_role_menu import ReactionRoleMenu
+from colossusCogs.autoresponder import Autoresponder  # Import the Autoresponder cog
 from handlers.database_handler import DatabaseHandler
 import asyncio
 
@@ -44,6 +45,7 @@ class EventsHandler(commands.Cog):
         self.repeated_message_alert = RepeatedMessageAlert(client, db_handler)
         self.active_alert_checker = ActiveAlertChecker(client, db_handler)
         self.reaction_role_menu = ReactionRoleMenu(client, db_handler)  # Instantiate ReactionRoleMenu
+        self.autoresponder = Autoresponder(client, db_handler)  # Instantiate Autoresponder
 
         # Start background tasks
         self.check_tickets.start()
@@ -70,6 +72,9 @@ class EventsHandler(commands.Cog):
         await self.flagged_words_alert.on_message(message)
         await self.repeated_message_alert.on_message(message)
         await self.active_alert_checker.on_message(message)
+
+        # Delegate message handling to Autoresponder cog
+        await self.autoresponder.handle_message(message)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
@@ -117,7 +122,7 @@ class EventsHandler(commands.Cog):
         if reaction is None:
             # If the reaction is not found in cache, fetch it
             try:
-                reaction = await message.add_reaction(payload.emoji)
+                await message.add_reaction(payload.emoji)
                 reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
             except discord.HTTPException as e:
                 logger.error(f"Failed to add/fetch reaction: {e}")
@@ -139,16 +144,16 @@ class EventsHandler(commands.Cog):
         """
         Background task that periodically checks ticket channels for inactivity and handles them accordingly.
         """
-        print("Starting ticket check loop")
+        logger.info("Starting ticket check loop")
         for guild in self.client.guilds:
             for channel in guild.text_channels:
                 if channel.name.startswith("ticket-"):
-                    print(f"Checking channel: {channel.name}")
+                    logger.info(f"Checking channel: {channel.name}")
                     recent_activity = await self.has_recent_activity(channel)
                     if not recent_activity:
-                        print(f"No recent activity in channel: {channel.name}, notifying user")
+                        logger.info(f"No recent activity in channel: {channel.name}, notifying user")
                         try:
-                            await channel.send("Please send a message in the next 60 minutes to keep this ticket open, otherwise it will be closed.")
+                            await channel.send("📌 Please send a message in the next 60 minutes to keep this ticket open, otherwise it will be closed.")
                         except discord.Forbidden:
                             logger.error(f"Insufficient permissions to send messages in channel: {channel.name}")
                         except discord.HTTPException as e:
@@ -158,8 +163,10 @@ class EventsHandler(commands.Cog):
 
                         recent_activity = await self.has_recent_activity(channel)
                         if not recent_activity:
-                            print(f"No recent activity after 60 minutes in channel: {channel.name}, closing ticket")
+                            logger.info(f"No recent activity after 60 minutes in channel: {channel.name}, closing ticket")
                             try:
+                                await channel.send("🔒 Closing this ticket due to inactivity.")
+                                await asyncio.sleep(15)
                                 await channel.send("$close")
                                 await asyncio.sleep(15)
                                 await channel.send("$transcript")
@@ -184,7 +191,7 @@ class EventsHandler(commands.Cog):
                 messages.append(msg)
             if messages:
                 # Assuming "recent" means within the last hour
-                cutoff = discord.utils.utcnow() - datetime.timedelta(hours=1)
+                cutoff = datetime.utcnow() - timedelta(hours=1)
                 for msg in messages:
                     if msg.created_at > cutoff:
                         return True
@@ -192,6 +199,8 @@ class EventsHandler(commands.Cog):
         except Exception as e:
             logger.error(f"Error checking recent activity in channel {channel.id}: {e}")
             return False
+
+    # You can add more event listeners or background tasks as needed.
 
 
 async def setup(client: commands.Bot):

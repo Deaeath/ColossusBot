@@ -15,9 +15,11 @@ from colossusCogs.channel_access_manager import ChannelAccessManager
 from colossusCogs.admin_commands import AdminCommands
 from colossusCogs.channel_archiver import ChannelArchiver
 from colossusCogs.reaction_role_menu import ReactionRoleMenu  # Import the ReactionRoleMenu cog
+from colossusCogs.autoresponder import Autoresponder  # Import the Autoresponder cog
 from handlers.database_handler import DatabaseHandler
 from decorators import with_roles  # Custom decorator
 import logging
+import discord
 
 logger = logging.getLogger("ColossusBot")
 
@@ -41,8 +43,10 @@ class CommandsHandler(commands.Cog):
         self.admin_commands = AdminCommands(client, db_handler)
         self.channel_archiver = ChannelArchiver(client, db_handler)
         self.reaction_role_menu = ReactionRoleMenu(client, db_handler)  # Instantiate ReactionRoleMenu
+        self.autoresponder = Autoresponder(client, db_handler)  # Instantiate Autoresponder
         logger.info("CommandsHandler initialized successfully.")
 
+    # Existing Command Methods
     @commands.command(name="clear_chat", help="Clears the conversation history for the user.", usage="!clear_chat")
     async def clear_chat(self, ctx: commands.Context, *args) -> None:
         """
@@ -209,6 +213,64 @@ class CommandsHandler(commands.Cog):
         """
         logger.info(f"Executing 'deletemenu' command for menu_id: {menu_id}")
         await self.reaction_role_menu.delete_menu(ctx, menu_id)
+
+    # Autoresponder Commands
+
+    @commands.command(name="add_autoresponse", help="Adds a new autoresponse.", usage="!add_autoresponse <trigger> <response>")
+    @with_roles("owner", "administrator")
+    async def add_autoresponse(self, ctx: commands.Context, trigger: str, *, response: str) -> None:
+        """
+        Adds a new autoresponse to the server.
+
+        :param ctx: The command context.
+        :param trigger: The keyword or phrase to trigger the response.
+        :param response: The response message to send.
+        """
+        logger.info(f"Adding autoresponse with trigger '{trigger}' in guild ID: {ctx.guild.id}")
+        result = await self.autoresponder.add_autoresponse(ctx.guild.id, trigger, response)
+        if result and 'id' in result:
+            await ctx.send(f"✅ Autoresponse added with ID: `{result.get('id')}`.")
+        else:
+            await ctx.send("❌ Failed to add autoresponse. Please try again.")
+
+    @commands.command(name="remove_autoresponse", help="Removes an existing autoresponse.", usage="!remove_autoresponse <id>")
+    @with_roles("owner", "administrator")
+    async def remove_autoresponse(self, ctx: commands.Context, autoresponse_id: int) -> None:
+        """
+        Removes an existing autoresponse from the server.
+
+        :param ctx: The command context.
+        :param autoresponse_id: The unique ID of the autoresponse to remove.
+        """
+        logger.info(f"Removing autoresponse ID: {autoresponse_id} from guild ID: {ctx.guild.id}")
+        success = await self.autoresponder.remove_autoresponse(ctx.guild.id, autoresponse_id)
+        if success:
+            await ctx.send(f"✅ Autoresponse with ID: `{autoresponse_id}` has been removed.")
+        else:
+            await ctx.send(f"❌ Failed to remove autoresponse with ID: `{autoresponse_id}`. Please ensure the ID is correct.")
+
+    @commands.command(name="list_autoresponses", help="Lists all autoresponses.", usage="!list_autoresponses")
+    async def list_autoresponses(self, ctx: commands.Context) -> None:
+        """
+        Lists all autoresponses configured in the server.
+
+        :param ctx: The command context.
+        """
+        logger.info(f"Listing autoresponses for guild ID: {ctx.guild.id}")
+        autoresponses = await self.autoresponder.list_autoresponses(ctx.guild.id)
+        if not autoresponses:
+            await ctx.send("ℹ️ No autoresponses have been set up in this server.")
+            return
+
+        embed = discord.Embed(title="📄 Autoresponses", color=discord.Color.blue())
+        for autoresponse in autoresponses:
+            embed.add_field(
+                name=f"ID: {autoresponse.get('id')}",
+                value=f"**Trigger:** `{autoresponse.get('trigger')}`\n**Response:** {autoresponse.get('response')}",
+                inline=False
+            )
+
+        await ctx.send(embed=embed)
 
 
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
