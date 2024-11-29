@@ -58,7 +58,19 @@ class HelpCog(commands.Cog):
                     for cmd in commands_list if not cmd.hidden
                 ])
                 if commands_info:
-                    embed.add_field(name=cog_name, value=commands_info, inline=False)
+                    # Split commands_info into chunks of <=1024 characters
+                    while len(commands_info) > 1024:
+                        # Find the last newline before the 1024th character
+                        split_index = commands_info.rfind("\n", 0, 1024)
+                        if split_index == -1:
+                            split_index = 1024
+                        # Add a field with the current chunk
+                        embed.add_field(name=cog_name, value=commands_info[:split_index], inline=False)
+                        # Update commands_info to the remaining part
+                        commands_info = commands_info[split_index:].lstrip("\n")
+                    if commands_info:
+                        # Add the remaining commands_info as a new field
+                        embed.add_field(name=cog_name, value=commands_info, inline=False)
 
             await ctx.send(embed=embed)
             logger.info(f"[help] Displayed general help to {ctx.author}.")
