@@ -29,21 +29,20 @@ class CommandsHandler(commands.Cog):
     A handler for routing commands directly to their respective cog methods.
     """
 
-    def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
+    def __init__(self, client: commands.Bot) -> None:
         """
         Initializes the CommandsHandler.
 
         :param client: The Discord bot client instance.
-        :param db_handler: The database handler for archiving operations.
         """
         self.client = client
-        self.db_handler = db_handler
-        self.aichatbot = AIChatbot(client, db_handler)
-        self.channel_manager = ChannelAccessManager(client, db_handler)
-        self.admin_commands = AdminCommands(client, db_handler)
-        self.channel_archiver = ChannelArchiver(client, db_handler)
-        self.reaction_role_menu = ReactionRoleMenu(client, db_handler)  # Instantiate ReactionRoleMenu
-        self.autoresponder = Autoresponder(client, db_handler)  # Instantiate Autoresponder
+        self.db_handler = DatabaseHandler.get_instance()
+        self.aichatbot = AIChatbot(client, self.db_handler)
+        self.channel_manager = ChannelAccessManager(client, self.db_handler)
+        self.admin_commands = AdminCommands(client, self.db_handler)
+        self.channel_archiver = ChannelArchiver(client, self.db_handler)
+        self.reaction_role_menu = ReactionRoleMenu(client, self.db_handler)  # Instantiate ReactionRoleMenu
+        self.autoresponder = Autoresponder(client, self.db_handler)  # Instantiate Autoresponder
         logger.info("CommandsHandler initialized successfully.")
 
     # Existing Command Methods
@@ -226,12 +225,8 @@ class CommandsHandler(commands.Cog):
         :param trigger: The keyword or phrase to trigger the response.
         :param response: The response message to send.
         """
-        logger.info(f"Adding autoresponse with trigger '{trigger}' in guild ID: {ctx.guild.id}")
-        result = await self.autoresponder.add_autoresponse(ctx.guild.id, trigger, response)
-        if result and 'id' in result:
-            await ctx.send(f"✅ Autoresponse added with ID: `{result.get('id')}`.")
-        else:
-            await ctx.send("❌ Failed to add autoresponse. Please try again.")
+        logger.info(f"Executing 'add_autoresponse' command with trigger '{trigger}' in guild ID: {ctx.guild.id}")
+        await self.autoresponder.add_autoresponse(ctx, trigger, response)
 
     @commands.command(name="remove_autoresponse", help="Removes an existing autoresponse.", usage="!remove_autoresponse <id>")
     @with_roles("owner", "administrator")
@@ -242,12 +237,8 @@ class CommandsHandler(commands.Cog):
         :param ctx: The command context.
         :param autoresponse_id: The unique ID of the autoresponse to remove.
         """
-        logger.info(f"Removing autoresponse ID: {autoresponse_id} from guild ID: {ctx.guild.id}")
-        success = await self.autoresponder.remove_autoresponse(ctx.guild.id, autoresponse_id)
-        if success:
-            await ctx.send(f"✅ Autoresponse with ID: `{autoresponse_id}` has been removed.")
-        else:
-            await ctx.send(f"❌ Failed to remove autoresponse with ID: `{autoresponse_id}`. Please ensure the ID is correct.")
+        logger.info(f"Executing 'remove_autoresponse' command for ID: {autoresponse_id} in guild ID: {ctx.guild.id}")
+        await self.autoresponder.remove_autoresponse(ctx, autoresponse_id)
 
     @commands.command(name="list_autoresponses", help="Lists all autoresponses.", usage="!list_autoresponses")
     async def list_autoresponses(self, ctx: commands.Context) -> None:
@@ -256,30 +247,16 @@ class CommandsHandler(commands.Cog):
 
         :param ctx: The command context.
         """
-        logger.info(f"Listing autoresponses for guild ID: {ctx.guild.id}")
-        autoresponses = await self.autoresponder.list_autoresponses(ctx.guild.id)
-        if not autoresponses:
-            await ctx.send("ℹ️ No autoresponses have been set up in this server.")
-            return
-
-        embed = discord.Embed(title="📄 Autoresponses", color=discord.Color.blue())
-        for autoresponse in autoresponses:
-            embed.add_field(
-                name=f"ID: {autoresponse.get('id')}",
-                value=f"**Trigger:** `{autoresponse.get('trigger')}`\n**Response:** {autoresponse.get('response')}",
-                inline=False
-            )
-
-        await ctx.send(embed=embed)
+        logger.info(f"Executing 'list_autoresponses' command in guild ID: {ctx.guild.id}")
+        await self.autoresponder.list_autoresponses(ctx)
 
 
-async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
+async def setup(client: commands.Bot) -> None:
     """
     Registers the CommandsHandler cog with the bot.
 
     :param client: The Discord bot client instance.
-    :param db_handler: The database handler for archiving operations.
     """
     logger.info("Setting up CommandsHandler cog...")
-    await client.add_cog(CommandsHandler(client, db_handler))
+    await client.add_cog(CommandsHandler(client))
     logger.info("CommandsHandler cog setup complete.")
