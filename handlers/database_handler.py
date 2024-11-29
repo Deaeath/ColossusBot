@@ -29,6 +29,7 @@ Supported Databases:
 - MySQL (requires MySQL credentials and host information)
 """
 
+from datetime import datetime
 import aiosqlite
 import aiomysql
 import logging
