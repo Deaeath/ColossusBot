@@ -197,9 +197,9 @@ class WebHandler:
         permissions = set()
 
         for check in command.checks:
-            # Inspect for @commands.has_permissions
             if hasattr(check, 'predicate'):
                 predicate = check.predicate
+                # Extract permissions from @commands.has_permissions
                 if hasattr(predicate, 'permissions'):
                     perms = [
                         perm.replace('_', ' ').title()
@@ -208,13 +208,13 @@ class WebHandler:
                     ]
                     permissions.update(perms)
 
-            # Inspect for custom @with_roles decorator
-            if hasattr(check, 'roles'):
-                roles = [
-                    role.replace('_', ' ').title() if isinstance(role, str) else str(role)
-                    for role in check.roles
-                ]
-                permissions.update(roles)
+                # Extract roles from custom @with_roles decorator
+                if hasattr(predicate, 'roles'):
+                    roles = [
+                        role.replace('_', ' ').title() if isinstance(role, str) else str(role)
+                        for role in predicate.roles
+                    ]
+                    permissions.update(roles)
 
         return ", ".join(sorted(permissions)) if permissions else "Default"
 

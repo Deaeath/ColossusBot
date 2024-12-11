@@ -19,7 +19,6 @@ from colossusCogs.autoresponder import Autoresponder  # Import the Autoresponder
 from colossusCogs.ticket_checker import TicketChecker  # Import the TicketChecker cog
 from colossusCogs.prefix_manager import PrefixManager  # Import the PrefixManager cog
 from handlers.database_handler import DatabaseHandler
-from decorators import with_roles  # Custom decorator
 import logging
 import discord
 
@@ -53,6 +52,7 @@ class CommandsHandler(commands.Cog):
         logger.info("CommandsHandler initialized successfully.")
 
     # Existing Command Methods
+
     @commands.command(name="clear_chat", help="Clears the conversation history for the user.", usage="!clear_chat")
     async def clear_chat(self, ctx: commands.Context, *args) -> None:
         """
@@ -76,6 +76,7 @@ class CommandsHandler(commands.Cog):
         await self.aichatbot.show_history(ctx, *args)
 
     @commands.command(name="reset_perms", help="Resets custom permissions for users and channels.", usage="!reset_perms")
+    @commands.has_permissions(manage_guild=True)
     async def reset_perms(self, ctx: commands.Context, *args) -> None:
         """
         Resets custom permissions for users and channels by routing to ChannelAccessManager cog.
@@ -87,6 +88,7 @@ class CommandsHandler(commands.Cog):
         await self.channel_manager.reset_perms(ctx, *args)
 
     @commands.command(name="view_perms", help="Displays the current database records for custom permissions.", usage="!view_perms")
+    @commands.has_permissions(manage_guild=True)
     async def view_perms(self, ctx: commands.Context, *args) -> None:
         """
         Displays the current database records for custom permissions by routing to ChannelAccessManager cog.
@@ -98,7 +100,7 @@ class CommandsHandler(commands.Cog):
         await self.channel_manager.view_perms(ctx, *args)
 
     @commands.command(name="mute", help="Mutes a member in the server.", usage="!mute @user [reason]")
-    @with_roles("owner", "head_staff", "moderator", "administrator")
+    @commands.has_permissions(moderate_members=True)
     async def mute_user(self, ctx: commands.Context, member: Member, *, reason: Optional[str] = None) -> None:
         """
         Mutes a member in the server by routing to AdminCommands cog.
@@ -111,6 +113,7 @@ class CommandsHandler(commands.Cog):
         await self.admin_commands.mute_user_logic(ctx, member, reason)
 
     @commands.command(name="autoarchive", help="Automatically archives inactive channels.", usage="!autoarchive")
+    @commands.has_permissions(manage_channels=True)
     async def autoarchive(self, ctx: commands.Context) -> None:
         """
         Automatically archives inactive channels by routing to ChannelArchiver cog.
@@ -121,6 +124,7 @@ class CommandsHandler(commands.Cog):
         await self.channel_archiver.autoarchive(ctx)
 
     @commands.command(name="archive", help="Archives a specific channel or category.", usage="!archive <channel/category>")
+    @commands.has_permissions(manage_channels=True)
     async def archive(
         self,
         ctx: commands.Context,
@@ -136,6 +140,7 @@ class CommandsHandler(commands.Cog):
         await self.channel_archiver.archive(ctx, target)
 
     @commands.command(name="unarchive", help="Unarchives a specific channel or category.", usage="!unarchive <channel/category>")
+    @commands.has_permissions(manage_channels=True)
     async def unarchive(
         self,
         ctx: commands.Context,
@@ -164,6 +169,7 @@ class CommandsHandler(commands.Cog):
         await self.reaction_role_menu.create_menu(ctx)
 
     @commands.command(name="listmenus", help="List all Reaction Role Menus.", usage="!listmenus")
+    @commands.has_permissions(manage_roles=True, manage_messages=True)
     async def listmenus(self, ctx: commands.Context) -> None:
         """
         Lists all Reaction Role Menus by routing to the ReactionRoleMenu cog.
@@ -223,7 +229,7 @@ class CommandsHandler(commands.Cog):
     # Autoresponder Commands
 
     @commands.command(name="add_autoresponse", help="Adds a new autoresponse.", usage="!add_autoresponse <trigger> <response>")
-    @with_roles("owner", "administrator")
+    @commands.has_permissions(manage_messages=True)
     async def add_autoresponse(self, ctx: commands.Context, trigger: str, *, response: str) -> None:
         """
         Adds a new autoresponse to the server.
@@ -236,7 +242,7 @@ class CommandsHandler(commands.Cog):
         await self.autoresponder.add_autoresponse(ctx, trigger, response)
 
     @commands.command(name="remove_autoresponse", help="Removes an existing autoresponse.", usage="!remove_autoresponse <id>")
-    @with_roles("owner", "administrator")
+    @commands.has_permissions(manage_messages=True)
     async def remove_autoresponse(self, ctx: commands.Context, autoresponse_id: int) -> None:
         """
         Removes an existing autoresponse from the server.
@@ -248,6 +254,7 @@ class CommandsHandler(commands.Cog):
         await self.autoresponder.remove_autoresponse(ctx, autoresponse_id)
 
     @commands.command(name="list_autoresponses", help="Lists all autoresponses.", usage="!list_autoresponses")
+    @commands.has_permissions(manage_messages=True)
     async def list_autoresponses(self, ctx: commands.Context) -> None:
         """
         Lists all autoresponses configured in the server.
@@ -258,7 +265,7 @@ class CommandsHandler(commands.Cog):
         await self.autoresponder.list_autoresponses(ctx)
 
     # Ticket Checker Commands
-    
+
     @commands.command(name="ticketmonitor", help="Enable or disable the ticket monitoring task.", usage="!ticketmonitor [on|off]")
     @commands.has_permissions(manage_channels=True)
     async def ticketmonitor_command(self, ctx: commands.Context, state: str = None) -> None:
@@ -273,9 +280,9 @@ class CommandsHandler(commands.Cog):
         await self.channel_manager.ticketmonitor_command(ctx, state)
 
     # Prefix Manager Commands
-    
+
     @commands.command(name="setprefix", help="Change the bot's command prefix for this guild.", usage="!setprefix <new_prefix>")
-    @commands.has_permissions(administrator=True)
+    @commands.has_permissions(manage_guild=True)
     async def setprefix(self, ctx: commands.Context, *, new_prefix: str) -> None:
         """
         Change the bot's command prefix for the current guild and persist it to the database.
@@ -284,10 +291,10 @@ class CommandsHandler(commands.Cog):
         :param new_prefix: The new prefix to set for this guild.
         """
         logger.info(f"Executing 'setprefix' command with new prefix: {new_prefix}")
-        await self.channel_manager.setprefix(ctx, new_prefix)
-        
+        await self.prefix_manager.setprefix(ctx, new_prefix)
+
     # Commands Metadata
-    
+
     def get_commands_data(self) -> Dict[str, Dict[str, Any]]:
         """
         Gathers all commands along with their descriptions, usage, and permissions.
@@ -328,14 +335,6 @@ class CommandsHandler(commands.Cog):
                     ]
                     permissions.update(perms)
 
-            # Inspect for custom @with_roles decorator
-            if hasattr(check, 'roles'):
-                roles = [
-                    role.replace('_', ' ').title() if isinstance(role, str) else str(role)
-                    for role in check.roles
-                ]
-                permissions.update(roles)
-
         return ", ".join(sorted(permissions)) if permissions else "Default"
 
     async def setup_commands_data_route(self):
@@ -358,6 +357,7 @@ class CommandsHandler(commands.Cog):
             logger.info("Registered /api/commands route for dashboard.")
         else:
             logger.error("Web application instance not found in the bot.")
+
 
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
