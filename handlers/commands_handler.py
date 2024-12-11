@@ -9,7 +9,7 @@ Handles user command registration and directly invokes cog methods.
 from discord.ext import commands
 from discord import abc as discord_abc
 from discord import Member
-from typing import Optional, Union
+from typing import Any, Dict, Optional, Union
 from colossusCogs.aichatbot import AIChatbot
 from colossusCogs.channel_access_manager import ChannelAccessManager
 from colossusCogs.admin_commands import AdminCommands
@@ -23,7 +23,9 @@ from decorators import with_roles  # Custom decorator
 import logging
 import discord
 
-logger = logging.getLogger("ColossusBot")
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class CommandsHandler(commands.Cog):
@@ -36,6 +38,7 @@ class CommandsHandler(commands.Cog):
         Initializes the CommandsHandler.
 
         :param client: The Discord bot client instance.
+        :param db_handler: The database handler instance.
         """
         self.client = client
         self.db_handler = db_handler
@@ -43,10 +46,10 @@ class CommandsHandler(commands.Cog):
         self.channel_manager = ChannelAccessManager(client, self.db_handler)
         self.admin_commands = AdminCommands(client, self.db_handler)
         self.channel_archiver = ChannelArchiver(client, self.db_handler)
-        self.reaction_role_menu = ReactionRoleMenu(client, self.db_handler)  # Instantiate ReactionRoleMenu
-        self.autoresponder = Autoresponder(client, self.db_handler)  # Instantiate Autoresponder
-        self.ticket_checker = TicketChecker(client, self.db_handler)  # Instantiate TicketChecker
-        self.prefix_manager = PrefixManager(client, self.db_handler)  # Instantiate PrefixManager
+        self.reaction_role_menu = ReactionRoleMenu(client, self.db_handler)
+        self.autoresponder = Autoresponder(client, self.db_handler)
+        self.ticket_checker = TicketChecker(client, self.db_handler)
+        self.prefix_manager = PrefixManager(client, self.db_handler)
         logger.info("CommandsHandler initialized successfully.")
 
     # Existing Command Methods
@@ -282,13 +285,89 @@ class CommandsHandler(commands.Cog):
         """
         logger.info(f"Executing 'setprefix' command with new prefix: {new_prefix}")
         await self.channel_manager.setprefix(ctx, new_prefix)
+        
+    # Commands Metadata
+    
+    def get_commands_data(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Gathers all commands along with their descriptions, usage, and permissions.
 
-async def setup(client: commands.Bot) -> None:
+        :return: A dictionary containing command metadata.
+        """
+        commands_data = {}
+        for command in self.client.commands:
+            name = command.name
+            description = command.help or "No description provided."
+            usage = command.usage or "No usage information provided."
+            permissions = self._extract_command_permissions(command)
+            commands_data[name] = {
+                'description': description,
+                'usage': usage,
+                'permissions': permissions,
+            }
+        return commands_data
+
+    def _extract_command_permissions(self, command: commands.Command) -> str:
+        """
+        Extracts the permissions required for a given command based on its decorators.
+
+        :param command: The command to inspect.
+        :return: A string listing the required permissions.
+        """
+        permissions = set()
+
+        for check in command.checks:
+            # Inspect for @commands.has_permissions
+            if hasattr(check, 'predicate'):
+                predicate = check.predicate
+                if hasattr(predicate, 'permissions'):
+                    perms = [
+                        perm.replace('_', ' ').title()
+                        for perm, value in predicate.permissions.items()
+                        if value
+                    ]
+                    permissions.update(perms)
+
+            # Inspect for custom @with_roles decorator
+            if hasattr(check, 'roles'):
+                roles = [
+                    role.replace('_', ' ').title() if isinstance(role, str) else str(role)
+                    for role in check.roles
+                ]
+                permissions.update(roles)
+
+        return ", ".join(sorted(permissions)) if permissions else "Default"
+
+    async def setup_commands_data_route(self):
+        """
+        Sets up an API route to provide commands data to the dashboard.
+        Assumes integration with a Flask-like web framework.
+        """
+        from flask import Blueprint, jsonify
+
+        commands_bp = Blueprint('commands', __name__)
+
+        @commands_bp.route('/api/commands', methods=['GET'])
+        def api_commands():
+            data = self.get_commands_data()
+            return jsonify(data)
+
+        # Assuming the bot has an attribute `web_app` representing the Flask app
+        if hasattr(self.client, 'web_app'):
+            self.client.web_app.register_blueprint(commands_bp)
+            logger.info("Registered /api/commands route for dashboard.")
+        else:
+            logger.error("Web application instance not found in the bot.")
+
+async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     Registers the CommandsHandler cog with the bot.
 
     :param client: The Discord bot client instance.
+    :param db_handler: The database handler instance.
     """
     logger.info("Setting up CommandsHandler cog...")
-    await client.add_cog(CommandsHandler(client))
+    commands_handler = CommandsHandler(client, db_handler)
+    await client.add_cog(commands_handler)
+    await commands_handler.setup_commands_data_route()
     logger.info("CommandsHandler cog setup complete.")

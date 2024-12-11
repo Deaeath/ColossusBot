@@ -1,18 +1,18 @@
 # File: decorators.py
 
+from functools import wraps
 from discord.ext import commands
-from typing import List
 
-def with_roles(*roles: str):
+def with_roles(*roles):
     """
-    Custom decorator to apply role-based permissions and assign a permissions attribute.
+    Custom decorator to restrict command access to users with specific roles.
 
-    :param roles: Roles required to execute the command.
+    :param roles: Role names that are allowed to use the command.
     """
+    def predicate(ctx):
+        return any(role.name in roles for role in ctx.author.roles)
+    
     def decorator(func):
-        # Apply the has_any_role decorator
-        func = commands.has_any_role(*roles)(func)
-        # Assign permissions attribute
-        func.permissions = list(roles)
-        return func
+        func.roles = roles  # Attach roles to the function for later extraction
+        return commands.check(predicate)(func)
     return decorator

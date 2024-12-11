@@ -11,5 +11,6 @@ openai>=1.0.0
 pillow
 PyNaCl
 python-dotenv
+requests
 vaderSentiment
 wikipedia

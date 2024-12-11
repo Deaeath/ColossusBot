@@ -9,6 +9,7 @@ debugging and logging capabilities.
 
 import logging
 import os
+import requests
 from flask import render_template, current_app
 from typing import Dict, Any
 
@@ -73,18 +74,25 @@ class Renderer:
             raise
 
     @staticmethod
-    def render_commands(commands: Dict[str, Any]) -> str:
+    def render_commands() -> str:
         """
         Renders the commands page with dynamic commands data.
 
-        :param commands: A dictionary containing command metadata.
         :return: Rendered HTML for the commands page.
         """
         template_name = "commands.html"
         Renderer._log_debug_info(template_name)
         try:
-            logger.info(f"Rendering template: {template_name}")
-            return render_template(template_name, commands=commands)
+            logger.info(f"Fetching commands data for template: {template_name}")
+            # Fetch commands data from the API endpoint
+            response = requests.get('http://localhost:5000/api/commands')  # Adjust the URL and port as needed
+            response.raise_for_status()
+            commands_data = response.json()
+            logger.debug(f"Commands data fetched: {commands_data}")
+            return render_template(template_name, commands=commands_data)
+        except requests.RequestException as req_err:
+            logger.error(f"HTTP error while fetching commands data: {req_err}", exc_info=True)
+            return "<p>Error fetching commands data.</p>"
         except Exception as e:
             logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
             raise
