@@ -12,6 +12,7 @@
                         <th scope="col">Command</th>
                         <th scope="col">Description</th>
                         <th scope="col">Usage</th>
+                        <th scope="col">Permissions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -20,6 +21,7 @@
                             <td>{{ name }}</td>
                             <td>{{ command.description }}</td>
                             <td><code>{{ command.usage }}</code></td>
+                            <td>{{ command.permissions }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
