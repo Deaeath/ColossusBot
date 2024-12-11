@@ -51,9 +51,6 @@ class EventsHandler(commands.Cog):
         self.reaction_role_menu = ReactionRoleMenu(client, db_handler)  # Instantiate ReactionRoleMenu
         self.autoresponder = Autoresponder(client, db_handler)  # Instantiate Autoresponder
 
-        # Start background tasks
-        self.check_tickets.start()
-
     def cog_unload(self):
         """
         Called when the cog is unloaded. Cancels any running background tasks.
