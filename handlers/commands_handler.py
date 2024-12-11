@@ -402,7 +402,10 @@ class CommandsHandler(commands.Cog):
             name = command.name
             description = command.help or "No description provided."
             usage = command.usage or "No usage information provided."
-            permissions = self._extract_command_permissions(command)
+            permissions = command.extras.get('permissions', "Default")
+            if isinstance(permissions, list):
+                permissions = ", ".join(sorted(permissions))
+
             commands_data[name] = {
                 'description': description,
                 'usage': usage,
