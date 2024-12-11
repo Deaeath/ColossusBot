@@ -53,8 +53,8 @@ ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord 
     - [**3. `channel_access_manager.py`**](#3-channel_access_managerpy)
     - [**4. `channel_archiver.py`**](#4-channel_archiverpy)
     - [**5. `ticket_checker.py`**](#5-ticket_checkerpy)
-    - [**6. `listeners/`**](#6-listeners)
-    - [**5. `listeners/`**](#5-listeners)
+    - [**6. `prefix_manager.py`**](#6-prefix_managerpy)
+    - [**7. `listeners/`**](#7-listeners)
       - [**1. `active_alert_checker.py`**](#1-active_alert_checkerpy)
       - [**2. `flagged_words_alert.py`**](#2-flagged_words_alertpy)
       - [**3. `nsfw_checker.py`**](#3-nsfw_checkerpy)
@@ -614,11 +614,11 @@ Toggles the periodic ticket inactivity monitoring. By default, ticket monitoring
 - `on` enables the monitoring of `ticket-*` channels every 5 minutes.
 - `off` disables the monitoring.
 
-### **6. `listeners/`**
+### **6. `prefix_manager.py`**
 
-**Listeners** react to events such as messages, reactions, and periodic tasks:
+Changes the prefix of the bot per guild. Default prefix will always be mentioning the bot.
 
-### **5. `listeners/`**
+### **7. `listeners/`**
 
 The `listeners/` directory contains cogs that handle various types of event-driven actions in ColossusBot. These listeners provide core functionality such as monitoring activity, handling flagged content, detecting NSFW material, and tracking repeated messages. Each listener responds to specific events within Discord and takes action based on those events. Here is an overview of the listeners in this directory:
 
