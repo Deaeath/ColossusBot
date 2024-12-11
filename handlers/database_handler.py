@@ -341,6 +341,14 @@ class DatabaseHandler:
                 paused_at TIMESTAMP
             )
             """,
+            
+            # Prefix Table
+            """
+            CREATE TABLE IF NOT EXISTS guild_prefixes (
+                guild_id INTEGER PRIMARY KEY,
+                prefix TEXT
+            )
+            """,
         ]
 
         # Execute all table creation queries
@@ -1434,3 +1442,29 @@ class DatabaseHandler:
                 channel_id
             )
             return result if result is not None else False
+        
+    # ==================== Prefix Methods ====================
+    
+    async def set_guild_prefix(self, guild_id: int, prefix: str) -> None:
+        """
+        Sets or updates the prefix for a given guild in the database.
+
+        :param guild_id: The guild ID.
+        :param prefix: The new prefix to set.
+        """
+        query = """
+            INSERT INTO guild_prefixes (guild_id, prefix)
+            VALUES (?, ?)
+            ON CONFLICT(guild_id) DO UPDATE SET prefix = ?
+        """
+        await self.execute(query, (guild_id, prefix, prefix))
+
+    async def get_all_guild_prefixes(self) -> Dict[int, str]:
+        """
+        Retrieves all guild prefixes from the database as a dictionary.
+
+        :return: A dictionary mapping guild_id -> prefix.
+        """
+        query = "SELECT guild_id, prefix FROM guild_prefixes"
+        rows = await self.fetchall(query)
+        return {row[0]: row[1] for row in rows} if rows else {}

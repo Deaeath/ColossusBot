@@ -16,6 +16,8 @@ from colossusCogs.admin_commands import AdminCommands
 from colossusCogs.channel_archiver import ChannelArchiver
 from colossusCogs.reaction_role_menu import ReactionRoleMenu  # Import the ReactionRoleMenu cog
 from colossusCogs.autoresponder import Autoresponder  # Import the Autoresponder cog
+from colossusCogs.ticket_checker import TicketChecker  # Import the TicketChecker cog
+from colossusCogs.prefix_manager import PrefixManager  # Import the PrefixManager cog
 from handlers.database_handler import DatabaseHandler
 from decorators import with_roles  # Custom decorator
 import logging
@@ -43,6 +45,8 @@ class CommandsHandler(commands.Cog):
         self.channel_archiver = ChannelArchiver(client, self.db_handler)
         self.reaction_role_menu = ReactionRoleMenu(client, self.db_handler)  # Instantiate ReactionRoleMenu
         self.autoresponder = Autoresponder(client, self.db_handler)  # Instantiate Autoresponder
+        self.ticket_checker = TicketChecker(client, self.db_handler)  # Instantiate TicketChecker
+        self.prefix_manager = PrefixManager(client, self.db_handler)  # Instantiate PrefixManager
         logger.info("CommandsHandler initialized successfully.")
 
     # Existing Command Methods
@@ -250,6 +254,34 @@ class CommandsHandler(commands.Cog):
         logger.info(f"Executing 'list_autoresponses' command in guild ID: {ctx.guild.id}")
         await self.autoresponder.list_autoresponses(ctx)
 
+    # Ticket Checker Commands
+    
+    @commands.command(name="ticketmonitor", help="Enable or disable the ticket monitoring task.", usage="!ticketmonitor [on|off]")
+    @commands.has_permissions(manage_channels=True)
+    async def ticketmonitor_command(self, ctx: commands.Context, state: str = None) -> None:
+        """
+        Command to enable or disable the ticket checks.
+        By default, ticket checks are disabled until enabled by this command.
+
+        :param ctx: The command context.
+        :param state: The desired state, either "on" or "off".
+        """
+        logger.info(f"Executing 'ticketmonitor' command with state: {state}")
+        await self.channel_manager.ticketmonitor_command(ctx, state)
+
+    # Prefix Manager Commands
+    
+    @commands.command(name="setprefix", help="Change the bot's command prefix for this guild.", usage="!setprefix <new_prefix>")
+    @commands.has_permissions(administrator=True)
+    async def setprefix(self, ctx: commands.Context, *, new_prefix: str) -> None:
+        """
+        Change the bot's command prefix for the current guild and persist it to the database.
+
+        :param ctx: The command context.
+        :param new_prefix: The new prefix to set for this guild.
+        """
+        logger.info(f"Executing 'setprefix' command with new prefix: {new_prefix}")
+        await self.channel_manager.setprefix(ctx, new_prefix)
 
 async def setup(client: commands.Bot) -> None:
     """

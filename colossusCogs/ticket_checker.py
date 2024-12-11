@@ -18,10 +18,9 @@ import discord
 from discord.ext import commands, tasks
 from handlers.database_handler import DatabaseHandler
 
-logger = logging.getLogger("ColossusBot")
-logger.setLevel(logging.INFO)
-
-TICKET_CHANNEL_PATTERN = re.compile(r"ticket-\d+")
+# Set up logger
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 class TicketChecker(commands.Cog):
@@ -42,6 +41,7 @@ class TicketChecker(commands.Cog):
         # The ticket checks are off by default.
         # The `ticketmonitor` command can enable or disable it.
         self.ticket_checks_enabled = False
+        self.TICKET_CHANNEL_PATTERN = re.compile(r"ticket-\d+")
         logger.info("TicketChecker initialized successfully with checks disabled.")
 
     def cog_unload(self):
@@ -79,7 +79,7 @@ class TicketChecker(commands.Cog):
         logger.info("Starting ticket check loop iteration")
         for guild in self.client.guilds:
             for channel in guild.text_channels:
-                if TICKET_CHANNEL_PATTERN.match(channel.name):
+                if self.TICKET_CHANNEL_PATTERN.match(channel.name):
                     # Check if the channel is paused
                     is_paused = await self.db_handler.is_channel_paused(channel.id)
                     if is_paused:
@@ -119,7 +119,6 @@ class TicketChecker(commands.Cog):
                             except discord.HTTPException as e:
                                 logger.error(f"HTTPException when managing channel {channel.name}: {e}")
 
-    @commands.command(name="ticketmonitor", help="Enable or disable the ticket monitoring task. Usage: !ticketmonitor [on|off]")
     async def ticketmonitor_command(self, ctx: commands.Context, state: str = None):
         """
         Command to enable or disable the ticket checks.
@@ -164,4 +163,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The Discord bot client instance.
     :param db_handler: Instance of the DatabaseHandler to interact with the database.
     """
+    logger.info("Setting up TicketChecker cog...")
     await client.add_cog(TicketChecker(client, db_handler))
+    logger.info("TicketChecker cog setup complete.")
