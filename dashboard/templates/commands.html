@@ -12,7 +12,6 @@
                         <th scope="col">Command</th>
                         <th scope="col">Description</th>
                         <th scope="col">Usage</th>
-                        {% comment %} <th scope="col">Permissions</th> {% endcomment %}
                     </tr>
                 </thead>
                 <tbody>
@@ -21,7 +20,6 @@
                             <td>{{ name }}</td>
                             <td>{{ command.description }}</td>
                             <td><code>{{ command.usage }}</code></td>
-                            {% comment %} <td>{{ command.permissions }}</td> {% endcomment %}
                         </tr>
                     {% endfor %}
                 </tbody>
