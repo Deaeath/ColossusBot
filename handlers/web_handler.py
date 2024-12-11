@@ -13,6 +13,7 @@ from flask import Flask, jsonify, request
 from threading import Thread
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer
+from discord.ext import commands  # Ensure commands is imported
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -24,7 +25,7 @@ class WebHandler:
     A handler for managing the web interface of ColossusBot.
     """
 
-    def __init__(self, client: Any, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8119) -> None:
+    def __init__(self, client: commands.Bot, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8119) -> None:
         """
         Initializes the WebHandler.
 
@@ -74,7 +75,7 @@ class WebHandler:
         self._add_route('/status', self.status)
         self._add_route('/api/console', self.get_console_logs, methods=['GET'])
         self._add_route('/api/commands', self.get_commands, methods=['GET'])
-        self._add_route('/api/status', self.get_status, methods=['GET'])
+        self._add_route('/api/status', self.get_status_api, methods=['GET'])  # Renamed to avoid duplication
         self._add_route('/api/action/<action>', self.trigger_action, methods=['POST'])
 
     def _add_route(self, route: str, view_func, methods: List[str] = ['GET']) -> None:
@@ -136,7 +137,7 @@ class WebHandler:
         commands_metadata = self._fetch_commands_metadata()
         return jsonify(commands_metadata)
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status_api(self) -> Dict[str, Any]:
         """
         API endpoint to fetch the bot's current status.
         """
@@ -157,37 +158,6 @@ class WebHandler:
         except Exception as e:
             logger.error(f"Error rendering status page: {e}", exc_info=True)
             return jsonify({"error": "Failed to load status page."}), 500
-
-    def get_status(self) -> Dict[str, Any]:
-        """
-        API endpoint to fetch the bot's current status.
-        """
-        logger.debug("Accessed '/api/status' route to fetch bot status.")
-
-        current_time = time.strftime("%H:%M", time.localtime())
-        current_latency = round(self.client.latency * 1000, 2) if self.client.is_ready() else None
-
-        # Update latency history
-        if current_latency is not None:
-            self.latency_history['labels'].append(current_time)
-            self.latency_history['values'].append(current_latency)
-
-            # Keep only the last 20 entries
-            if len(self.latency_history['labels']) > 20:
-                self.latency_history['labels'].pop(0)
-                self.latency_history['values'].pop(0)
-
-        # Calculate uptime percentage
-        uptime_seconds = time.time() - self.start_time
-        uptime_percentage = min((uptime_seconds / (uptime_seconds + 60)) * 100, 100)  # Simplified
-
-        return jsonify({
-            "status": "online" if self.client.is_ready() else "offline",
-            "guilds": len(self.client.guilds),
-            "latency": current_latency,
-            "latency_history": self.latency_history,
-            "uptime_percentage": uptime_percentage
-        })
 
     def trigger_action(self, action: str) -> Dict[str, Any]:
         """
@@ -217,6 +187,37 @@ class WebHandler:
             logger.error(f"Error performing action '{action}': {e}", exc_info=True)
             return jsonify({"success": False, "error": str(e)}), 400
 
+    def _extract_command_permissions(self, command: commands.Command) -> str:
+        """
+        Extracts the permissions required for a given command based on its decorators.
+
+        :param command: The command to inspect.
+        :return: A string listing the required permissions.
+        """
+        permissions = set()
+
+        for check in command.checks:
+            # Inspect for @commands.has_permissions
+            if hasattr(check, 'predicate'):
+                predicate = check.predicate
+                if hasattr(predicate, 'permissions'):
+                    perms = [
+                        perm.replace('_', ' ').title()
+                        for perm, value in predicate.permissions.items()
+                        if value
+                    ]
+                    permissions.update(perms)
+
+            # Inspect for custom @with_roles decorator
+            if hasattr(check, 'roles'):
+                roles = [
+                    role.replace('_', ' ').title() if isinstance(role, str) else str(role)
+                    for role in check.roles
+                ]
+                permissions.update(roles)
+
+        return ", ".join(sorted(permissions)) if permissions else "Default"
+
     def _fetch_commands_metadata(self) -> Dict[str, Any]:
         """
         Retrieves the commands metadata from the bot's cogs.
@@ -228,10 +229,11 @@ class WebHandler:
         try:
             for cog_name, cog in self.client.cogs.items():
                 for command in cog.get_commands():
+                    permissions = self._extract_command_permissions(command)
                     commands_metadata[command.name] = {
                         "description": command.help or "No description provided.",
                         "usage": command.usage or "No usage provided.",
-                        "permissions": ", ".join([perm for perm in getattr(command, 'permissions', ['Default'])]),
+                        "permissions": permissions,
                     }
             logger.debug("Successfully fetched commands metadata.")
         except Exception as e:
