@@ -13,7 +13,7 @@ from flask import Flask, jsonify, request
 from threading import Thread
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer
-from discord.ext import commands  # Ensure commands is imported
+from discord.ext import commands as discord_commands  # Renamed to avoid conflict
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -25,7 +25,7 @@ class WebHandler:
     A handler for managing the web interface of ColossusBot.
     """
 
-    def __init__(self, client: commands.Bot, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8119) -> None:
+    def __init__(self, client: discord_commands.Bot, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8119) -> None:
         """
         Initializes the WebHandler.
 
@@ -187,7 +187,7 @@ class WebHandler:
             logger.error(f"Error performing action '{action}': {e}", exc_info=True)
             return jsonify({"success": False, "error": str(e)}), 400
 
-    def _extract_command_permissions(self, command: commands.Command) -> str:
+    def _extract_command_permissions(self, command: discord_commands.Command) -> str:
         """
         Extracts the permissions required for a given command based on its decorators.
 
