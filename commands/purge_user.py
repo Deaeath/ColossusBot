@@ -84,7 +84,8 @@ class PurgeMessages(commands.Cog):
 
     @commands.command(name="purge_user",
                       help="Purge messages from a specific user across all text channels.",
-                      usage="!purge_user <user_id>",)
+                      usage="!purge_user <user_id>",
+                      extras={"permissions": ["Manage Messages"]})
     @commands.has_permissions(manage_messages=True)
     async def purge_user(self, ctx: commands.Context, user_id: int) -> None:
         """

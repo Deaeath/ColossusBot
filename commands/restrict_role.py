@@ -34,7 +34,8 @@ class RestrictRole(commands.Cog):
     @commands.command(name="restrict_role",
                       help="Restrict a role to only view one specific channel.",
                       usage="!restrict_role <role> <channel>",
-                      aliases=["restrictrole"])
+                      aliases=["restrictrole"],
+                      extras={"permissions": ["administrator"]})
     @commands.has_permissions(administrator=True)
     async def restrict_role(
         self, ctx: commands.Context, role: Optional[discord.Role] = None, allowed_channel: Optional[discord.TextChannel] = None

@@ -34,7 +34,8 @@ class SayCommand(commands.Cog):
 
     @commands.command(
         help="Sends a message to a specified channel.",
-        usage="!say <channel_id> [message]"
+        usage="!say <channel_id> [message]",
+        extras={"permissions": ["administrator"]},
     )
     @commands.has_permissions(administrator=True)
     async def say(self, ctx: Context, channel_id: int, *, message: str) -> None:
