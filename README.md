@@ -17,6 +17,7 @@ ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord 
   - [**Security Features**](#security-features)
     - [**How ColossusBot Protects Your Server**:](#how-colossusbot-protects-your-server)
   - [**Project Structure**](#project-structure)
+  - [**Project Structure**](#project-structure-1)
   - [**Detailed Component Overview**](#detailed-component-overview)
     - [**Client Handler**](#client-handler)
     - [**Database Handler**](#database-handler)
@@ -32,10 +33,12 @@ ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord 
         - [**2. Reaction Events**](#2-reaction-events)
         - [**3. Periodic Tasks**](#3-periodic-tasks)
     - [**Web Dashboard**](#web-dashboard)
-      - [**Key Features**](#key-features-3)
-        - [**1. Index Page (index.html)**](#1-index-page-indexhtml)
-        - [**2. Console Logs (console.html)**](#2-console-logs-consolehtml)
-        - [**3. API Endpoints**](#3-api-endpoints)
+    - [**Key Features**](#key-features-3)
+    - [**Detailed Component Overview**](#detailed-component-overview-1)
+      - [**Web Dashboard**](#web-dashboard-1)
+        - [**Key Features**](#key-features-4)
+        - [**Renderer (`renderer.py`)**](#renderer-rendererpy)
+        - [**Web Handler (`web_handler.py`)**](#web-handler-web_handlerpy)
   - [**Dependencies**](#dependencies)
   - [**Setup Instructions**](#setup-instructions)
     - [**Prerequisites**](#prerequisites)
@@ -153,6 +156,10 @@ By combining these self-hosting best practices with the bot's built-in event lis
 
 Below is the directory structure of ColossusBot:
 
+## **Project Structure**
+
+Below is the directory structure of ColossusBot:
+
 ```plaintext
 ColossusBot/
 ├── .env                          # Default environment variables (editable)
@@ -215,15 +222,16 @@ ColossusBot/
 │   │   ├── css/
 │   │   │   └── style.css         # Dashboard styles
 │   │   └── js/
-│   │       └── script.js         # Dashboard scripts
+│   │       └── scripts.js        # Dashboard scripts
 │   └── templates/
 │       ├── base.html             # Base HTML layout
 │       ├── index.html            # Dashboard home page
-│       └── console.html          # Console logs view
+│       ├── console.html          # Console logs view
+│       └── status.html           # Status page with graphical data
 └── handlers/                     # Core backend logic
     ├── client_handler.py         # Initializes the bot client
     ├── commands_handler.py       # Routes and executes commands
-    ├── database_handler.py       # Handles database trans.
+    ├── database_handler.py       # Handles database transactions
     ├── event_handler.py          # Handles Discord events
     └── web_handler.py            # Manages web interface
 ```
@@ -334,35 +342,113 @@ This task ensures that the bot maintains an active and well-managed ticket syste
 
 ### **Web Dashboard**
 
-The web dashboard provides a **real-time interface** for managing and monitoring ColossusBot.
+The web dashboard provides a **real-time interface** for managing and monitoring ColossusBot. It leverages **Flask** for a lightweight and responsive design, ensuring that server administrators can efficiently oversee bot activities and server metrics.
 
-#### **Key Features**
-##### **1. Index Page (index.html)**
-   - Displays a welcome message and links to other sections.
-##### **2. Console Logs (console.html)**
-   - Shows real-time logs with a toggle for autoscroll.
-##### **3. API Endpoints**
-   - /api/status: Returns bot status (online, latency, guild count).
-   - /api/console: Fetches the latest console logs.
-   - /api/commands: Returns metadata for all available commands.
+### **Key Features**
+
+1. **Flask-Powered**: Utilizes Flask to serve dynamic and responsive web pages.
+2. **Index Page (`index.html`)**:
+   - Displays a welcome message and navigation links to other dashboard sections.
+3. **Console Logs (`console.html`)**:
+   - Shows real-time logs with options to filter and search through console output.
+4. **Status Page (`status.html`)**:
+   - **Bot Status**: Displays whether the bot is online, the number of guilds it's connected to, and its current latency.
+   - **Latency Over Time**: Visualizes latency changes using interactive line charts powered by Chart.js.
+   - **Uptime**: Shows the bot's uptime percentage with doughnut charts for easy monitoring.
+   - **Real-Time Data**: Integrates dynamic data fetching from API endpoints to keep metrics up-to-date without needing to refresh the page.
+5. **API Endpoints**:
+   - `/api/status`: Returns bot status including online status, latency, guild count, latency history, and uptime percentage.
+   - `/api/console`: Fetches the latest console logs for display in the dashboard.
+   - `/api/commands`: Returns metadata for all available commands.
+   - `/api/action/<action>`: Allows triggering specific bot actions like restarting or reloading cogs via the dashboard.
+
+### **Detailed Component Overview**
+
+#### **Web Dashboard**
+
+The `Web Dashboard` component serves as the administrative interface for ColossusBot, providing real-time monitoring and management capabilities. It is built using **Flask** and is designed to be both responsive and user-friendly.
+
+##### **Key Features**
+
+1. **Index Page (`index.html`)**:
+   - Acts as the landing page for the dashboard.
+   - Provides quick links to other sections like Console Logs, Commands, and Status.
+
+2. **Console Logs (`console.html`)**:
+   - Displays real-time console logs.
+   - Includes features like filtering, searching, and auto-scrolling to monitor bot activity effectively.
+
+3. **Status Page (`status.html`)**:
+   - **Bot Status**: Shows whether the bot is online, the number of guilds it's connected to, and its current latency.
+   - **Latency Over Time**: Visualizes latency trends using interactive line charts powered by Chart.js.
+   - **Uptime**: Displays the bot's uptime percentage using doughnut charts for easy monitoring.
+   - **Real-Time Data Fetching**: Utilizes API endpoints to fetch and display up-to-date metrics without needing to refresh the page.
+
+4. **API Endpoints**:
+   - **`/api/status`**: Provides comprehensive status information, including online status, latency, guild count, latency history, and uptime percentage.
+   - **`/api/console`**: Fetches the latest console logs for display on the Console Logs page.
+   - **`/api/commands`**: Returns metadata for all available bot commands, aiding in command management and inspection.
+   - **`/api/action/<action>`**: Allows administrators to trigger specific bot actions, such as restarting the bot or reloading cogs, directly from the dashboard.
+
+##### **Renderer (`renderer.py`)**
+
+The `Renderer` class is responsible for rendering HTML templates with dynamic data. It includes methods for each dashboard page:
+
+- **`render_index()`**: Renders the home page.
+- **`render_console()`**: Renders the console logs page.
+- **`render_commands(commands)`**: Renders the commands management page with dynamic command data.
+- **`render_status()`**: Renders the newly added status page with graphical data representations.
+
+Each method includes detailed logging and error handling to facilitate debugging and maintenance.
+
+##### **Web Handler (`web_handler.py`)**
+
+The `WebHandler` class manages the Flask application, setting up routes and handling requests:
+
+- **Routes**:
+  - `/`: Home page.
+  - `/console`: Console logs page.
+  - `/commands`: Commands management page.
+  - `/status`: Status page.
+  - `/api/status`: Returns bot status data.
+  - `/api/console`: Returns console logs data.
+  - `/api/commands`: Returns commands metadata.
+  - `/api/action/<action>`: Triggers specific bot actions.
+
+- **Methods**:
+  - **`index()`**: Handles the home page rendering.
+  - **`console()`**: Handles the console logs page rendering.
+  - **`commands()`**: Handles the commands page rendering.
+  - **`status()`**: Handles the status page rendering.
+  - **`get_status()`**: Provides status data for the Status page.
+  - **`get_console_logs()`**: Provides console logs data.
+  - **`get_commands()`**: Provides commands metadata.
+  - **`trigger_action(action)`**: Executes specific bot actions based on the triggered route.
+
+- **Thread Management**:
+  - **`start()`**: Runs the Flask app in a separate daemon thread.
+  - **`stop()`**: Gracefully shuts down the Flask app.
+
+The `WebHandler` ensures seamless integration between the backend bot functionalities and the frontend dashboard interface.
 
 ## **Dependencies**
 
 ColossusBot relies on the following Python libraries:
 
-| Dependency         | Purpose                                   |
-|--------------------|-------------------------------------------|
-| aiohttp          | Asynchronous HTTP client library.        |
-| aiosqlite        | Async SQLite integration.                |
-| aiomysql         | Async MySQL integration.                 |
-| asyncio          | Async programming framework.             |
-| Flask            | Web dashboard framework.                 |
-| googlesearch-python | Google search API wrapper.            |
-| numpy            | Numerical computations.                  |
-| openai           | Integration with OpenAI's API.           |
-| Pillow           | Image processing and manipulation.       |
-| vaderSentiment   | Sentiment analysis.                      |
-| wikipedia-api    | Modern Wikipedia API wrapper.            |
+| Dependency          | Purpose                                                              |
+|---------------------|------------------------------==--------------------------------------|
+| aiohttp             | Asynchronous HTTP client library.                                    |
+| aiosqlite           | Async SQLite integration.                                            |
+| aiomysql            | Async MySQL integration.                                             |
+| asyncio             | Async programming framework.                                         |
+| Chart.js            | Front-end JS library for interactive charts used in the Status Page. |
+| Flask               | Web dashboard framework.                                             |
+| googlesearch-python | Google search API wrapper.                                           |
+| numpy               | Numerical computations.                                              |
+| openai              | Integration with OpenAI's API.                                       |
+| Pillow              | Image processing and manipulation.                                   |
+| vaderSentiment      | Sentiment analysis.                                                  |
+| wikipedia-api       | Modern Wikipedia API wrapper.                                        |
 
 To install dependencies, run:
 bash

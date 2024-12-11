@@ -6,6 +6,7 @@ WebHandler: Middleware Between Backend and Dashboard
 Provides Flask routes to serve the dashboard and backend data for ColossusBot.
 """
 
+from datetime import time
 import os
 import logging
 from flask import Flask, jsonify, request
@@ -13,9 +14,9 @@ from threading import Thread
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer
 
-# Configure logging for debugging
+# Set up logger
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger("ColossusBot.WebHandler")
+logger = logging.getLogger(__name__)
 
 
 class WebHandler:
@@ -49,6 +50,12 @@ class WebHandler:
         logger.debug(f"Template directory set to: {template_dir}")
         logger.debug(f"Static directory set to: {static_dir}")
 
+        self.latency_history = {
+            "labels": [],
+            "values": []
+        }
+        self.start_time = time.time()
+
         # Initialize Flask app with static and template folders
         self.app = Flask(
             __name__,
@@ -64,6 +71,7 @@ class WebHandler:
         self._add_route('/', self.index)
         self._add_route('/console', self.console)
         self._add_route('/commands', self.commands)
+        self._add_route('/status', self.status)
         self._add_route('/api/console', self.get_console_logs, methods=['GET'])
         self._add_route('/api/commands', self.get_commands, methods=['GET'])
         self._add_route('/api/status', self.get_status, methods=['GET'])
@@ -137,6 +145,48 @@ class WebHandler:
             "status": "online" if self.client.is_ready() else "offline",
             "guilds": len(self.client.guilds),
             "latency": round(self.client.latency * 1000, 2),  # ms
+        })
+
+    def status(self) -> str:
+        """
+        Renders the status page.
+        """
+        logger.debug("Accessed '/status' route for status page.")
+        try:
+            return Renderer.render_status()
+        except Exception as e:
+            logger.error(f"Error rendering status page: {e}", exc_info=True)
+            return jsonify({"error": "Failed to load status page."}), 500
+
+    def get_status(self) -> Dict[str, Any]:
+        """
+        API endpoint to fetch the bot's current status.
+        """
+        logger.debug("Accessed '/api/status' route to fetch bot status.")
+
+        current_time = time.strftime("%H:%M", time.localtime())
+        current_latency = round(self.client.latency * 1000, 2) if self.client.is_ready() else None
+
+        # Update latency history
+        if current_latency is not None:
+            self.latency_history['labels'].append(current_time)
+            self.latency_history['values'].append(current_latency)
+
+            # Keep only the last 20 entries
+            if len(self.latency_history['labels']) > 20:
+                self.latency_history['labels'].pop(0)
+                self.latency_history['values'].pop(0)
+
+        # Calculate uptime percentage
+        uptime_seconds = time.time() - self.start_time
+        uptime_percentage = min((uptime_seconds / (uptime_seconds + 60)) * 100, 100)  # Simplified
+
+        return jsonify({
+            "status": "online" if self.client.is_ready() else "offline",
+            "guilds": len(self.client.guilds),
+            "latency": current_latency,
+            "latency_history": self.latency_history,
+            "uptime_percentage": uptime_percentage
         })
 
     def trigger_action(self, action: str) -> Dict[str, Any]:

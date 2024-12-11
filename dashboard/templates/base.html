@@ -4,49 +4,78 @@
 <html lang="en">
 
 <head>
-    <!-- Existing head content -->
+    <!-- Character Encoding -->
     <meta charset="UTF-8">
+    
+    <!-- Responsive Design -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
     <!-- Favicon -->
     <link rel="icon" href="{{ url_for('static', filename='icon.ico') }}">
+    
+    <!-- Page Title -->
     <title>ColossusBot Dashboard</title>
 </head>
 
 <body>
-    <header class="header py-3">
+    <!-- Header Section -->
+    <header class="header py-3 bg-dark text-white">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="title">ColossusBot Dashboard</h1>
+                <!-- Dashboard Title -->
+                <h1 class="title h4">ColossusBot Dashboard</h1>
+                
+                <!-- Navigation Menu -->
                 <nav class="navbar">
                     <ul class="nav">
-                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/console">Console Logs</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/commands">Commands</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/api/status">Status</a></li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/console">Console Logs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/commands">Commands</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="/status">Status</a>
+                        </li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
+    <!-- Main Content Area -->
     <main class="container my-4">
-        {% block content %}{% endblock %}
+        {% block content %}
+        <!-- Child templates will inject their content here -->
+        {% endblock %}
     </main>
 
+    <!-- Footer Section -->
     <footer class="footer bg-light text-center py-3">
         <div class="container">
-            <p>&copy; 2024 👑 King Colossus 👑. All rights reserved.</p>
+            <p class="mb-0">&copy; 2024 👑 King Colossus 👑. All rights reserved.</p>
         </div>
     </footer>
 
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <!-- Custom Scripts as ES6 Module -->
     <script type="module" src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    
+    <!-- Additional Scripts Block -->
+    {% block scripts %}
+    <!-- Child templates can inject additional scripts here -->
+    {% endblock %}
 </body>
 
 </html>

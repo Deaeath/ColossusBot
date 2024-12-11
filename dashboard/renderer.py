@@ -88,3 +88,19 @@ class Renderer:
         except Exception as e:
             logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
             raise
+
+    @staticmethod
+    def render_status() -> str:
+        """
+        Renders the status page with graphical data representations.
+
+        :return: Rendered HTML for the status page.
+        """
+        template_name = "status.html"
+        Renderer._log_debug_info(template_name)
+        try:
+            logger.info(f"Rendering template: {template_name}")
+            return render_template(template_name)
+        except Exception as e:
+            logger.error(f"Failed to render template '{template_name}': {e}", exc_info=True)
+            raise
