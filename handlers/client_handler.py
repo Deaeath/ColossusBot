@@ -1,12 +1,3 @@
-# File: handlers/client_handler.py
-
-"""
-ClientHandler: Manages Client Initialization
---------------------------------------------
-Centralized setup for Discord client and related configurations.
-Loads per-guild prefixes from the database into memory.
-"""
-
 import logging
 from typing import Dict, Union, List
 import discord
@@ -114,22 +105,40 @@ class ClientHandler:
             if message.content.strip() == f"<@{self.client.user.id}>":
                 guild_id = message.guild.id if message.guild else None
                 prefix = self.client.guild_prefixes.get(guild_id, BOT_PREFIX)
-                help_message = (
-                    f"Hello! I am ColossusBot, your versatile Discord assistant.\n\n"
-                    "**Key Features:**\n"
-                    "- **Help**: Use `@ColossusBot help` or `{prefix}help` for detailed commands.\n"
-                    "- **Custom Prefix**: Each server can set its own prefix. Default is `{BOT_PREFIX}`.\n"
-                    "- **Advanced Features**: Check out moderation, alerts, and more!\n"
-                    "- **Documentation**: Visit the README for more details.\n\n"
-                    f"**Environment Info:**\n"
-                    f"- **Default Prefix**: `{BOT_PREFIX}`\n"
-                    f"- **Database Engine**: `{DATABASE_CONFIG.get('engine', 'sqlite')}`\n"
-                    f"- **Database Host**: `{DATABASE_CONFIG.get('host', 'localhost')}`\n"
-                    f"- **Google API Configured**: {'Yes' if GOOGLE_API_KEY and CX_ID else 'No'}\n"
-                    f"- **OpenAI API Configured**: {'Yes' if OPENAI_API_KEY else 'No'}\n"
-                    f"- **Connected Guilds**: {len(self.client.guilds)}\n"
+
+                embed = discord.Embed(
+                    title="ColossusBot Help",
+                    description="Hello! I am ColossusBot, your versatile Discord assistant. Here are some details to get you started:",
+                    color=discord.Color.blue()
                 )
-                await message.channel.send(help_message)
+
+                embed.add_field(
+                    name="Key Features",
+                    value=(
+                        f"- **Help**: Use `@ColossusBot help` or `{prefix}help` for detailed commands.\n"
+                        f"- **Custom Prefix**: Each server can set its own prefix. Default is `{BOT_PREFIX}`.\n"
+                        f"- **Advanced Features**: Check out moderation, alerts, and more!\n"
+                        f"- **Documentation**: Visit the README for more details."
+                    ),
+                    inline=False
+                )
+
+                embed.add_field(
+                    name="Environment Info",
+                    value=(
+                        f"- **Default Prefix**: `{BOT_PREFIX}`\n"
+                        f"- **Database Engine**: `{DATABASE_CONFIG.get('engine', 'sqlite')}`\n"
+                        f"- **Database Host**: `{DATABASE_CONFIG.get('host', 'localhost')}`\n"
+                        f"- **Google API Configured**: {'Yes' if GOOGLE_API_KEY and CX_ID else 'No'}\n"
+                        f"- **OpenAI API Configured**: {'Yes' if OPENAI_API_KEY else 'No'}\n"
+                        f"- **Connected Guilds**: {len(self.client.guilds)}"
+                    ),
+                    inline=False
+                )
+
+                embed.set_footer(text="For more information, reach out to your server administrator or visit the project documentation.")
+
+                await message.channel.send(embed=embed)
 
             # Process other commands
             await self.client.process_commands(message)
