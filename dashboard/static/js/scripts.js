@@ -5,6 +5,7 @@
  */
 let autoScroll = true;
 let isFetching = false;
+let lastLogIndex = 0; // To keep track of the last fetched log
 
 /**
  * Toggles the auto-scroll feature on or off and updates the button label.
@@ -48,17 +49,14 @@ function displayError(message) {
 }
 
 /**
- * Updates the console log viewer with new log data.
- * @param {string[]} logs - Array of log strings to display.
+ * Appends new log entries to the console output.
+ * @param {string[]} newLogs - Array of new log strings to append.
  */
-function updateConsoleLogs(logs) {
+function appendConsoleLogs(newLogs) {
     const consoleOutput = document.getElementById('consoleOutput');
     if (!consoleOutput) return;
 
-    // Clear existing logs
-    consoleOutput.innerHTML = '';
-    // Populate with new logs
-    logs.forEach(log => {
+    newLogs.forEach(log => {
         const logEntry = document.createElement('div');
         logEntry.textContent = log;
         consoleOutput.appendChild(logEntry);
@@ -76,18 +74,31 @@ export async function fetchConsoleLogs() {
     if (isFetching) return; // Prevent overlapping fetches
     isFetching = true;
     try {
-        showLoading(true);
+        // Show loading indicator only during the first fetch
+        if (lastLogIndex === 0) {
+            showLoading(true);
+        }
         const response = await fetch('/api/console');
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        updateConsoleLogs(data.logs);
+        if (lastLogIndex === 0) {
+            showLoading(false);
+        }
+
+        const newLogs = data.logs.slice(lastLogIndex);
+        if (newLogs.length > 0) {
+            appendConsoleLogs(newLogs);
+            lastLogIndex = data.logs.length;
+        }
     } catch (error) {
         console.error('Error fetching console logs:', error);
         displayError(`Failed to fetch console logs: ${error.message}`);
+        if (lastLogIndex === 0) {
+            showLoading(false);
+        }
     } finally {
-        showLoading(false);
         isFetching = false;
     }
 }

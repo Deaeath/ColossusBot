@@ -6,7 +6,7 @@ body {
     margin: 0;
     padding: 0;
     line-height: 1.6;
-    color: #333;
+    color: #333; /* Default text color */
     background-color: #f4f4f9;
 }
 
@@ -31,7 +31,7 @@ header h1 {
     margin-top: 10px;
 }
 
-.nav-list {
+.nav {
     list-style: none;
     padding: 0;
     display: flex;
@@ -39,11 +39,11 @@ header h1 {
     gap: 20px;
 }
 
-.nav-list li {
+.nav-item {
     display: inline;
 }
 
-.nav-list a {
+.nav-link {
     color: white;
     text-decoration: none;
     font-weight: bold;
@@ -51,7 +51,7 @@ header h1 {
     border-radius: 5px;
 }
 
-.nav-list a:hover {
+.nav-link:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -122,8 +122,8 @@ th {
 
 /* Console Output */
 .console-output {
-    overflow-y: auto; /* Changed from 'scroll' to 'auto' for better UX */
-    height: 400px; /* Ensure consistent height */
+    overflow-y: auto; /* Only show scrollbar when necessary */
+    height: 400px; /* Consistent height */
     border: 1px solid #ddd;
     padding: 10px;
     background-color: #f9f9f9;
@@ -131,7 +131,7 @@ th {
     font-size: 0.9rem;
     text-align: left;
     margin-bottom: 10px;
-    white-space: pre-wrap; /* Allows for wrapped text */
+    white-space: pre-wrap; /* Allows wrapped text */
 }
 
 /* Console Container */
@@ -142,12 +142,14 @@ th {
 }
 
 /* Footer */
-footer {
+.footer {
     text-align: center;
     padding: 15px;
     background-color: #333;
     margin-top: 20px;
-    position: fixed;
-    bottom: 0;
+    /* Removed fixed positioning */
+    /* position: fixed;
+    bottom: 0; */
     width: 100%;
+    color: white; /* Ensures footer text is visible against dark background */
 }
