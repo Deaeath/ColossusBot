@@ -41,11 +41,11 @@ class HelpCog(commands.Cog):
         if word is None:
             embed = discord.Embed(
                 title="Bot Commands",
-                description="Here are the commands you can use:",
+                description="Here are the commands grouped by their parent cog:",
                 color=0xeee657
             )
 
-            # Sort cogs alphabetically by name and commands within cogs by name
+            # Sort cogs alphabetically by name
             sorted_cogs = sorted(self.client.cogs.items(), key=lambda cog: cog[0].lower())
             for cog_name, cog in sorted_cogs:
                 commands_list = sorted(
@@ -53,27 +53,15 @@ class HelpCog(commands.Cog):
                     key=lambda cmd: cmd.name.lower()
                 )  # Sort commands alphabetically by name
                 commands_info = "\n".join([
-                    f"**{cmd.name}** - {cmd.help.partition('. Usage:')[0].strip()}" +
-                    (f"\n**Usage:** `{cmd.help.partition('. Usage: ')[2].strip()}`" if ". Usage:" in (cmd.help or "") else "")
+                    f"**{cmd.name}** - {cmd.help.partition('. Usage:')[0].strip()}"
                     for cmd in commands_list if not cmd.hidden
                 ])
                 if commands_info:
-                    # Split commands_info into chunks of <=1024 characters
-                    while len(commands_info) > 1024:
-                        # Find the last newline before the 1024th character
-                        split_index = commands_info.rfind("\n", 0, 1024)
-                        if split_index == -1:
-                            split_index = 1024
-                        # Add a field with the current chunk
-                        embed.add_field(name=cog_name, value=commands_info[:split_index], inline=False)
-                        # Update commands_info to the remaining part
-                        commands_info = commands_info[split_index:].lstrip("\n")
-                    if commands_info:
-                        # Add the remaining commands_info as a new field
-                        embed.add_field(name=cog_name, value=commands_info, inline=False)
+                    # Add cog name and commands under it
+                    embed.add_field(name=cog_name, value=commands_info, inline=False)
 
             await ctx.send(embed=embed)
-            logger.info(f"[help] Displayed general help to {ctx.author}.")
+            logger.info(f"[HelpCog.help_command] Displayed general help to {ctx.author}.")
         else:
             command = self.client.get_command(word)
             if command:
@@ -87,7 +75,9 @@ class HelpCog(commands.Cog):
                 usage = command.help.partition(". Usage: ")[2] if (cmd_help := command.help) and ". Usage:" in cmd_help else "No specific usage."
                 embed.add_field(
                     name="**Usage**",
-                    value=f"```\n{usage}\n```" if usage and usage != "No specific usage." else "No specific usage provided.",
+                    value=f"```
+{usage}
+```" if usage and usage != "No specific usage." else "No specific usage provided.",
                     inline=False
                 )
 
@@ -95,10 +85,10 @@ class HelpCog(commands.Cog):
                     embed.add_field(name="**Aliases**", value=", ".join(command.aliases), inline=False)
 
                 await ctx.send(embed=embed)
-                logger.info(f"[help] Displayed help for command '{command.name}' to {ctx.author}.")
+                logger.info(f"[HelpCog.help_command] Displayed help for command '{command.name}' to {ctx.author}.")
             else:
                 await ctx.send(f"No information found for command: `{word}`")
-                logger.warning(f"[help] No information found for command: {word} requested by {ctx.author}.")
+                logger.warning(f"[HelpCog.help_command] No information found for command: {word} requested by {ctx.author}.")
 
 
 async def setup(client: commands.Bot):
