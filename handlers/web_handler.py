@@ -79,7 +79,10 @@ def setup_bot_logging():
     # Create and configure the ConsoleBufferHandler
     console_buffer_handler = ConsoleBufferHandler()
     console_buffer_handler.setLevel(logging.DEBUG)  # Capture all log levels
-    formatter = logging.Formatter('%m-%d %H:%M:%S %(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%m-%d %H:%M:%S'
+    )
     console_buffer_handler.setFormatter(formatter)
 
     # Add the handler to the root logger
