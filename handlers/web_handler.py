@@ -18,9 +18,27 @@ from dashboard.renderer import Renderer
 from discord.ext import commands as discord_commands  # Renamed to avoid conflict
 from flask.logging import default_handler
 
-# Set up logger
+# Set up logger for WebHandler
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+
+class SanitizingHandler(logging.StreamHandler):
+    """
+    A custom logging handler that sanitizes log messages by redacting IP addresses.
+    """
+    ipv4_regex = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
+    ipv6_regex = re.compile(r'\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b')
+
+    def emit(self, record):
+        original = self.format(record)
+        sanitized = self.sanitize_ips(original)
+        self.stream.write(sanitized + self.terminator)
+
+    def sanitize_ips(self, message: str) -> str:
+        message = self.ipv4_regex.sub('[REDACTED IP]', message)
+        message = self.ipv6_regex.sub('[REDACTED IP]', message)
+        return message
 
 
 class WebHandler:
@@ -45,9 +63,7 @@ class WebHandler:
             """
             self.original_stdout = original_stdout
             self.ipv4_regex = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
-            self.ipv6_regex = re.compile(
-                r'\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b'
-            )
+            self.ipv6_regex = re.compile(r'\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b')
 
         def sanitize_ips(self, data: str) -> str:
             """
@@ -102,10 +118,13 @@ class WebHandler:
         sys.stdout = self.DualStream(sys.stdout)
         sys.stderr = self.DualStream(sys.stderr)
 
-        # Redirect Flask logs through DualStream
+        # Redirect Flask 'werkzeug' logs through SanitizingHandler
         flask_logger = logging.getLogger('werkzeug')
         flask_logger.removeHandler(default_handler)  # Remove the default Flask handler
-        flask_logger.addHandler(logging.StreamHandler(sys.stdout))  # Redirect to sanitized stdout
+        sanitizing_handler = SanitizingHandler(sys.stdout)  # Use sanitized stdout
+        sanitizing_handler.setLevel(logging.INFO)
+        sanitizing_handler.setFormatter(logging.Formatter('%(message)s'))
+        flask_logger.addHandler(sanitizing_handler)
 
         # Determine the absolute paths for templates and static folders
         current_dir = os.path.dirname(os.path.abspath(__file__))

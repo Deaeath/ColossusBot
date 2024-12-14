@@ -12,8 +12,10 @@ let isFetching = false;
 export function toggleAutoScroll() {
     autoScroll = !autoScroll;
     const button = document.getElementById('toggleButton');
-    button.textContent = autoScroll ? 'Disable Autoscroll' : 'Enable Autoscroll';
-    button.setAttribute('aria-pressed', autoScroll);
+    if (button) {
+        button.textContent = autoScroll ? 'Disable Autoscroll' : 'Enable Autoscroll';
+        button.setAttribute('aria-pressed', autoScroll);
+    }
 }
 
 /**
@@ -22,6 +24,8 @@ export function toggleAutoScroll() {
  */
 function showLoading(show) {
     const consoleOutput = document.getElementById('consoleOutput');
+    if (!consoleOutput) return;
+
     if (show) {
         consoleOutput.innerHTML = `
             <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
@@ -29,6 +33,10 @@ function showLoading(show) {
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>`;
+    } else {
+        // Optionally, clear the loading indicator or maintain existing logs
+        // For example, you might choose to clear it:
+        // consoleOutput.innerHTML = '';
     }
 }
 
@@ -38,6 +46,8 @@ function showLoading(show) {
  */
 function displayError(message) {
     const consoleOutput = document.getElementById('consoleOutput');
+    if (!consoleOutput) return;
+
     consoleOutput.innerHTML = `<div class="text-danger">${message}</div>`;
 }
 
@@ -47,6 +57,8 @@ function displayError(message) {
  */
 function updateConsoleLogs(logs) {
     const consoleOutput = document.getElementById('consoleOutput');
+    if (!consoleOutput) return;
+
     // Clear existing logs
     consoleOutput.innerHTML = '';
     // Populate with new logs
@@ -84,8 +96,16 @@ export async function fetchConsoleLogs() {
     }
 }
 
-// Initialize log fetching on DOM content loaded
+// Initialize log fetching and auto-scroll toggling when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    fetchConsoleLogs(); // Initial fetch
-    setInterval(fetchConsoleLogs, 5000); // Fetch every 5 seconds
+    const consoleOutput = document.getElementById('consoleOutput');
+    const toggleButton = document.getElementById('toggleButton');
+
+    if (consoleOutput) {
+        if (toggleButton) {
+            toggleButton.addEventListener('click', toggleAutoScroll);
+        }
+        fetchConsoleLogs(); // Initial fetch
+        setInterval(fetchConsoleLogs, 5000); // Fetch every 5 seconds
+    }
 });
