@@ -49,17 +49,7 @@ class CommandsHandler(commands.Cog):
         self.autoresponder = Autoresponder(client, self.db_handler)
         self.ticket_checker = TicketChecker(client, self.db_handler)
         self.prefix_manager = PrefixManager(client, self.db_handler)
-        logger.info(self.log_message("__init__", "CommandsHandler initialized successfully."))
-
-    def log_message(self, method_name: str, message: str) -> str:
-        """
-        Helper method to format log messages with class and method names.
-
-        :param method_name: The name of the method calling the logger.
-        :param message: The log message.
-        :return: Formatted log message.
-        """
-        return f"[{self.__class__.__name__}.{method_name}] {message}"
+        logger.info(f"[{self.__class__.__name__}.__init__] CommandsHandler initialized successfully.")
 
     @commands.command(
         name="clear_chat",
@@ -75,7 +65,7 @@ class CommandsHandler(commands.Cog):
         :param ctx: The command context.
         :param args: Additional arguments for the clear_chat command.
         """
-        logger.info(self.log_message("clear_chat", f"Executing 'clear_chat' command. Routed to 'AIChatbot' cog. Args: {args}"))
+        logger.info(f"[{self.__class__.__name__}.clear_chat] Executing 'clear_chat' command. Args: {args}")
         await self.aichatbot.clear_chat(ctx, *args)
 
     @commands.command(
@@ -92,7 +82,7 @@ class CommandsHandler(commands.Cog):
         :param ctx: The command context.
         :param state: The desired state, either "on" or "off".
         """
-        logger.info(self.log_message("ticketmonitor_command", f"Executing 'ticketmonitor' command with state: {state}. Routed to 'TicketChecker' cog."))
+        logger.info(f"[{self.__class__.__name__}.ticketmonitor_command] Executing 'ticketmonitor' command with state: {state}")
         await self.ticket_checker.ticketmonitor_command(ctx, state)
 
     @commands.command(
@@ -109,7 +99,7 @@ class CommandsHandler(commands.Cog):
         :param ctx: The command context.
         :param args: Additional arguments for the reset_perms command.
         """
-        logger.info(self.log_message("reset_perms", f"Executing 'reset_perms' command. Routed to 'ChannelAccessManager' cog. Args: {args}"))
+        logger.info(f"[{self.__class__.__name__}.reset_perms] Executing 'reset_perms' command. Args: {args}")
         await self.channel_manager.reset_permissions(ctx, *args)
 
     @commands.command(
@@ -126,11 +116,98 @@ class CommandsHandler(commands.Cog):
         :param ctx: The command context.
         :param args: Additional arguments for the view_perms command.
         """
-        logger.info(self.log_message("view_perms", f"Executing 'view_perms' command. Routed to 'ChannelAccessManager' cog. Args: {args}"))
+        logger.info(f"[{self.__class__.__name__}.view_perms] Executing 'view_perms' command. Args: {args}")
         await self.channel_manager.view_logs(ctx, *args)
 
-    # Additional commands here with the same pattern...
+    @commands.command(
+        name="add_autoresponse",
+        help="Adds a new autoresponse.",
+        usage="!add_autoresponse <trigger> <response>",
+        extras={"permissions": ["Manage Messages"]},
+    )
+    @commands.has_permissions(manage_messages=True)
+    async def add_autoresponse(self, ctx: commands.Context, trigger: str, *, response: str) -> None:
+        """
+        Adds a new autoresponse to the server.
 
+        :param ctx: The command context.
+        :param trigger: The keyword or phrase to trigger the response.
+        :param response: The response message to send.
+        """
+        logger.info(f"[{self.__class__.__name__}.add_autoresponse] Executing 'add_autoresponse' with trigger: {trigger}")
+        await self.autoresponder.add_autoresponse(ctx, trigger, response)
+
+    @commands.command(
+        name="remove_autoresponse",
+        help="Removes an existing autoresponse.",
+        usage="!remove_autoresponse <id>",
+        extras={"permissions": ["Manage Messages"]},
+    )
+    @commands.has_permissions(manage_messages=True)
+    async def remove_autoresponse(self, ctx: commands.Context, autoresponse_id: int) -> None:
+        """
+        Removes an existing autoresponse from the server.
+
+        :param ctx: The command context.
+        :param autoresponse_id: The unique ID of the autoresponse to remove.
+        """
+        logger.info(f"[{self.__class__.__name__}.remove_autoresponse] Executing 'remove_autoresponse' for ID: {autoresponse_id}")
+        await self.autoresponder.remove_autoresponse(ctx, autoresponse_id)
+
+    @commands.command(
+        name="list_autoresponses",
+        help="Lists all autoresponses.",
+        usage="!list_autoresponses",
+        extras={"permissions": ["Manage Messages"]},
+    )
+    @commands.has_permissions(manage_messages=True)
+    async def list_autoresponses(self, ctx: commands.Context) -> None:
+        """
+        Lists all autoresponses configured in the server.
+
+        :param ctx: The command context.
+        """
+        logger.info(f"[{self.__class__.__name__}.list_autoresponses] Executing 'list_autoresponses'")
+        await self.autoresponder.list_autoresponses(ctx)
+
+    @commands.command(
+        name="setprefix",
+        help="Change the bot's command prefix for this guild.",
+        usage="!setprefix <new_prefix>",
+        extras={"permissions": ["Manage Guild"]},
+    )
+    @commands.has_permissions(manage_guild=True)
+    async def setprefix(self, ctx: commands.Context, *, new_prefix: str) -> None:
+        """
+        Change the bot's command prefix for the current guild and persist it to the database.
+
+        :param ctx: The command context.
+        :param new_prefix: The new prefix to set for this guild.
+        """
+        logger.info(f"[{self.__class__.__name__}.setprefix] Executing 'setprefix' with new prefix: {new_prefix}")
+        await self.prefix_manager.setprefix(ctx, new_prefix)
+
+    def get_commands_data(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Gathers all commands along with their descriptions, usage, and permissions.
+
+        :return: A dictionary containing command metadata.
+        """
+        commands_data = {}
+        for command in self.client.commands:
+            name = command.name
+            description = command.help or "No description provided."
+            usage = command.usage or "No usage information provided."
+            permissions = command.extras.get('permissions', "Default")
+            if isinstance(permissions, list):
+                permissions = ", ".join(sorted(permissions))
+            commands_data[name] = {
+                'description': description,
+                'usage': usage,
+                'permissions': permissions,
+            }
+        logger.debug(f"[{self.__class__.__name__}.get_commands_data] Compiled commands metadata.")
+        return commands_data
 
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """

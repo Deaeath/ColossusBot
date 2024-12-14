@@ -28,7 +28,7 @@ class HelpCog(commands.Cog):
         self.client = client
         # Remove the default help command to implement a custom one
         self.client.remove_command("help")
-        logger.info("HelpCog initialized and default help command removed.")
+        logger.info(f"[{self.__class__.__name__}.__init__] HelpCog initialized and default help command removed.")
 
     @commands.command(name="help")
     async def help_command(self, ctx: commands.Context, *, word: Optional[str] = None):
@@ -79,7 +79,7 @@ class HelpCog(commands.Cog):
                 embed.add_field(name="Uncategorized Commands", value=no_cog_info, inline=False)
 
             await ctx.send(embed=embed)
-            logger.info(f"[HelpCog.help_command] Displayed general help to {ctx.author}.")
+            logger.info(f"[{self.__class__.__name__}.help_command] Displayed general help to {ctx.author}.")
         else:
             command = self.client.get_command(word)
             if command:
@@ -101,10 +101,10 @@ class HelpCog(commands.Cog):
                     embed.add_field(name="**Aliases**", value=", ".join(command.aliases), inline=False)
 
                 await ctx.send(embed=embed)
-                logger.info(f"[HelpCog.help_command] Displayed help for command '{command.name}' to {ctx.author}.")
+                logger.info(f"[{self.__class__.__name__}.help_command] Displayed help for command '{command.name}' to {ctx.author}.")
             else:
                 await ctx.send(f"No information found for command: `{word}`")
-                logger.warning(f"[HelpCog.help_command] No information found for command: {word} requested by {ctx.author}.")
+                logger.warning(f"[{self.__class__.__name__}.help_command] No information found for command: {word} requested by {ctx.author}.")
 
 
 async def setup(client: commands.Bot):
@@ -114,4 +114,4 @@ async def setup(client: commands.Bot):
     :param client: The Discord client instance.
     """
     await client.add_cog(HelpCog(client))
-    logger.info("HelpCog has been added to the client.")
+    logger.info(f"[HelpCog.setup] HelpCog has been added to the client.")
