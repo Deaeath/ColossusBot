@@ -70,7 +70,7 @@ class ClientHandler:
         intents.reactions = True
         # Enable message_content if needed
         intents.message_content = True
-        logger.info(f"[{self.__class__.__name__} Intents configured.")
+        logger.info(f"[{ClientHandler.__name__} Intents configured.")
         return intents
 
     def get_client(self) -> commands.Bot:

@@ -163,6 +163,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The Discord bot client instance.
     :param db_handler: Instance of the DatabaseHandler to interact with the database.
     """
-    logger.info(f"[{self.__class__.__name__} Setting up TicketChecker cog...")
+    logger.info(f"[TicketChecker Setting up TicketChecker cog...")
     await client.add_cog(TicketChecker(client, db_handler))
-    logger.info(f"[{self.__class__.__name__} TicketChecker cog setup complete.")
+    logger.info(f"[TicketChecker TicketChecker cog setup complete.")

@@ -1864,7 +1864,7 @@ async def setup(client: commands.Bot) -> None:
 
     :param client: The instance of the Discord bot.
     """
-    logger.info(f"[{self.__class__.__name__} Loading EternalSlaveCog...")
+    logger.info(f"[EternalSlaveCog] Loading EternalSlaveCog...")
     db_handler = client.db_handler  # Access db_handler from the bot instance
     await client.add_cog(EternalSlaveCog(client, db_handler))
-    logger.info(f"[{self.__class__.__name__} EternalSlaveCog has been loaded.")
+    logger.info(f"[{EternalSlaveCog.__name__} EternalSlaveCog has been loaded.")

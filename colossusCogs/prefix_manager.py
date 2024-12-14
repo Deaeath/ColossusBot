@@ -72,6 +72,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The Discord bot client instance.
     :param db_handler: The database handler instance.
     """
-    logger.info(f"[{self.__class__.__name__} Setting up PrefixManager cog...")
+    logger.info(f"[{PrefixManager.__name__} Setting up PrefixManager cog...")
     await client.add_cog(PrefixManager(client, db_handler))
-    logger.info(f"[{self.__class__.__name__} PrefixManager cog setup complete.")
+    logger.info(f"[{PrefixManager.__name__} PrefixManager cog setup complete.")
