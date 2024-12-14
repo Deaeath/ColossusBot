@@ -29,7 +29,7 @@ class ClientHandler:
         # The guild_prefixes dictionary will be populated from the database on startup
         self.client.guild_prefixes = {}
 
-        logger.info(f"[{self.__class__.__name__}] ClientHandler initialization complete.")
+        logger.info(f"[{self.__class__.__name__}] ClientHandler initialized.")
 
         # Register event listeners
         self._register_event_listeners()
