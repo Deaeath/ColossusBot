@@ -16,6 +16,7 @@ from threading import Thread, Lock
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer
 from discord.ext import commands as discord_commands  # Renamed to avoid conflict
+from flask.logging import default_handler
 
 # Set up logger
 logging.basicConfig(level=logging.DEBUG)
@@ -97,9 +98,14 @@ class WebHandler:
         self.host = host
         self.port = port
 
-        # Replace stdout with DualStream to sanitize logs
+        # Replace stdout and stderr with DualStream to sanitize logs
         sys.stdout = self.DualStream(sys.stdout)
-        sys.stderr = self.DualStream(sys.stderr)  # Also sanitize stderr
+        sys.stderr = self.DualStream(sys.stderr)
+
+        # Redirect Flask logs through DualStream
+        flask_logger = logging.getLogger('werkzeug')
+        flask_logger.removeHandler(default_handler)  # Remove the default Flask handler
+        flask_logger.addHandler(logging.StreamHandler(sys.stdout))  # Redirect to sanitized stdout
 
         # Determine the absolute paths for templates and static folders
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -329,7 +335,7 @@ class WebHandler:
         Starts the Flask application.
         """
         logger.info(f"Starting web interface on {self.host}:{self.port}...")
-        self.app.run(host="0.0.0.0", port=self.port)  # Bind to all interfaces
+        self.app.run(host="0.0.0.0", port=self.port)
 
     def start(self) -> None:
         """
