@@ -38,7 +38,7 @@ class RepeatedMessageAlert(commands.Cog):
         self.SINGLE_USER_REPEAT_THRESHOLD = 5  # Threshold for repeated messages by a single user
         self.MIN_WORD_COUNT = 5  # Minimum word count to consider for repeated message detection
         self.logger = logging.getLogger("ColossusBot")
-        self.logger.info("RepeatedMessageAlert initialized.")
+        self.logger.info(f"[{self.__class__.__name__} RepeatedMessageAlert initialized.")
 
     async def on_message(self, message: discord.Message) -> None:
         """

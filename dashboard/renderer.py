@@ -36,7 +36,7 @@ class Renderer:
                 logger.debug(f"Configured Template Folder: {current_app.template_folder}")
                 logger.debug(f"Available Templates: {current_app.jinja_env.list_templates()}")
             else:
-                logger.warning("No active Flask application context detected.")
+                logger.warning(f"[{self.__class__.__name__} No active Flask application context detected.")
         except Exception as e:
             logger.error(f"Error while logging template debug info: {e}", exc_info=True)
 

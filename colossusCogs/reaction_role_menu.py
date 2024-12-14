@@ -709,6 +709,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The instance of the Discord bot.
     :param db_handler: Instance of the DatabaseHandler to interact with the database.
     """
-    logger.info("Loading ReactionRoleMenu cog...")
+    logger.info(f"[{self.__class__.__name__} Loading ReactionRoleMenu cog...")
     await client.add_cog(ReactionRoleMenu(client, db_handler))
-    logger.info("ReactionRoleMenu cog loaded.")
+    logger.info(f"[{self.__class__.__name__} ReactionRoleMenu cog loaded.")

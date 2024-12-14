@@ -34,7 +34,7 @@ class AIChatbot(commands.Cog):
         self.conversation_history = {}
         self.db_handler = db_handler
         self.logger = logging.getLogger("ColossusBot")
-        self.logger.info("AIChatbot initialized.")
+        self.logger.info(f"[{self.__class__.__name__} AIChatbot initialized.")
 
     async def clear_chat_history(self, user_id: int):
         """
@@ -83,7 +83,7 @@ class AIChatbot(commands.Cog):
         # Fetch guild configuration from the database
         config = await self.db_handler.get_config(guild_id)
         if not config:
-            self.logger.warning("No config found for guild %s.", guild_id)
+            self.logger.warning(f"[{self.__class__.__name__} No config found for guild %s.", guild_id)
             return
 
         owner_id = config.get("owner_id")
@@ -208,4 +208,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler):
     from config import OPENAI_API_KEY
     cog = AIChatbot(client, db_handler, OPENAI_API_KEY)
     await client.add_cog(cog)
-    client.logger.info("AIChatbot cog loaded successfully.")
+    client.logger.info(f"[{self.__class__.__name__} AIChatbot cog loaded successfully.")

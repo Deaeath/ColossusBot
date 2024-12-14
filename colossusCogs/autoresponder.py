@@ -13,7 +13,7 @@ class Autoresponder(commands.Cog):
     def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:
         self.client = client
         self.db_handler = db_handler
-        logger.info("Autoresponder cog initialized.")
+        logger.info(f"[{self.__class__.__name__} Autoresponder cog initialized.")
 
     async def add_autoresponse(self, ctx: commands.Context, trigger: str, response: str, channel: Optional[discord.TextChannel] = None) -> None:
         guild_id = ctx.guild.id
@@ -98,4 +98,4 @@ class Autoresponder(commands.Cog):
 
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     await client.add_cog(Autoresponder(client, db_handler))
-    logger.info("Autoresponder cog loaded successfully.")
+    logger.info(f"[{self.__class__.__name__} Autoresponder cog loaded successfully.")

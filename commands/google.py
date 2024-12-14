@@ -29,7 +29,7 @@ class Google(commands.Cog):
         Initializes the Google cog.
         """
         self.client = client
-        logger.info("Google cog initialized.")
+        logger.info(f"[{self.__class__.__name__} Google cog initialized.")
 
     @commands.command(aliases=["google", "googlesearch"],
                       help="Perform a Google search and return the top results.",

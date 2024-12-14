@@ -16,7 +16,7 @@ class ClientHandler:
         """
         Initializes the ClientHandler.
         """
-        logger.info("Initializing ClientHandler...")
+        logger.info(f"[{self.__class__.__name__} Initializing ClientHandler...")
         self.intents = self._setup_intents()
 
         self.client = commands.Bot(
@@ -29,7 +29,7 @@ class ClientHandler:
         # The guild_prefixes dictionary will be populated from the database on startup
         self.client.guild_prefixes = {}
 
-        logger.info("ClientHandler initialization complete.")
+        logger.info(f"[{self.__class__.__name__} ClientHandler initialization complete.")
 
         # Register event listeners
         self._register_event_listeners()
@@ -70,7 +70,7 @@ class ClientHandler:
         intents.reactions = True
         # Enable message_content if needed
         intents.message_content = True
-        logger.info("Intents configured.")
+        logger.info(f"[{self.__class__.__name__} Intents configured.")
         return intents
 
     def get_client(self) -> commands.Bot:

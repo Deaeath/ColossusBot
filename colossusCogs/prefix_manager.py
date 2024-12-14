@@ -30,7 +30,7 @@ class PrefixManager(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logger.info("PrefixManager initialized successfully.")
+        logger.info(f"[{self.__class__.__name__} PrefixManager initialized successfully.")
 
     async def setprefix(self, ctx: commands.Context, *, new_prefix: str) -> None:
         """
@@ -72,6 +72,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The Discord bot client instance.
     :param db_handler: The database handler instance.
     """
-    logger.info("Setting up PrefixManager cog...")
+    logger.info(f"[{self.__class__.__name__} Setting up PrefixManager cog...")
     await client.add_cog(PrefixManager(client, db_handler))
-    logger.info("PrefixManager cog setup complete.")
+    logger.info(f"[{self.__class__.__name__} PrefixManager cog setup complete.")

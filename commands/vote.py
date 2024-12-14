@@ -130,4 +130,4 @@ async def setup(client: commands.Bot) -> None:
     """
     db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(VoteCommands(client, db_handler))
-    logger.info("VoteCommands cog added successfully.")
+    logger.info(f"[{self.__class__.__name__} VoteCommands cog added successfully.")

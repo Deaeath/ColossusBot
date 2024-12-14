@@ -34,7 +34,7 @@ class CatfishCommand(commands.Cog):
             self: The CatfishCommand instance.
         """
         self.client = client
-        logger.info("CatfishCommand cog initialized.")
+        logger.info(f"[{self.__class__.__name__} CatfishCommand cog initialized.")
 
     @commands.command(
         help="Perform a reverse image search using SerpAPI.",

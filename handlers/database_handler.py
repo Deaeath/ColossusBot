@@ -61,7 +61,7 @@ class DatabaseHandler:
         """
         if self.db_config["engine"] == "sqlite":
             self.connection = await aiosqlite.connect(self.db_config["database"])
-            logger.info("Connected to SQLite database.")
+            logger.info(f"[{self.__class__.__name__} Connected to SQLite database.")
         elif self.db_config["engine"] == "mysql":
             self.connection = await aiomysql.connect(
                 host=self.db_config["host"],
@@ -69,7 +69,7 @@ class DatabaseHandler:
                 password=self.db_config["password"],
                 db=self.db_config["database"],
             )
-            logger.info("Connected to MySQL database.")
+            logger.info(f"[{self.__class__.__name__} Connected to MySQL database.")
         else:
             raise ValueError(f"Unsupported database engine: {self.db_config['engine']}")
 
@@ -358,7 +358,7 @@ class DatabaseHandler:
         # Add owner_id column if it doesn't exist (Migration Step)
         await self.migrate_guild_config()
 
-        logger.info("Database setup completed.")
+        logger.info(f"[{self.__class__.__name__} Database setup completed.")
 
     async def migrate_guild_config(self) -> None:
         """
@@ -373,7 +373,7 @@ class DatabaseHandler:
                 try:
                     alter_query = "ALTER TABLE guild_config ADD COLUMN owner_id INTEGER"
                     await self.execute(alter_query)
-                    logger.info("Migrated guild_config table: Added owner_id column.")
+                    logger.info(f"[{self.__class__.__name__} Migrated guild_config table: Added owner_id column.")
                 except Exception as e:
                     logger.error(f"Failed to migrate guild_config table in SQLite: {e}")
         elif self.db_config["engine"] == "mysql":
@@ -391,11 +391,11 @@ class DatabaseHandler:
                 try:
                     alter_query = "ALTER TABLE guild_config ADD COLUMN owner_id INT"
                     await self.execute(alter_query)
-                    logger.info("Migrated guild_config table: Added owner_id column.")
+                    logger.info(f"[{self.__class__.__name__} Migrated guild_config table: Added owner_id column.")
                 except Exception as e:
                     logger.error(f"Failed to migrate guild_config table in MySQL: {e}")
         else:
-            logger.warning("Migration for guild_config table is not implemented for this database engine.")
+            logger.warning(f"[{self.__class__.__name__} Migration for guild_config table is not implemented for this database engine.")
 
     async def execute(
         self,
@@ -463,7 +463,7 @@ class DatabaseHandler:
                 await self.connection.close()
             elif self.db_config["engine"] == "mysql":
                 self.connection.close()
-            logger.info("Database connection closed.")
+            logger.info(f"[{self.__class__.__name__} Database connection closed.")
 
     # ==================== Guild Configuration Methods ====================
 
@@ -642,7 +642,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info("FlaggedWordsAlert database setup completed.")
+        logger.info(f"[{self.__class__.__name__} FlaggedWordsAlert database setup completed.")
 
     async def insert_flagged_message(
         self,
@@ -797,7 +797,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info("NSFWChecker database setup completed.")
+        logger.info(f"[{self.__class__.__name__} NSFWChecker database setup completed.")
 
     async def insert_nsfw_message(
         self,
@@ -953,7 +953,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info("RepeatedMessageAlert database setup completed.")
+        logger.info(f"[{self.__class__.__name__} RepeatedMessageAlert database setup completed.")
 
     async def insert_repeated_message(
         self,
@@ -1086,7 +1086,7 @@ class DatabaseHandler:
         placeholders = ','.join(['?'] * len(message_ids))
         query = f"DELETE FROM repeated_messages WHERE message_id IN ({placeholders})"
         await self.execute(query, tuple(message_ids))
-        logger.info("RepeatedMessageAlert: Deleted repeated messages from the database.")
+        logger.info(f"[{self.__class__.__name__} RepeatedMessageAlert: Deleted repeated messages from the database.")
 
     # ==================== ReactionRoleMenu Methods ====================
 
@@ -1110,7 +1110,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info("ReactionRoleMenu database setup completed.")
+        logger.info(f"[{self.__class__.__name__} ReactionRoleMenu database setup completed.")
 
     async def insert_reaction_role_menu(
         self,

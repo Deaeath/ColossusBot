@@ -170,7 +170,7 @@ async def setup(client: commands.Bot):
 
     :param client: The Discord bot client instance.
     """
-    logger.info("Setting up EventsHandler cog...")
+    logger.info(f"[{self.__class__.__name__} Setting up EventsHandler cog...")
     db_handler = client.db_handler
     await client.add_cog(EventsHandler(client, db_handler))
-    logger.info("EventsHandler cog setup complete.")
+    logger.info(f"[{self.__class__.__name__} EventsHandler cog setup complete.")

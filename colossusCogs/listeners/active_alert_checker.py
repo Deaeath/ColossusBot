@@ -27,7 +27,7 @@ class ActiveAlertChecker:
         self.client = client
         self.db_handler = db_handler
         self.logger = logging.getLogger("ColossusBot")
-        self.logger.info("Active Alert Checker initialized.")
+        self.logger.info(f"[{self.__class__.__name__} Active Alert Checker initialized.")
 
     async def on_message(self, message: discord.Message):
         """

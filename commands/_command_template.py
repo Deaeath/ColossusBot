@@ -27,7 +27,7 @@ class CommandTemplate(commands.Cog):
         :param client: The Discord bot client instance.
         """
         self.client = client
-        logger.info("CommandTemplate initialized successfully.")
+        logger.info(f"[{self.__class__.__name__} CommandTemplate initialized successfully.")
 
     @commands.command(name="example", help="An example command to demonstrate functionality.", usage="!example [input_text]")
     async def example_command(self, ctx: commands.Context, *, input_text: str = "Default Response") -> None:
@@ -99,6 +99,6 @@ async def setup(client: commands.Bot) -> None:
 
     :param client: The Discord bot client instance.
     """
-    logger.info("Setting up CommandTemplate cog...")
+    logger.info(f"[{self.__class__.__name__} Setting up CommandTemplate cog...")
     await client.add_cog(CommandTemplate(client))
-    logger.info("CommandTemplate cog setup complete.")
+    logger.info(f"[{self.__class__.__name__} CommandTemplate cog setup complete.")
