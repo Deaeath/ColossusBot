@@ -28,12 +28,23 @@ function showLoading(show) {
     if (!consoleOutput) return;
 
     if (show) {
-        consoleOutput.innerHTML = `
-            <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+        // Add a spinner only if it's not already present
+        if (!consoleOutput.querySelector('.spinner-border')) {
+            const spinnerDiv = document.createElement('div');
+            spinnerDiv.classList.add('d-flex', 'justify-content-center', 'align-items-center');
+            spinnerDiv.style.height = '100%';
+            spinnerDiv.innerHTML = `
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>`;
+                </div>`;
+            consoleOutput.appendChild(spinnerDiv);
+        }
+    } else {
+        // Remove the spinner if it exists
+        const spinnerDiv = consoleOutput.querySelector('.spinner-border');
+        if (spinnerDiv) {
+            spinnerDiv.parentElement.remove();
+        }
     }
 }
 
@@ -45,6 +56,7 @@ function displayError(message) {
     const consoleOutput = document.getElementById('consoleOutput');
     if (!consoleOutput) return;
 
+    // Clear existing content and display the error
     consoleOutput.innerHTML = `<div class="text-danger">${message}</div>`;
 }
 
@@ -84,7 +96,7 @@ export async function fetchConsoleLogs() {
         }
         const data = await response.json();
         if (lastLogIndex === 0) {
-            showLoading(false);
+            showLoading(false); // Remove the spinner after the first fetch
         }
 
         const newLogs = data.logs.slice(lastLogIndex);
@@ -96,7 +108,7 @@ export async function fetchConsoleLogs() {
         console.error('Error fetching console logs:', error);
         displayError(`Failed to fetch console logs: ${error.message}`);
         if (lastLogIndex === 0) {
-            showLoading(false);
+            showLoading(false); // Ensure spinner is removed even on error
         }
     } finally {
         isFetching = false;
