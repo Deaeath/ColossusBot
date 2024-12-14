@@ -38,9 +38,7 @@ class ReactionRoleMenu(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logging.info("ReactionRoleMenu cog initialized.")
-
-    # Exposed Methods for CommandsHandler
+        logging.info("[ReactionRoleMenu] ReactionRoleMenu cog initialized.")
 
     async def create_menu(self, ctx: commands.Context) -> None:
         """
@@ -709,6 +707,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The instance of the Discord bot.
     :param db_handler: Instance of the DatabaseHandler to interact with the database.
     """
-    logger.info(f"[{self.__class__.__name__} Loading ReactionRoleMenu cog...")
+    logger.info("[ReactionRoleMenu] Setting up ReactionRoleMenu cog...")
     await client.add_cog(ReactionRoleMenu(client, db_handler))
-    logger.info(f"[{self.__class__.__name__} ReactionRoleMenu cog loaded.")
+    logger.info("[ReactionRoleMenu] ReactionRoleMenu cog setup complete.")

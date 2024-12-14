@@ -29,7 +29,7 @@ class ChannelAccessManager(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logger.info(f"[{self.__class__.__name__} ChannelAccessManager initialized.")
+        logger.info("[ChannelAccessManager] ChannelAccessManager cog initialized.")
 
     async def channels(self, ctx: commands.Context):
         """
@@ -164,7 +164,7 @@ async def setup(client: commands.Bot):
     """
     Sets up the cog.
     """
-    logger.info(f"[{self.__class__.__name__} Setting up ChannelAccessManager...")
+    logger.info("[ChannelAccessManager] Setting up ChannelAccessManager cog...")
     db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(ChannelAccessManager(client, db_handler))
-    logger.info(f"[{self.__class__.__name__} ChannelAccessManager setup complete.")
+    logger.info("[ChannelAccessManager] ChannelAccessManager cog successfully set up.")

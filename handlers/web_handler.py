@@ -92,7 +92,7 @@ class WebHandler:
         """
         Renders the dashboard home page.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/' route for index.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/' route for index.")
         try:
             return Renderer.render_index()
         except Exception as e:
@@ -103,7 +103,7 @@ class WebHandler:
         """
         Renders the console logs page.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/console' route for console logs.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/console' route for console logs.")
         try:
             return Renderer.render_console()
         except Exception as e:
@@ -114,7 +114,7 @@ class WebHandler:
         """
         Renders the commands page with dynamic commands data.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/commands' route for commands page.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/commands' route for commands page.")
         try:
             commands_metadata = self._fetch_commands_metadata()
             return Renderer.render_commands(commands_metadata)
@@ -126,14 +126,14 @@ class WebHandler:
         """
         API endpoint to fetch the latest console logs.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/api/console' route to fetch console logs.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/api/console' route to fetch console logs.")
         return jsonify({"logs": self.console_buffer[-100:]})  # Return last 100 log entries
 
     def get_commands(self) -> Dict[str, Any]:
         """
         API endpoint to fetch the list of available commands and their metadata.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/api/commands' route to fetch bot commands.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/api/commands' route to fetch bot commands.")
         commands_metadata = self._fetch_commands_metadata()
         return jsonify(commands_metadata)
 
@@ -141,7 +141,7 @@ class WebHandler:
         """
         API endpoint to fetch the bot's current status.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/api/status' route to fetch bot status.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/api/status' route to fetch bot status.")
         return jsonify({
             "status": "online" if self.client.is_ready() else "offline",
             "guilds": len(self.client.guilds),
@@ -152,7 +152,7 @@ class WebHandler:
         """
         Renders the status page.
         """
-        logger.debug(f"[{self.__class__.__name__} Accessed '/status' route for status page.")
+        logger.debug(f"[{self.__class__.__name__}] Accessed '/status' route for status page.")
         try:
             return Renderer.render_status()
         except Exception as e:
@@ -168,7 +168,7 @@ class WebHandler:
         logger.debug(f"Accessed '/api/action/{action}' route to trigger an action.")
         try:
             if action == "restart":
-                logger.info(f"[{self.__class__.__name__} Restart action triggered. Closing client.")
+                logger.info(f"[{self.__class__.__name__}] Restart action triggered. Closing client.")
                 # Assuming you have a mechanism to restart the bot after closing
                 self.client.loop.create_task(self.client.close())
                 return jsonify({"success": True, "result": "Client is restarting."})
@@ -178,7 +178,7 @@ class WebHandler:
                     logger.info(f"Reloading cog: {cog_name}")
                     self.client.reload_extension(cog_name)
                     return jsonify({"success": True, "result": f"Cog {cog_name} reloaded."})
-                logger.warning(f"[{self.__class__.__name__} Reload action triggered without specifying a cog.")
+                logger.warning(f"[{self.__class__.__name__}] Reload action triggered without specifying a cog.")
                 return jsonify({"success": False, "error": "No cog specified for reload."}), 400
             else:
                 logger.error(f"Unknown action attempted: {action}")
@@ -224,7 +224,7 @@ class WebHandler:
 
         :return: A dictionary containing commands and their metadata.
         """
-        logger.debug(f"[{self.__class__.__name__} Fetching commands metadata from bot's cogs.")
+        logger.debug(f"[{self.__class__.__name__}] Fetching commands metadata from bot's cogs.")
         commands_metadata = {}
         try:
             for cog_name, cog in self.client.cogs.items():
@@ -239,7 +239,7 @@ class WebHandler:
                         "usage": command.usage or "No usage provided.",
                         "permissions": permissions,
                     }
-            logger.debug(f"[{self.__class__.__name__} Successfully fetched commands metadata.")
+            logger.debug(f"[{self.__class__.__name__}] Successfully fetched commands metadata.")
         except Exception as e:
             logger.error(f"Error fetching commands metadata: {e}", exc_info=True)
         return commands_metadata
@@ -255,19 +255,19 @@ class WebHandler:
         """
         Starts the Flask app in a separate thread.
         """
-        logger.info(f"[{self.__class__.__name__} Starting web interface in a separate thread.")
+        logger.info(f"[{self.__class__.__name__}] Starting web interface in a separate thread.")
         thread = Thread(target=self.run)
         thread.daemon = True
         thread.start()
-        logger.info(f"[{self.__class__.__name__} Web interface is now running.")
+        logger.info(f"[{self.__class__.__name__}] Web interface is now running.")
 
     def stop(self) -> None:
         """
         Stops the Flask app.
         """
-        logger.info(f"[{self.__class__.__name__} Stopping web interface...")
+        logger.info(f"[{self.__class__.__name__}] Stopping web interface...")
         func = request.environ.get('werkzeug.server.shutdown')
         if func is None:
             raise RuntimeError('Not running with the Werkzeug Server')
         func()
-        logger.info(f"[{self.__class__.__name__} Web interface stopped.")
+        logger.info(f"[{self.__class__.__name__}] Web interface stopped.")

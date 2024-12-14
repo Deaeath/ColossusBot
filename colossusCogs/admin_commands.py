@@ -38,7 +38,7 @@ class AdminCommands(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logging.info("AdminCommands cog initialized.")
+        logging.info("[AdminCommands] AdminCommands cog initialized.")
 
     async def cog_load(self) -> None:
         """Handles logic to execute when the cog is loaded."""
@@ -134,5 +134,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
 
     :param client: The Discord bot client instance.
     """
+    logging.info("[AdminCommands] Setting up AdminCommands cog...")
     await client.add_cog(AdminCommands(client, db_handler))
-    logging.info("AdminCommands cog loaded successfully.")
+    logging.info("[AdminCommands] AdminCommands cog loaded successfully.")

@@ -51,7 +51,7 @@ class NSFWChecker(commands.Cog):
         self.nsfw_word_list = nsfw_words
         self.OCR_SPACE_API_KEY = os.getenv("OCR_SPACE_API_KEY")
         self.logger = logging.getLogger("ColossusBot")
-        self.logger.info(f"[{self.__class__.__name__} NSFWChecker initialized.")
+        self.logger.info(f"[{self.__class__.__name__}] NSFWChecker initialized.")
 
     async def on_message(self, message: discord.Message) -> None:
         """

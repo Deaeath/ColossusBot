@@ -52,9 +52,9 @@ class EternalSlaveCog(commands.Cog):
 
     async def cog_load(self) -> None:
         """Handles logic to execute when the cog is loaded."""
-        logger.info(f"[{self.__class__.__name__} EternalSlaveCog is starting...")
+        logger.info(f"[{self.__class__.__name__}] EternalSlaveCog is starting...")
         await self.setup_database()
-        logger.info(f"[{self.__class__.__name__} EternalSlaveCog is ready.")
+        logger.info(f"[{self.__class__.__name__}] EternalSlaveCog is ready.")
         
     async def setup_database(self) -> None:
         """
@@ -209,7 +209,7 @@ class EternalSlaveCog(commands.Cog):
             logger.error(f"Unsupported database engine: {engine}")
             return
 
-        logger.info(f"[{self.__class__.__name__} EternalSlaveCog database tables ensured.")
+        logger.info(f"[{self.__class__.__name__}] EternalSlaveCog database tables ensured.")
 
     # -------------------------------
     # Helper Methods
@@ -1867,4 +1867,4 @@ async def setup(client: commands.Bot) -> None:
     logger.info(f"[EternalSlaveCog] Loading EternalSlaveCog...")
     db_handler = client.db_handler  # Access db_handler from the bot instance
     await client.add_cog(EternalSlaveCog(client, db_handler))
-    logger.info(f"[{EternalSlaveCog.__name__} EternalSlaveCog has been loaded.")
+    logger.info(f"[{EternalSlaveCog.__name__}] EternalSlaveCog has been loaded.")

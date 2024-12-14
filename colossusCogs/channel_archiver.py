@@ -42,13 +42,13 @@ class ChannelArchiver(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logger.info(f"[{self.__class__.__name__} ChannelArchiver initialized.")
+        logging.info("[ChannelArchiver] ChannelArchiver cog initialized.")
 
     async def cog_load(self) -> None:
         """
         Load the cog and ensure the database is properly set up.
         """
-        logger.info(f"[{self.__class__.__name__} ChannelArchiver cog loaded and database ready.")
+        logger.info(f"[{self.__class__.__name__}] ChannelArchiver cog loaded and database ready.")
 
     async def autoarchive(self, ctx: commands.Context) -> None:
         """
@@ -223,6 +223,6 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     :param client: The Discord bot client instance.
     :param db_handler: An instance of the DatabaseHandler.
     """
-    logger.info(f"[{self.__class__.__name__} Setting up ChannelArchiver cog...")
+    logger.info("[ChannelArchiver] Setting up ChannelArchiver cog...")
     await client.add_cog(ChannelArchiver(client, db_handler))
-    logger.info(f"[{self.__class__.__name__} ChannelArchiver setup complete.")
+    logger.info("[ChannelArchiver] ChannelArchiver cog successfully set up.")
