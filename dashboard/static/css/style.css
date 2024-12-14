@@ -130,7 +130,6 @@ th {
     background-color: #f1f3f5; /* Slightly darker gray for console background */
     font-family: 'Courier New', Courier, monospace; /* Monospace font for logs */
     font-size: 0.95rem;
-    white-space: pre-line; /* Allows line breaks and collapses whitespace */
     border-radius: 5px;
 }
 
