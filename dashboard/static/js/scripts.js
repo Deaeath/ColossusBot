@@ -21,25 +21,6 @@ export function toggleAutoScroll() {
 }
 
 /**
- * Shows or hides the loading spinner by toggling the 'active' class.
- * @param {boolean} show - Whether to show the spinner.
- */
-function showSpinner(show) {
-    const spinner = document.getElementById('spinner');
-    if (spinner) {
-        if (show) {
-            spinner.classList.add('active');
-            console.log('Spinner shown.');
-        } else {
-            spinner.classList.remove('active');
-            console.log('Spinner hidden.');
-        }
-    } else {
-        console.error('Spinner element not found.');
-    }
-}
-
-/**
  * Displays an error message in the console output area.
  * @param {string} message - The error message to display.
  */
@@ -50,8 +31,7 @@ function displayError(message) {
         return;
     }
 
-    // Hide spinner and clear existing logs
-    showSpinner(false);
+    // Clear existing logs and display the error
     logsContainer.innerHTML = `<div class="text-danger">${message}</div>`;
     console.log(`Error displayed: ${message}`);
 }
@@ -91,10 +71,6 @@ export async function fetchConsoleLogs() {
     isFetching = true;
     console.log('Starting to fetch console logs.');
     try {
-        // Show spinner only during the initial fetch
-        if (lastLogIndex === 0) {
-            showSpinner(true);
-        }
         const response = await fetch('/api/console');
         console.log(`Fetched /api/console with status: ${response.status}`);
         if (!response.ok) {
@@ -102,11 +78,6 @@ export async function fetchConsoleLogs() {
         }
         const data = await response.json();
         console.log(`Received data: ${JSON.stringify(data)}`);
-
-        // Hide spinner after the first fetch
-        if (lastLogIndex === 0) {
-            showSpinner(false);
-        }
 
         const newLogs = data.logs.slice(lastLogIndex);
         console.log(`New logs to append: ${newLogs.length}`);
