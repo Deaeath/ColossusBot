@@ -113,5 +113,6 @@ async def setup(client: commands.Bot):
 
     :param client: The Discord client instance.
     """
+    logger.info("[HelpCog.setup] Setting up HelpCog...")
     await client.add_cog(HelpCog(client))
-    logger.info(f"[HelpCog.setup] HelpCog has been added to the client.")
+    logger.info("[HelpCog.setup] HelpCog successfully set up.")

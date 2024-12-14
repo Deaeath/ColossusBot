@@ -162,5 +162,6 @@ async def setup(client: commands.Bot) -> None:
     Args:
         client (commands.Bot): The bot instance.
     """
+    logger.info("[PurgeMessages] Setting up PurgeMessages cog...")
     await client.add_cog(PurgeMessages(client))
-    logging.info("PurgeMessages cog loaded")
+    logger.info("[PurgeMessages] PurgeMessages cog successfully set up.")

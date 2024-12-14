@@ -87,6 +87,7 @@ async def setup(client: commands.Bot) -> None:
     Args:
         client (commands.Bot): The bot instance.
     """
+    logger.info("[Todo] Loading Todo cog...")
     db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(Todo(client, client.db_handler))
-    logging.info("Todo cog loaded successfully.")
+    logger.info("[Todo] Todo cog loaded.")

@@ -158,4 +158,6 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
+    logger.info("[ImgCommand] Setting up ImgCommand cog...")
     await client.add_cog(ImgCommand(client))
+    logger.info("[ImgCommand] ImgCommand cog successfully set up.")

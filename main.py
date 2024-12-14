@@ -35,7 +35,7 @@ async def main() -> None:
     Main entry point for ColossusBot.
     Initializes the client, handlers, and starts the bot application.
     """
-    logger.info(f"[{self.__class__.__name__} Initializing ColossusBot...")
+    logger.info("[Main] Initializing ColossusBot...")
 
     # Instantiate Handlers
     client_handler: ClientHandler = ClientHandler()
@@ -51,22 +51,22 @@ async def main() -> None:
     client.db_handler = database_handler
 
     # Connect to the database
-    logger.info(f"[{self.__class__.__name__} Connecting to the database...")
+    logger.info("[Main] Connecting to the database...")
     await database_handler.connect()
     await database_handler.setup()
-    logger.info(f"[{self.__class__.__name__} Database connected and setup completed.")
+    logger.info("[Main] Database connected and setup completed.")
 
     # Register Handlers as cogs
     await client.add_cog(event_handler)
     await client.add_cog(commands_handler)
-    logger.info(f"[{self.__class__.__name__} Registered event_handler and commands_handler cogs.")
+    logger.info("[Main] Registered event_handler and commands_handler cogs.")
 
     # Load cogs
     await load_cogs(client)
 
     # Start the web interface
     web_handler.start()
-    logger.info(f"[{self.__class__.__name__} Web interface started.")
+    logger.info("[Main] Web interface started.")
 
     # Define on_ready event
     @client.event
@@ -79,14 +79,14 @@ async def main() -> None:
 
     # Run the client
     try:
-        logger.info(f"[{self.__class__.__name__} Starting ColossusBot...")
+        logger.info("[Main] Starting ColossusBot...")
         await client.start(BOT_TOKEN)
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         traceback.print_exc()
     finally:
         # Close the database connection gracefully
-        logger.info(f"[{self.__class__.__name__} Closing ColossusBot...")
+        logger.info("[Main] Closing ColossusBot...")
         await database_handler.close()
         await client.close()
         web_handler.stop()
@@ -94,7 +94,7 @@ async def main() -> None:
 
 async def load_cogs(client: Bot):
     """Load all stand-alone commands from the ./commands directory."""
-    logger.info(f"[{self.__class__.__name__} [load_cogs] Loading cogs!")
+    logger.info("[Main] [load_cogs] Loading cogs!")
     for root, dirs, files in os.walk('./commands'):
         if 'helpers' in dirs:
             dirs.remove('helpers')  # Prevents walking into 'helpers' directories
@@ -107,7 +107,7 @@ async def load_cogs(client: Bot):
                 except Exception as e:
                     logger.error(f"[load_cogs] Failed to load {filename}: {e}")
                     traceback.print_exc()
-    logger.info(f"[{self.__class__.__name__} [load_cogs] All cogs loaded!\n")
+    logger.info("[Main] [load_cogs] All cogs loaded!\n")
 
 
 if __name__ == "__main__":

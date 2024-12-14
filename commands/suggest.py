@@ -150,6 +150,7 @@ async def setup(client: commands.Bot) -> None:
         client (commands.Bot): The bot instance.
         db_handler: The database handler instance.
     """
+    logger.info("[SuggestionCommands] Loading SuggestionCommands cog...")
     db_handler = client.db_handler  # Shared DatabaseHandler instance
     await client.add_cog(SuggestionCommands(client, db_handler))
-    logging.info("SuggestionCommands cog loaded")
+    logger.info("[SuggestionCommands] SuggestionCommands cog successfully loaded.")

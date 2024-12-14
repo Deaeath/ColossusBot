@@ -94,4 +94,6 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
+    logger.info("[Google] Setting up Google cog...")
     await client.add_cog(Google(client))
+    logger.info("[Google] Google cog setup complete.")

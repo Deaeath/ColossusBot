@@ -119,5 +119,6 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
+    logger.info("[WikiCommand] Setting up WikiCommand cog...")
     await client.add_cog(WikiCommand(client))
-    logging.info("Added WikiCommand cog to the bot.")
+    logger.info("[WikiCommand] WikiCommand cog successfully set up.")

@@ -61,4 +61,6 @@ async def setup(client: commands.Bot) -> None:
     Args:
         client (commands.Bot): The bot instance.
     """
+    logger.info("[SayCommand] Adding SayCommand cog to bot.")
     await client.add_cog(SayCommand(client))
+    logger.info("[SayCommand] SayCommand cog added to bot.")

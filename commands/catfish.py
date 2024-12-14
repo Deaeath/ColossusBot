@@ -157,4 +157,6 @@ async def setup(client: commands.Bot) -> None:
     Returns:
         None
     """
+    logger.info("[CatfishCommand] Setting up CatfishCommand cog...")
     await client.add_cog(CatfishCommand(client))
+    logger.info("[CatfishCommand] CatfishCommand cog setup completed.")
