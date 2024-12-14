@@ -16,17 +16,26 @@ export function toggleAutoScroll() {
     if (button) {
         button.textContent = autoScroll ? 'Disable Autoscroll' : 'Enable Autoscroll';
         button.setAttribute('aria-pressed', autoScroll);
+        console.log(`Auto-scroll toggled. Now: ${autoScroll ? 'Enabled' : 'Disabled'}`);
     }
 }
 
 /**
- * Shows or hides the loading spinner.
+ * Shows or hides the loading spinner by toggling the 'active' class.
  * @param {boolean} show - Whether to show the spinner.
  */
 function showSpinner(show) {
     const spinner = document.getElementById('spinner');
     if (spinner) {
-        spinner.style.display = show ? 'flex' : 'none';
+        if (show) {
+            spinner.classList.add('active');
+            console.log('Spinner shown.');
+        } else {
+            spinner.classList.remove('active');
+            console.log('Spinner hidden.');
+        }
+    } else {
+        console.error('Spinner element not found.');
     }
 }
 
@@ -36,12 +45,15 @@ function showSpinner(show) {
  */
 function displayError(message) {
     const logsContainer = document.getElementById('logsContainer');
-    const spinner = document.getElementById('spinner');
-    if (!logsContainer || !spinner) return;
+    if (!logsContainer) {
+        console.error('logsContainer element not found.');
+        return;
+    }
 
     // Hide spinner and clear existing logs
     showSpinner(false);
     logsContainer.innerHTML = `<div class="text-danger">${message}</div>`;
+    console.log(`Error displayed: ${message}`);
 }
 
 /**
@@ -50,7 +62,10 @@ function displayError(message) {
  */
 function appendConsoleLogs(newLogs) {
     const logsContainer = document.getElementById('logsContainer');
-    if (!logsContainer) return;
+    if (!logsContainer) {
+        console.error('logsContainer element not found.');
+        return;
+    }
 
     newLogs.forEach(log => {
         if (log.trim() === "") return; // Skip empty log entries
@@ -62,38 +77,54 @@ function appendConsoleLogs(newLogs) {
     if (autoScroll) {
         logsContainer.scrollTop = logsContainer.scrollHeight;
     }
+    console.log(`Appended ${newLogs.length} new log(s).`);
 }
 
 /**
  * Fetches the latest console logs from the server and updates the console log viewer.
  */
 export async function fetchConsoleLogs() {
-    if (isFetching) return; // Prevent overlapping fetches
+    if (isFetching) {
+        console.log('Fetch in progress. Skipping this fetch.');
+        return; // Prevent overlapping fetches
+    }
     isFetching = true;
+    console.log('Starting to fetch console logs.');
     try {
         // Show spinner only during the initial fetch
         if (lastLogIndex === 0) {
             showSpinner(true);
         }
         const response = await fetch('/api/console');
+        console.log(`Fetched /api/console with status: ${response.status}`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
+        console.log(`Received data: ${JSON.stringify(data)}`);
+
+        // Hide spinner after the first fetch
         if (lastLogIndex === 0) {
-            showSpinner(false); // Hide spinner after the first fetch
+            showSpinner(false);
         }
 
         const newLogs = data.logs.slice(lastLogIndex);
+        console.log(`New logs to append: ${newLogs.length}`);
         if (newLogs.length > 0) {
             appendConsoleLogs(newLogs);
-            lastLogIndex = data.logs.length;
+        } else {
+            console.log('No new logs to append.');
         }
+
+        // Update lastLogIndex regardless of new logs
+        lastLogIndex = data.logs.length;
+        console.log(`Updated lastLogIndex to ${lastLogIndex}`);
     } catch (error) {
         console.error('Error fetching console logs:', error);
         displayError(`Failed to fetch console logs: ${error.message}`);
     } finally {
         isFetching = false;
+        console.log('Fetch completed.');
     }
 }
 
@@ -117,6 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (toggleButton) {
         toggleButton.addEventListener('click', toggleAutoScroll);
+        console.log('Toggle button event listener added.');
     }
     fetchConsoleLogs(); // Initial fetch
     setInterval(fetchConsoleLogs, 5000); // Fetch every 5 seconds
