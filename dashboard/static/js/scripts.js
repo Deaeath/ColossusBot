@@ -5,7 +5,7 @@
  */
 let autoScroll = true;
 let isFetching = false;
-let lastLogIndex = 2; // To keep track of the last fetched log
+let lastLogIndex = 0; // To keep track of the last fetched log
 
 /**
  * Toggles the auto-scroll feature on or off and updates the button label.
