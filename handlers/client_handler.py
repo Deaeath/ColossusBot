@@ -11,7 +11,7 @@ import logging
 from typing import Dict, Union, List
 import discord
 from discord.ext import commands
-from config import BOT_PREFIX, DATABASE_CONFIG
+from config import BOT_PREFIX, DATABASE_CONFIG, OPENAI_API_KEY, GOOGLE_API_KEY, CX_ID
 from handlers.database_handler import DatabaseHandler
 
 logger = logging.getLogger("ClientHandler")
@@ -39,6 +39,9 @@ class ClientHandler:
         self.client.guild_prefixes = {}
 
         logger.info("ClientHandler initialization complete.")
+
+        # Register event listeners
+        self._register_event_listeners()
 
     async def initialize_prefixes(self, db_handler: DatabaseHandler):
         """
@@ -94,3 +97,39 @@ class ClientHandler:
         :return: Database configuration dictionary.
         """
         return DATABASE_CONFIG
+
+    def _register_event_listeners(self):
+        """
+        Registers the necessary event listeners for the bot.
+        """
+        @self.client.event
+        async def on_message(message: discord.Message):
+            """
+            Event listener for on_message. Sends a help message when the bot is mentioned with no other text.
+            """
+            if message.author.bot:
+                return  # Ignore messages from bots
+
+            # Check if the message is a bot mention with no other content
+            if message.content.strip() == f"<@{self.client.user.id}>":
+                guild_id = message.guild.id if message.guild else None
+                prefix = self.client.guild_prefixes.get(guild_id, BOT_PREFIX)
+                help_message = (
+                    f"Hello! I am ColossusBot, your versatile Discord assistant.\n\n"
+                    "**Key Features:**\n"
+                    "- **Help**: Use `@ColossusBot help` or `{prefix}help` for detailed commands.\n"
+                    "- **Custom Prefix**: Each server can set its own prefix. Default is `{BOT_PREFIX}`.\n"
+                    "- **Advanced Features**: Check out moderation, alerts, and more!\n"
+                    "- **Documentation**: Visit the README for more details.\n\n"
+                    f"**Environment Info:**\n"
+                    f"- **Default Prefix**: `{BOT_PREFIX}`\n"
+                    f"- **Database Engine**: `{DATABASE_CONFIG.get('engine', 'sqlite')}`\n"
+                    f"- **Database Host**: `{DATABASE_CONFIG.get('host', 'localhost')}`\n"
+                    f"- **Google API Configured**: {'Yes' if GOOGLE_API_KEY and CX_ID else 'No'}\n"
+                    f"- **OpenAI API Configured**: {'Yes' if OPENAI_API_KEY else 'No'}\n"
+                    f"- **Connected Guilds**: {len(self.client.guilds)}\n"
+                )
+                await message.channel.send(help_message)
+
+            # Process other commands
+            await self.client.process_commands(message)
