@@ -33,10 +33,6 @@ function showLoading(show) {
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>`;
-    } else {
-        // Optionally, clear the loading indicator or maintain existing logs
-        // For example, you might choose to clear it:
-        // consoleOutput.innerHTML = '';
     }
 }
 
@@ -94,6 +90,20 @@ export async function fetchConsoleLogs() {
         showLoading(false);
         isFetching = false;
     }
+}
+
+/**
+ * Debounce function to limit the rate at which a function can fire.
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - Delay in milliseconds.
+ * @returns {Function} - The debounced function.
+ */
+function debounce(func, delay) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), delay);
+    };
 }
 
 // Initialize log fetching and auto-scroll toggling when DOM is loaded

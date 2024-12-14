@@ -63,6 +63,7 @@ header h1 {
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Prevent main container from scrolling */
 }
 
 /* Table Styles */
@@ -121,8 +122,8 @@ th {
 
 /* Console Output */
 .console-output {
-    overflow-y: scroll;
-    height: 400px;
+    overflow-y: auto; /* Changed from 'scroll' to 'auto' for better UX */
+    height: 400px; /* Ensure consistent height */
     border: 1px solid #ddd;
     padding: 10px;
     background-color: #f9f9f9;
@@ -131,6 +132,13 @@ th {
     text-align: left;
     margin-bottom: 10px;
     white-space: pre-wrap; /* Allows for wrapped text */
+}
+
+/* Console Container */
+.console-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
 /* Footer */

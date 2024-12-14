@@ -5,16 +5,22 @@
 {% block content %}
 <div class="console-container">
     <h2>Console Logs</h2>
-    <div id="consoleOutput" class="console-output border rounded p-3" style="height: 500px; overflow-y: scroll; background-color: #f8f9fa;">
+    <div id="consoleOutput" class="console-output border rounded p-3">
         <!-- Console logs will be dynamically inserted here -->
     </div>
     <button id="toggleButton" class="btn btn-secondary mt-3">Disable Autoscroll</button>
 </div>
+{% endblock %}
+
+{% block scripts %}
 <script type="module">
-    import { toggleAutoScroll, fetchLogs } from '{{ url_for("static", filename="js/scripts.js") }}';
+    import { toggleAutoScroll, fetchConsoleLogs } from '{{ url_for("static", filename="js/scripts.js") }}';
 
     // Initialize log fetching and auto-scroll toggling
-    document.getElementById('toggleButton').addEventListener('click', toggleAutoScroll);
-    fetchLogs();
+    const toggleBtn = document.getElementById('toggleButton');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleAutoScroll);
+    }
+    fetchConsoleLogs();
 </script>
 {% endblock %}

@@ -23,28 +23,28 @@
     <title>ColossusBot Dashboard</title>
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <!-- Header Section -->
     <header class="header py-3 bg-dark">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <!-- Dashboard Title -->
-                <h1 class="title h4">ColossusBot Dashboard</h1>
+                <h1 class="title h4 text-white">ColossusBot Dashboard</h1>
                 
                 <!-- Navigation Menu -->
                 <nav class="navbar">
                     <ul class="nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Home</a>
+                            <a class="nav-link text-white" href="/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/console">Console Logs</a>
+                            <a class="nav-link text-white" href="/console">Console Logs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/commands">Commands</a>
+                            <a class="nav-link text-white" href="/commands">Commands</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/status">Status</a>
+                            <a class="nav-link text-white" href="/status">Status</a>
                         </li>
                     </ul>
                 </nav>
@@ -53,14 +53,14 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="container my-4">
+    <main class="container flex-grow-1 my-4">
         {% block content %}
         <!-- Child templates will inject their content here -->
         {% endblock %}
     </main>
 
     <!-- Footer Section -->
-    <footer class="footer bg-light text-center py-3">
+    <footer class="footer bg-light text-center py-3 mt-auto">
         <div class="container">
             <p class="mb-0">&copy; 2024 👑 King Colossus 👑. All rights reserved.</p>
         </div>
@@ -69,8 +69,8 @@
     <!-- Bootstrap JS Bundle (includes Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom Scripts as ES6 Module -->
-    <script type="module" src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <!-- Remove Custom Scripts from Base -->
+    <!-- <script type="module" src="{{ url_for('static', filename='js/scripts.js') }}"></script> -->
     
     <!-- Additional Scripts Block -->
     {% block scripts %}
