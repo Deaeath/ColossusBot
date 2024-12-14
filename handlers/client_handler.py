@@ -106,6 +106,17 @@ class ClientHandler:
                 guild_id = message.guild.id if message.guild else None
                 prefix = self.client.guild_prefixes.get(guild_id, BOT_PREFIX)
 
+                db_handler = DatabaseHandler(DATABASE_CONFIG)
+                await db_handler.connect()
+
+                guild_config = await db_handler.get_config(guild_id) if guild_id else None
+                log_channel_id = guild_config.get("log_channel_id") if guild_config else "Not Configured"
+                owner_id = guild_config.get("owner_id") if guild_config else "Not Configured"
+
+                role_menus = await db_handler.fetchall("SELECT name, channel_id FROM reaction_role_menus WHERE guild_id = ?", (guild_id,)) if guild_id else []
+                auto_responses = await db_handler.fetchall("SELECT trigger, response FROM autoresponses WHERE guild_id = ?", (guild_id,)) if guild_id else []
+                alerts_count = await db_handler.fetchone("SELECT COUNT(*) FROM flagged_alert_messages WHERE guild_id = ?", (guild_id,)) if guild_id else (0,)
+
                 embed = discord.Embed(
                     title="ColossusBot Help",
                     description="Hello! I am ColossusBot, your versatile Discord assistant. Here are some details to get you started:",
@@ -136,8 +147,35 @@ class ClientHandler:
                     inline=False
                 )
 
+                embed.add_field(
+                    name="Guild-Specific Info",
+                    value=(
+                        f"- **Log Channel**: <#{log_channel_id}>\n"
+                        f"- **Owner ID**: {owner_id}\n"
+                        f"- **Role Menus**: {len(role_menus)} menu(s) configured.\n"
+                        f"- **Auto Responses**: {len(auto_responses)} response(s) configured.\n"
+                        f"- **Active Alerts**: {alerts_count[0]} flagged alert(s) recorded."
+                    ) if guild_id else "This command was run in a DM or guild information is unavailable.",
+                    inline=False
+                )
+
+                if role_menus:
+                    embed.add_field(
+                        name="Role Menus Details",
+                        value="\n".join([f"- {name} in <#{channel_id}>" for name, channel_id in role_menus]),
+                        inline=False
+                    )
+
+                if auto_responses:
+                    embed.add_field(
+                        name="Auto Responses Details",
+                        value="\n".join([f"- Trigger: `{trigger}` | Response: {response}" for trigger, response in auto_responses]),
+                        inline=False
+                    )
+
                 embed.set_footer(text="For more information, reach out to your server administrator or visit the project documentation.")
 
+                await db_handler.close()
                 await message.channel.send(embed=embed)
 
             # Process other commands
