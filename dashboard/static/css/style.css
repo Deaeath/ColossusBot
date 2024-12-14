@@ -123,15 +123,15 @@ th {
 
 /* Console Output */
 .console-output {
-    overflow-y: auto; /* Only show scrollbar when necessary */
-    height: 400px; /* Consistent height */
-    border: 1px solid #ddd;
-    padding: 10px;
-    background-color: #f9f9f9;
-    font-family: monospace;
-    font-size: 0.9rem;
-    text-align: left;
-    white-space: pre-wrap; /* Allows wrapped text */
+    overflow-y: auto; /* Enables vertical scrolling when content overflows */
+    height: 500px; /* Fixed height for the console */
+    border: 1px solid #dee2e6; /* Light gray border */
+    padding: 15px;
+    background-color: #f1f3f5; /* Slightly darker gray for console background */
+    font-family: 'Courier New', Courier, monospace; /* Monospace font for logs */
+    font-size: 0.95rem;
+    white-space: pre-line; /* Allows line breaks and collapses whitespace */
+    border-radius: 5px;
 }
 
 /* Console Container */
