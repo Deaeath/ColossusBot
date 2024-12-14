@@ -39,7 +39,7 @@ class WikiCommand(commands.Cog):
             client (commands.Bot): The instance of the Discord bot client.
         """
         self.client = client
-        logging.info("WikiCommand cog initialized.")
+        logging.info("[WikiCommand] WikiCommand cog initialized.")
 
     @commands.command(aliases=["wikipedia"],
                       help="Search for a term on Wikipedia and return the page URL.",

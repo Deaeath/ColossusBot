@@ -37,7 +37,7 @@ class ImgCommand(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
-        logger.info(f"[{self.__class__.__name__} ImgCommand cog initialized.")
+        logging.info("[ImgCommand] ImgCommand cog initialized.")
 
     async def get_json(self, url: str) -> dict:
         """

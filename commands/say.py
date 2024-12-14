@@ -30,7 +30,7 @@ class SayCommand(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
-        logging.info("SayCommand cog initialized.")
+        logger.info("[SayCommand] SayCommand cog initialized.")
 
     @commands.command(
         help="Sends a message to a specified channel.",

@@ -48,7 +48,7 @@ class EternalSlaveCog(commands.Cog):
         self.client = client    
         self.db_handler = db_handler
         # self.setup_task = self.client.loop.create_task(self.setup_database())
-        logger.info(f"[{self.__class__.__name__} EternalSlaveCog initialized.")
+        logging.info("[EternalSlaveCog] EternalSlaveCog initialized.")
 
     async def cog_load(self) -> None:
         """Handles logic to execute when the cog is loaded."""

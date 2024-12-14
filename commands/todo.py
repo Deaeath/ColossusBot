@@ -31,7 +31,7 @@ class Todo(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logging.info("Todo cog initialized.")
+        logging.info("[Todo] Todo cog initialized.")
 
     @commands.command(name="todo",
                       help="Manage your to-do list by adding, removing, or listing items.",

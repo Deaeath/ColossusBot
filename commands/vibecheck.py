@@ -35,7 +35,7 @@ class VibeCheckCommand(commands.Cog):
             client (commands.Bot): The bot instance to associate with the command.
         """
         self.client = client
-        logging.info("VibeCheckCommand cog initialized.")
+        logging.info("[VibeCheckCommand] VibeCheckCommand cog initialized.")
 
     @commands.command(aliases=["vibe-check"],
                       help="Perform sentiment analysis on messages in a channel or from a specific user.",

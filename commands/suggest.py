@@ -36,7 +36,7 @@ class SuggestionCommands(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logging.info("SuggestionCommands cog initialized.")
+        logging.info("[SuggestionCommands] SuggestionCommands cog initialized.")
 
     @commands.command(aliases=["suggestion-channel"],
                       help="Set or update the suggestion channel for the server.",

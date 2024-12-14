@@ -27,7 +27,7 @@ class CommandTemplate(commands.Cog):
         :param client: The Discord bot client instance.
         """
         self.client = client
-        logger.info(f"[{self.__class__.__name__} CommandTemplate initialized successfully.")
+        logger.info("[CommandTemplate] CommandTemplate cog initialized.")
 
     @commands.command(name="example", help="An example command to demonstrate functionality.", usage="!example [input_text]")
     async def example_command(self, ctx: commands.Context, *, input_text: str = "Default Response") -> None:

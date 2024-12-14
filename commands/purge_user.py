@@ -30,7 +30,7 @@ class PurgeMessages(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
-        logging.info("PurgeMessages cog initialized.")
+        logging.info("[PurgeMessages] PurgeMessages cog initialized.")
 
     async def purge_messages_from_user(
         self,

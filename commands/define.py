@@ -33,7 +33,7 @@ class Define(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
-        logger.info(f"[{self.__class__.__name__} Define cog initialized.")
+        logging.info("[Define] Define cog initialized.")
 
     @commands.command(name="define",
                       help="Fetch the definition of a term from Urban Dictionary.",

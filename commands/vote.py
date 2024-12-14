@@ -37,7 +37,7 @@ class VoteCommands(commands.Cog):
         """
         self.client = client
         self.db_handler = db_handler
-        logging.info("VoteCommands cog initialized.")
+        logging.info("[VoteCommands] VoteCommands cog initialized.")
 
     @commands.command(name="vote", help="Get the link to vote for the server.", usage="!vote")
     async def vote(self, ctx: commands.Context) -> None:

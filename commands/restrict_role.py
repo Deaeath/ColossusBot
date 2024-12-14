@@ -29,7 +29,7 @@ class RestrictRole(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
-        logger.info(f"[{self.__class__.__name__} RestrictRole cog initialized.")
+        logging.info("[RestrictRole] RestrictRole cog initialized.")
 
     @commands.command(name="restrict_role",
                       help="Restrict a role to only view one specific channel.",

@@ -28,7 +28,7 @@ class HelpCog(commands.Cog):
         self.client = client
         # Remove the default help command to implement a custom one
         self.client.remove_command("help")
-        logger.info(f"[{self.__class__.__name__}.__init__] HelpCog initialized and default help command removed.")
+        logger.info("[HelpCog] HelpCog initialized.")
 
     @commands.command(name="help")
     async def help_command(self, ctx: commands.Context, *, word: Optional[str] = None):

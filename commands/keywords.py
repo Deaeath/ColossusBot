@@ -31,7 +31,7 @@ class KeyWordsCommand(commands.Cog):
             client (commands.Bot): The bot instance.
         """
         self.client = client
-        logging.info("KeyWordsCommand cog initialized.")
+        logging.info("[KeyWordsCommand] KeyWordsCommand cog initialized.")
 
     @commands.command(aliases=["key-words"],
                       help="Display an interactive embed to explain and list available key words.",
