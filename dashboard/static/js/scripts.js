@@ -21,6 +21,29 @@ export function toggleAutoScroll() {
 }
 
 /**
+ * Sanitizes a log entry by removing ANSI escape codes, control characters,
+ * and all other non-printable characters.
+ * @param {string} log - The raw log string to sanitize.
+ * @returns {string} - The sanitized log string.
+ */
+function sanitizeLog(log) {
+    // Remove ANSI escape codes
+    let sanitized = log.replace(/\u001b\[[0-9;]*m/g, '');
+
+    // Remove all control characters (Unicode category Cc)
+    // This includes characters like \n, \r, \t, etc.
+    sanitized = sanitized.replace(/[\u0000-\u001F\u007F]/g, '');
+
+    // Remove Zero Width and other invisible characters (Unicode category Cf)
+    sanitized = sanitized.replace(/[\u200B-\u200D\uFEFF]/g, '');
+
+    // Trim any remaining whitespace from both ends
+    sanitized = sanitized.trim();
+
+    return sanitized;
+}
+
+/**
  * Displays an error message in the console output area.
  * @param {string} message - The error message to display.
  */
@@ -47,10 +70,9 @@ function appendConsoleLogs(newLogs) {
         return;
     }
 
-    // Filter out blank or whitespace-only log entries
+    // Filter out blank or whitespace-only log entries after sanitization
     const filteredLogs = newLogs.filter(log => {
-        // Remove ANSI escape codes (e.g., colors) if present
-        const cleanLog = log.replace(/\u001b\[[0-9;]*m/g, '').trim();
+        const cleanLog = sanitizeLog(log);
         return cleanLog !== "";
     });
 
