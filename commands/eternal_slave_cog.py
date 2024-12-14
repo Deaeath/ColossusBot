@@ -1711,7 +1711,11 @@ class EternalSlaveCog(commands.Cog):
 
         :param message: The message to check.
         """
-        if message.author.bot:
+        if message.author.bot or not message.guild:  # Ignore bots and DMs
+            return
+
+        # Ensure the message belongs to a guild where the cog is active
+        if not self.client.get_cog("EternalSlaveCog"):
             return
 
         # Fetch restricted words for the user
@@ -1769,15 +1773,16 @@ class EternalSlaveCog(commands.Cog):
         :param ctx: The context of the command call.
         :param error: The exception raised.
         """
-        if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"This command is on cooldown. Please try again after {round(error.retry_after, 1)} seconds.")
-        elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("Missing required argument. Please check the command usage.")
-        elif isinstance(error, commands.BadArgument):
-            await ctx.send("Invalid argument type. Please check the command usage.")
-        else:
-            await ctx.send("An error occurred while processing the command.")
-            logger.error(f"Unhandled error in EternalSlaveCog: {error}")
+        if ctx.command and ctx.cog_name == "EternalSlaveCog":  # Restrict to this cog's commands
+            if isinstance(error, commands.CommandOnCooldown):
+                await ctx.send(f"This command is on cooldown. Please try again after {round(error.retry_after, 1)} seconds.")
+            elif isinstance(error, commands.MissingRequiredArgument):
+                await ctx.send("Missing required argument. Please check the command usage.")
+            elif isinstance(error, commands.BadArgument):
+                await ctx.send("Invalid argument type. Please check the command usage.")
+            else:
+                await ctx.send("An error occurred while processing the command.")
+                logger.error(f"Unhandled error in EternalSlaveCog: {error}")
 
     # -------------------------------
     # Additional Features
