@@ -358,7 +358,7 @@ class DatabaseHandler:
         # Add owner_id column if it doesn't exist (Migration Step)
         await self.migrate_guild_config()
 
-        logger.info(f"[{self.__class__.__name__}] Database setup completed.")
+        logger.info(f"[{self.__class__.__name__}] Database successfully set up.")
 
     async def migrate_guild_config(self) -> None:
         """
@@ -642,7 +642,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info(f"[{self.__class__.__name__}] FlaggedWordsAlert database setup completed.")
+        logger.info(f"[{self.__class__.__name__}] FlaggedWordsAlert database successfully set up.")
 
     async def insert_flagged_message(
         self,
@@ -797,7 +797,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info(f"[{self.__class__.__name__}] NSFWChecker database setup completed.")
+        logger.info(f"[{self.__class__.__name__}] NSFWChecker database successfully set up.")
 
     async def insert_nsfw_message(
         self,
@@ -953,7 +953,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info(f"[{self.__class__.__name__}] RepeatedMessageAlert database setup completed.")
+        logger.info(f"[{self.__class__.__name__}] RepeatedMessageAlert database successfully set up.")
 
     async def insert_repeated_message(
         self,
@@ -1110,7 +1110,7 @@ class DatabaseHandler:
         ]
         for query in queries:
             await self.execute(query)
-        logger.info(f"[{self.__class__.__name__}] ReactionRoleMenu database setup completed.")
+        logger.info(f"[{self.__class__.__name__}] ReactionRoleMenu database successfully set up.")
 
     async def insert_reaction_role_menu(
         self,

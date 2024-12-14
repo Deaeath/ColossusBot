@@ -709,4 +709,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     logger.info("[ReactionRoleMenu] Setting up ReactionRoleMenu cog...")
     await client.add_cog(ReactionRoleMenu(client, db_handler))
-    logger.info("[ReactionRoleMenu] ReactionRoleMenu cog setup complete.")
+    logger.info("[ReactionRoleMenu] ReactionRoleMenu cog successfully set up.")

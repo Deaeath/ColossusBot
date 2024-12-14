@@ -310,4 +310,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     print("Setting up NSFWChecker cog...")
     cog = NSFWChecker(client, db_handler)
     await client.add_cog(cog)
-    print("NSFWChecker cog loaded successfully.")
+    print("NSFWChecker cog successfully set up.")

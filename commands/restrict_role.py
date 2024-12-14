@@ -95,6 +95,6 @@ async def setup(client: commands.Bot) -> None:
     Args:
         client (commands.Bot): The bot instance.
     """
-    logger.info("Loading RestrictRole cog...")
+    logger.info("[RestrictRole] Setting up RestrictRole cog...")
     await client.add_cog(RestrictRole(client))
-    logger.info("RestrictRole cog successfully loaded.")
+    logger.info("[RestrictRole] RestrictRole cog successfully set up.")

@@ -54,7 +54,7 @@ async def main() -> None:
     logger.info("[Main] Connecting to the database...")
     await database_handler.connect()
     await database_handler.setup()
-    logger.info("[Main] Database connected and setup completed.")
+    logger.info("[Main] Database connected and successfully set up.")
 
     # Register Handlers as cogs
     await client.add_cog(event_handler)

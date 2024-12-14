@@ -594,7 +594,7 @@ async def setup(client: commands.Bot) -> None:
     """
     logger.info(f"[{self.__class__.__name__}] Setting up CommandTemplate cog...")
     await client.add_cog(CommandTemplate(client))
-    logger.info(f"[{self.__class__.__name__}] CommandTemplate cog setup complete.")
+    logger.info(f"[{self.__class__.__name__}] CommandTemplate cog successfully set up.")
 ```
 
 #### **Cog Template**

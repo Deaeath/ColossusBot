@@ -290,4 +290,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     print("Setting up RepeatedMessageAlert cog...")
     cog = RepeatedMessageAlert(client, db_handler)
     await client.add_cog(cog)
-    print("RepeatedMessageAlert cog loaded successfully.")
+    print("RepeatedMessageAlert cog successfully set up.")

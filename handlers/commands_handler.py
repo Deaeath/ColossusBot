@@ -49,7 +49,7 @@ class CommandsHandler(commands.Cog):
         self.autoresponder = Autoresponder(client, self.db_handler)
         self.ticket_checker = TicketChecker(client, self.db_handler)
         self.prefix_manager = PrefixManager(client, self.db_handler)
-        logger.info(f"[{self.__class__.__name__}.__init__] CommandsHandler initialized successfully.")
+        logger.info(f"[{self.__class__.__name__}] CommandsHandler initialized successfully.")
 
     @commands.command(
         name="clear_chat",
@@ -219,4 +219,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     logger.info(f"[CommandsHandler.setup] Setting up CommandsHandler cog...")
     commands_handler = CommandsHandler(client, db_handler)
     await client.add_cog(commands_handler)
-    logger.info(f"[CommandsHandler.setup] CommandsHandler cog setup complete.")
+    logger.info(f"[CommandsHandler.setup] CommandsHandler cog successfully set up.")

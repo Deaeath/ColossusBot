@@ -172,6 +172,6 @@ async def setup(client: commands.Bot) -> None:
     Args:
         client (commands.Bot): The bot instance.
     """
-    logger.info("Loading KeyWordsCommand cog...")
+    logger.info("[KeyWordsCommand] Setting up KeyWordsCommand cog...")
     await client.add_cog(KeyWordsCommand(client))
-    logger.info("KeyWordsCommand cog loaded.")
+    logger.info("[KeyWordsCommand] KeyWordsCommand successfully set up.")

@@ -74,4 +74,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     logger.info("[PrefixManager] Setting up PrefixManager cog...")
     await client.add_cog(PrefixManager(client, db_handler))
-    logger.info("[PrefixManager] PrefixManager cog setup complete.")
+    logger.info("[PrefixManager] PrefixManager cog successfully set up.")

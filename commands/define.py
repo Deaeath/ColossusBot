@@ -108,4 +108,4 @@ async def setup(client: commands.Bot) -> None:
     """
     logger.info("[Define] Setting up Define cog...")
     await client.add_cog(Define(client))
-    logger.info("[Define] Define cog setup complete.")
+    logger.info("[Define] Define cog successfully set up.")

@@ -136,4 +136,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     logging.info("[AdminCommands] Setting up AdminCommands cog...")
     await client.add_cog(AdminCommands(client, db_handler))
-    logging.info("[AdminCommands] AdminCommands cog loaded successfully.")
+    logging.info("[AdminCommands] AdminCommands cog successfully set up.")

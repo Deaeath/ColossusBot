@@ -173,4 +173,4 @@ async def setup(client: commands.Bot):
     logger.info(f"[EventsHandler] Setting up EventsHandler cog...")
     db_handler = client.db_handler
     await client.add_cog(EventsHandler(client, db_handler))
-    logger.info(f"[EventsHandler] EventsHandler cog setup complete.")
+    logger.info(f"[EventsHandler] EventsHandler cog successfully set up.")

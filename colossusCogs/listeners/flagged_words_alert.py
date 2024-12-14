@@ -223,4 +223,4 @@ async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     print("Setting up FlaggedWordsAlert cog...")
     cog = FlaggedWordsAlert(client, db_handler)
     await client.add_cog(cog)
-    print("FlaggedWordsAlert cog loaded successfully.")
+    print("FlaggedWordsAlert cog successfully set up.")
