@@ -110,6 +110,15 @@ export async function fetchConsoleLogs() {
 
         // Extract logs starting from the last index
         const newLogs = data.logs.slice(lastLogIndex);
+        // Trim any leading/trailing whitespace from each log
+        newLogs.forEach((log, index) => {
+            newLogs[index] = log.trim();
+        });
+        // Remove any empty logs
+        newLogs.filter(log => log !== '');
+        // Log the new logs and last log index
+        console.log('New logs:', newLogs);
+        console.log(`Last log index: ${lastLogIndex}`);
         console.log(`New logs to append: ${newLogs.length}`);
 
         if (newLogs.length > 0) {
