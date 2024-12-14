@@ -108,6 +108,16 @@ export async function fetchConsoleLogs() {
         const data = await response.json();
         console.log(`Received data: ${JSON.stringify(data)}`);
 
+        // Check if the logs array is missing or empty
+        if (!data.logs || data.logs.length === 0) {
+            console.log('No logs found in the response.');
+            return;
+        }
+
+        // Create a new array with all empty logs removed
+        data.logs = data.logs.filter(log => log.trim() !== '');
+        console.log(`Total logs received: ${data.logs.length}`);
+
         // Extract logs starting from the last index
         const newLogs = data.logs.slice(lastLogIndex);
         // Trim any leading/trailing whitespace from each log
