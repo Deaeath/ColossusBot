@@ -37,7 +37,7 @@ function displayError(message) {
 }
 
 /**
- * Appends new log entries to the console output.
+ * Appends new log entries to the console output, ignoring blank or whitespace-only entries.
  * @param {string[]} newLogs - Array of new log strings to append.
  */
 function appendConsoleLogs(newLogs) {
@@ -47,17 +47,24 @@ function appendConsoleLogs(newLogs) {
         return;
     }
 
-    newLogs.forEach(log => {
-        if (log.trim() === "") return; // Skip empty log entries
+    // Filter out blank or whitespace-only log entries
+    const filteredLogs = newLogs.filter(log => {
+        // Remove ANSI escape codes (e.g., colors) if present
+        const cleanLog = log.replace(/\u001b\[[0-9;]*m/g, '').trim();
+        return cleanLog !== "";
+    });
+
+    filteredLogs.forEach(log => {
         const logEntry = document.createElement('div');
         logEntry.textContent = log;
         logsContainer.appendChild(logEntry);
     });
+
     // Handle autoscroll
     if (autoScroll) {
         logsContainer.scrollTop = logsContainer.scrollHeight;
     }
-    console.log(`Appended ${newLogs.length} new log(s).`);
+    console.log(`Appended ${filteredLogs.length} new log(s).`);
 }
 
 /**
@@ -79,8 +86,10 @@ export async function fetchConsoleLogs() {
         const data = await response.json();
         console.log(`Received data: ${JSON.stringify(data)}`);
 
+        // Extract logs starting from the last index
         const newLogs = data.logs.slice(lastLogIndex);
         console.log(`New logs to append: ${newLogs.length}`);
+
         if (newLogs.length > 0) {
             appendConsoleLogs(newLogs);
         } else {
