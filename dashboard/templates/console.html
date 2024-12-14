@@ -8,8 +8,17 @@
         <h2>Console Logs</h2>
         <button id="toggleButton" class="btn btn-secondary">Disable Autoscroll</button>
     </div>
-    <div id="consoleOutput" class="console-output border rounded p-3">
-        <!-- Console logs will be dynamically inserted here -->
+    <div id="consoleOutput" class="console-output border rounded p-3" style="position: relative; height: 400px; overflow-y: auto;">
+        <!-- Spinner Container -->
+        <div id="spinner" class="d-flex justify-content-center align-items-center" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8);">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <!-- Logs Container -->
+        <div id="logsContainer">
+            <!-- Console logs will be dynamically inserted here -->
+        </div>
     </div>
 </div>
 {% endblock %}

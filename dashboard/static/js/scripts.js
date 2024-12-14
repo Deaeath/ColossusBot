@@ -20,31 +20,13 @@ export function toggleAutoScroll() {
 }
 
 /**
- * Displays or hides the loading indicator.
- * @param {boolean} show - Whether to show the loading indicator.
+ * Shows or hides the loading spinner.
+ * @param {boolean} show - Whether to show the spinner.
  */
-function showLoading(show) {
-    const consoleOutput = document.getElementById('consoleOutput');
-    if (!consoleOutput) return;
-
-    if (show) {
-        // Add a spinner only if it's not already present
-        if (!consoleOutput.querySelector('.spinner-border')) {
-            const spinnerDiv = document.createElement('div');
-            spinnerDiv.classList.add('d-flex', 'justify-content-center', 'align-items-center');
-            spinnerDiv.style.height = '100%';
-            spinnerDiv.innerHTML = `
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>`;
-            consoleOutput.appendChild(spinnerDiv);
-        }
-    } else {
-        // Remove the spinner if it exists
-        const spinnerDiv = consoleOutput.querySelector('.spinner-border');
-        if (spinnerDiv) {
-            spinnerDiv.parentElement.remove();
-        }
+function showSpinner(show) {
+    const spinner = document.getElementById('spinner');
+    if (spinner) {
+        spinner.style.display = show ? 'flex' : 'none';
     }
 }
 
@@ -53,11 +35,13 @@ function showLoading(show) {
  * @param {string} message - The error message to display.
  */
 function displayError(message) {
-    const consoleOutput = document.getElementById('consoleOutput');
-    if (!consoleOutput) return;
+    const logsContainer = document.getElementById('logsContainer');
+    const spinner = document.getElementById('spinner');
+    if (!logsContainer || !spinner) return;
 
-    // Clear existing content and display the error
-    consoleOutput.innerHTML = `<div class="text-danger">${message}</div>`;
+    // Hide spinner and clear existing logs
+    showSpinner(false);
+    logsContainer.innerHTML = `<div class="text-danger">${message}</div>`;
 }
 
 /**
@@ -65,17 +49,18 @@ function displayError(message) {
  * @param {string[]} newLogs - Array of new log strings to append.
  */
 function appendConsoleLogs(newLogs) {
-    const consoleOutput = document.getElementById('consoleOutput');
-    if (!consoleOutput) return;
+    const logsContainer = document.getElementById('logsContainer');
+    if (!logsContainer) return;
 
     newLogs.forEach(log => {
+        if (log.trim() === "") return; // Skip empty log entries
         const logEntry = document.createElement('div');
         logEntry.textContent = log;
-        consoleOutput.appendChild(logEntry);
+        logsContainer.appendChild(logEntry);
     });
     // Handle autoscroll
     if (autoScroll) {
-        consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        logsContainer.scrollTop = logsContainer.scrollHeight;
     }
 }
 
@@ -86,9 +71,9 @@ export async function fetchConsoleLogs() {
     if (isFetching) return; // Prevent overlapping fetches
     isFetching = true;
     try {
-        // Show loading indicator only during the first fetch
+        // Show spinner only during the initial fetch
         if (lastLogIndex === 0) {
-            showLoading(true);
+            showSpinner(true);
         }
         const response = await fetch('/api/console');
         if (!response.ok) {
@@ -96,7 +81,7 @@ export async function fetchConsoleLogs() {
         }
         const data = await response.json();
         if (lastLogIndex === 0) {
-            showLoading(false); // Remove the spinner after the first fetch
+            showSpinner(false); // Hide spinner after the first fetch
         }
 
         const newLogs = data.logs.slice(lastLogIndex);
@@ -107,9 +92,6 @@ export async function fetchConsoleLogs() {
     } catch (error) {
         console.error('Error fetching console logs:', error);
         displayError(`Failed to fetch console logs: ${error.message}`);
-        if (lastLogIndex === 0) {
-            showLoading(false); // Ensure spinner is removed even on error
-        }
     } finally {
         isFetching = false;
     }
@@ -131,14 +113,11 @@ function debounce(func, delay) {
 
 // Initialize log fetching and auto-scroll toggling when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const consoleOutput = document.getElementById('consoleOutput');
     const toggleButton = document.getElementById('toggleButton');
 
-    if (consoleOutput) {
-        if (toggleButton) {
-            toggleButton.addEventListener('click', toggleAutoScroll);
-        }
-        fetchConsoleLogs(); // Initial fetch
-        setInterval(fetchConsoleLogs, 5000); // Fetch every 5 seconds
+    if (toggleButton) {
+        toggleButton.addEventListener('click', toggleAutoScroll);
     }
+    fetchConsoleLogs(); // Initial fetch
+    setInterval(fetchConsoleLogs, 5000); // Fetch every 5 seconds
 });
