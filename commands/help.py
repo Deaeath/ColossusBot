@@ -75,9 +75,7 @@ class HelpCog(commands.Cog):
                 usage = command.help.partition(". Usage: ")[2] if (cmd_help := command.help) and ". Usage:" in cmd_help else "No specific usage."
                 embed.add_field(
                     name="**Usage**",
-                    value=f"```
-{usage}
-```" if usage and usage != "No specific usage." else "No specific usage provided.",
+                    value=f"```\n{usage}\n```" if usage and usage != "No specific usage." else "No specific usage provided.",
                     inline=False
                 )
 
