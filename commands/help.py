@@ -68,6 +68,16 @@ class HelpCog(commands.Cog):
                     else:
                         embed.add_field(name=cog_name, value=commands_info_str, inline=False)
 
+            # Handle commands not attached to a cog (e.g., routed through a handler)
+            no_cog_commands = [
+                cmd for cmd in self.client.commands if cmd.cog is None and not cmd.hidden
+            ]
+            if no_cog_commands:
+                no_cog_info = "\n".join(
+                    [f"**{cmd.name}** - {cmd.help.partition('. Usage:')[0].strip()}" for cmd in no_cog_commands]
+                )
+                embed.add_field(name="Uncategorized Commands", value=no_cog_info, inline=False)
+
             await ctx.send(embed=embed)
             logger.info(f"[HelpCog.help_command] Displayed general help to {ctx.author}.")
         else:
