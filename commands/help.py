@@ -52,13 +52,21 @@ class HelpCog(commands.Cog):
                     cog.get_commands(),
                     key=lambda cmd: cmd.name.lower()
                 )  # Sort commands alphabetically by name
-                commands_info = "\n".join([
-                    f"**{cmd.name}** - {cmd.help.partition('. Usage:')[0].strip()}"
-                    for cmd in commands_list if not cmd.hidden
-                ])
+                commands_info = []
+                for cmd in commands_list:
+                    if not cmd.hidden:
+                        cmd_info = f"**{cmd.name}** - {cmd.help.partition('. Usage:')[0].strip()}"
+                        if len(cmd_info) > 1024:
+                            cmd_info = cmd_info[:1021] + '...'
+                        commands_info.append(cmd_info)
                 if commands_info:
-                    # Add cog name and commands under it
-                    embed.add_field(name=cog_name, value=commands_info, inline=False)
+                    commands_info_str = "\n".join(commands_info)
+                    if len(commands_info_str) > 1024:
+                        commands_info_chunks = [commands_info_str[i:i+1024] for i in range(0, len(commands_info_str), 1024)]
+                        for chunk in commands_info_chunks:
+                            embed.add_field(name=cog_name, value=chunk, inline=False)
+                    else:
+                        embed.add_field(name=cog_name, value=commands_info_str, inline=False)
 
             await ctx.send(embed=embed)
             logger.info(f"[HelpCog.help_command] Displayed general help to {ctx.author}.")
