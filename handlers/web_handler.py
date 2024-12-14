@@ -329,7 +329,7 @@ class WebHandler:
         Starts the Flask application.
         """
         logger.info(f"Starting web interface on {self.host}:{self.port}...")
-        self.app.run(host=self.host, port=self.port)
+        self.app.run(host="0.0.0.0", port=self.port)  # Bind to all interfaces
 
     def start(self) -> None:
         """
