@@ -12,7 +12,8 @@ body {
 
 /* Header Styles */
 header {
-    background-color: #000000;
+    /* Ensure no conflicting background color is set here */
+    /* background-color: #000000; */ /* Remove if present */
     padding: 20px 10px;
     text-align: center;
     position: sticky;
@@ -44,7 +45,7 @@ header h1 {
 }
 
 .nav-link {
-    color: white;
+    color: black;
     text-decoration: none;
     font-weight: bold;
     padding: 5px 10px;
@@ -130,7 +131,6 @@ th {
     font-family: monospace;
     font-size: 0.9rem;
     text-align: left;
-    margin-bottom: 10px;
     white-space: pre-wrap; /* Allows wrapped text */
 }
 

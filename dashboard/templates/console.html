@@ -4,11 +4,13 @@
 
 {% block content %}
 <div class="console-container">
-    <h2>Console Logs</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Console Logs</h2>
+        <button id="toggleButton" class="btn btn-secondary">Disable Autoscroll</button>
+    </div>
     <div id="consoleOutput" class="console-output border rounded p-3">
         <!-- Console logs will be dynamically inserted here -->
     </div>
-    <button id="toggleButton" class="btn btn-secondary mt-3">Disable Autoscroll</button>
 </div>
 {% endblock %}
 
