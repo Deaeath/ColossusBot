@@ -41,6 +41,56 @@ class SanitizingHandler(logging.StreamHandler):
         return message
 
 
+class ConsoleBufferHandler(logging.Handler):
+    """
+    Custom logging handler that sanitizes log messages and appends them to the console buffer.
+    """
+    def __init__(self):
+        super().__init__()
+        self.ipv4_regex = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
+        self.ipv6_regex = re.compile(r'\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b')
+
+    def emit(self, record):
+        try:
+            message = self.format(record)
+            sanitized = self.sanitize_ips(message)
+            with WebHandler.buffer_lock:
+                WebHandler.console_buffer.append(sanitized)
+                if len(WebHandler.console_buffer) > 1000:
+                    WebHandler.console_buffer.pop(0)
+        except Exception:
+            self.handleError(record)
+
+    def sanitize_ips(self, message: str) -> str:
+        message = self.ipv4_regex.sub('[REDACTED IP]', message)
+        message = self.ipv6_regex.sub('[REDACTED IP]', message)
+        return message
+
+
+def setup_bot_logging():
+    """
+    Configures logging for the Discord bot to ensure that all bot logs are captured
+    and appended to the console buffer with IP addresses sanitized.
+    """
+    # Get the root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)  # Ensure all levels are captured
+
+    # Create and configure the ConsoleBufferHandler
+    console_buffer_handler = ConsoleBufferHandler()
+    console_buffer_handler.setLevel(logging.DEBUG)  # Capture all log levels
+    formatter = logging.Formatter('%m-%d %H:%M:%S %(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_buffer_handler.setFormatter(formatter)
+
+    # Add the handler to the root logger
+    root_logger.addHandler(console_buffer_handler)
+
+    # Optionally, remove other handlers if you don't want duplicate logs
+    # for handler in root_logger.handlers[:]:
+    #     if handler is not console_buffer_handler:
+    #         root_logger.removeHandler(handler)
+
+
 class WebHandler:
     """
     A handler for managing the web interface of ColossusBot.
@@ -125,6 +175,9 @@ class WebHandler:
         sanitizing_handler.setLevel(logging.INFO)
         sanitizing_handler.setFormatter(logging.Formatter('%(message)s'))
         flask_logger.addHandler(sanitizing_handler)
+
+        # Setup bot logging to capture bot-specific logs
+        setup_bot_logging()
 
         # Determine the absolute paths for templates and static folders
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -212,7 +265,7 @@ class WebHandler:
             logger.error(f"Error rendering commands page: {e}", exc_info=True)
             return jsonify({"error": "Failed to load commands page."}), 500
 
-    def get_console_logs(self) -> Dict[str, Any]:
+    def get_console_logs(self) -> Any:
         """
         API endpoint to fetch the latest console logs.
         """
@@ -225,7 +278,7 @@ class WebHandler:
             logger.error(f"Error fetching console logs: {e}", exc_info=True)
             return jsonify({"error": "Failed to fetch console logs."}), 500
 
-    def get_commands(self) -> Dict[str, Any]:
+    def get_commands(self) -> Any:
         """
         API endpoint to fetch the list of available commands and their metadata.
         """
@@ -237,7 +290,7 @@ class WebHandler:
             logger.error(f"Error fetching commands metadata: {e}", exc_info=True)
             return jsonify({"error": "Failed to fetch commands metadata."}), 500
 
-    def get_status_api(self) -> Dict[str, Any]:
+    def get_status_api(self) -> Any:
         """
         API endpoint to fetch the bot's current status.
         """
@@ -264,7 +317,7 @@ class WebHandler:
             logger.error(f"Error rendering status page: {e}", exc_info=True)
             return jsonify({"error": "Failed to load status page."}), 500
 
-    def trigger_action(self, action: str) -> Dict[str, Any]:
+    def trigger_action(self, action: str) -> Any:
         """
         API endpoint to trigger specific bot actions.
 
@@ -354,7 +407,7 @@ class WebHandler:
         Starts the Flask application.
         """
         logger.info(f"Starting web interface on {self.host}:{self.port}...")
-        self.app.run(host="0.0.0.0", port=self.port)
+        self.app.run(host=self.host, port=self.port)
 
     def start(self) -> None:
         """
