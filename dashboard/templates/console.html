@@ -11,7 +11,10 @@
     <button id="toggleButton" class="btn btn-secondary mt-3">Disable Autoscroll</button>
 </div>
 <script type="module">
-    import { toggleAutoScroll } from '{{ url_for("static", filename="js/scripts.js") }}';
+    import { toggleAutoScroll, fetchLogs } from '{{ url_for("static", filename="js/scripts.js") }}';
+
+    // Initialize log fetching and auto-scroll toggling
     document.getElementById('toggleButton').addEventListener('click', toggleAutoScroll);
+    fetchLogs();
 </script>
 {% endblock %}

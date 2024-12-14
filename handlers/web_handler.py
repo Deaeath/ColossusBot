@@ -6,11 +6,13 @@ WebHandler: Middleware Between Backend and Dashboard
 Provides Flask routes to serve the dashboard and backend data for ColossusBot.
 """
 
+import re
 import time
 import os
+import sys
 import logging
 from flask import Flask, jsonify, request
-from threading import Thread
+from threading import Thread, Lock
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer
 from discord.ext import commands as discord_commands  # Renamed to avoid conflict
@@ -25,19 +27,79 @@ class WebHandler:
     A handler for managing the web interface of ColossusBot.
     """
 
-    def __init__(self, client: discord_commands.Bot, console_buffer: List[str], host: str = "0.0.0.0", port: int = 8119) -> None:
+    # Class-level buffer and lock for thread-safe operations
+    console_buffer: List[str] = []
+    buffer_lock = Lock()
+
+    class DualStream:
+        """
+        Handles sanitization of console logs and stores them in a buffer.
+        """
+
+        def __init__(self, original_stdout):
+            """
+            Initializes the DualStream object.
+
+            :param original_stdout: The original standard output to be wrapped.
+            """
+            self.original_stdout = original_stdout
+            self.ipv4_regex = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
+            self.ipv6_regex = re.compile(
+                r'\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b'
+            )
+
+        def sanitize_ips(self, data: str) -> str:
+            """
+            Sanitizes IP addresses in the given data by replacing them with '[REDACTED IP]'.
+
+            :param data: The string containing potential IP addresses.
+            :return: The sanitized string with IPs redacted.
+            """
+            data = self.ipv4_regex.sub('[REDACTED IP]', data)
+            data = self.ipv6_regex.sub('[REDACTED IP]', data)
+            return data
+
+        def write(self, data):
+            """
+            Writes sanitized data to the original standard output and stores it in the buffer.
+
+            :param data: The string to be written.
+            """
+            sanitized_data = self.sanitize_ips(data)
+            self.original_stdout.write(sanitized_data)
+
+            # Thread-safe buffer update
+            with WebHandler.buffer_lock:
+                WebHandler.console_buffer.append(sanitized_data)
+                if len(WebHandler.console_buffer) > 1000:
+                    WebHandler.console_buffer.pop(0)
+
+        def flush(self):
+            """
+            Flushes the original standard output.
+            """
+            self.original_stdout.flush()
+
+    def __init__(
+        self,
+        client: discord_commands.Bot,
+        host: str = "0.0.0.0",
+        port: int = 8119,
+    ) -> None:
         """
         Initializes the WebHandler.
 
         :param client: The Discord bot client instance.
-        :param console_buffer: List to store console output for display on the dashboard.
         :param host: The host address for the Flask app.
         :param port: The port for the Flask app.
         """
         self.client = client
-        self.console_buffer = console_buffer
         self.host = host
         self.port = port
+
+        # Replace stdout with DualStream to sanitize logs
+        sys.stdout = self.DualStream(sys.stdout)
+        sys.stderr = self.DualStream(sys.stderr)  # Also sanitize stderr
 
         # Determine the absolute paths for templates and static folders
         current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -101,11 +163,14 @@ class WebHandler:
 
     def console(self) -> str:
         """
-        Renders the console logs page.
+        Renders the console logs page with the latest sanitized logs.
         """
         logger.debug(f"[{self.__class__.__name__}] Accessed '/console' route for console logs.")
         try:
-            return Renderer.render_console()
+            # Acquire lock to safely access console_buffer
+            with self.buffer_lock:
+                recent_logs = self.console_buffer[-100:]
+            return Renderer.render_console(logs=recent_logs)
         except Exception as e:
             logger.error(f"Error rendering console page: {e}", exc_info=True)
             return jsonify({"error": "Failed to load console page."}), 500
@@ -127,34 +192,49 @@ class WebHandler:
         API endpoint to fetch the latest console logs.
         """
         logger.debug(f"[{self.__class__.__name__}] Accessed '/api/console' route to fetch console logs.")
-        return jsonify({"logs": self.console_buffer[-100:]})  # Return last 100 log entries
+        try:
+            with self.buffer_lock:
+                recent_logs = self.console_buffer[-100:]
+            return jsonify({"logs": recent_logs})  # Return last 100 log entries
+        except Exception as e:
+            logger.error(f"Error fetching console logs: {e}", exc_info=True)
+            return jsonify({"error": "Failed to fetch console logs."}), 500
 
     def get_commands(self) -> Dict[str, Any]:
         """
         API endpoint to fetch the list of available commands and their metadata.
         """
         logger.debug(f"[{self.__class__.__name__}] Accessed '/api/commands' route to fetch bot commands.")
-        commands_metadata = self._fetch_commands_metadata()
-        return jsonify(commands_metadata)
+        try:
+            commands_metadata = self._fetch_commands_metadata()
+            return jsonify(commands_metadata)
+        except Exception as e:
+            logger.error(f"Error fetching commands metadata: {e}", exc_info=True)
+            return jsonify({"error": "Failed to fetch commands metadata."}), 500
 
     def get_status_api(self) -> Dict[str, Any]:
         """
         API endpoint to fetch the bot's current status.
         """
         logger.debug(f"[{self.__class__.__name__}] Accessed '/api/status' route to fetch bot status.")
-        return jsonify({
-            "status": "online" if self.client.is_ready() else "offline",
-            "guilds": len(self.client.guilds),
-            "latency": round(self.client.latency * 1000, 2),  # ms
-        })
+        try:
+            status_info = {
+                "status": "online" if self.client.is_ready() else "offline",
+                "guilds": len(self.client.guilds),
+                "latency": round(self.client.latency * 1000, 2),  # ms
+            }
+            return jsonify(status_info)
+        except Exception as e:
+            logger.error(f"Error fetching status information: {e}", exc_info=True)
+            return jsonify({"error": "Failed to fetch status information."}), 500
 
     def status(self) -> str:
         """
-        Renders the status page.
+        Renders the status page with graphical data representations.
         """
         logger.debug(f"[{self.__class__.__name__}] Accessed '/status' route for status page.")
         try:
-            return Renderer.render_status()
+            return Renderer.render_status(latency_history=self.latency_history)
         except Exception as e:
             logger.error(f"Error rendering status page: {e}", exc_info=True)
             return jsonify({"error": "Failed to load status page."}), 500
