@@ -116,6 +116,8 @@ class ClientHandler:
                 role_menus = await db_handler.fetchall("SELECT name, channel_id FROM reaction_role_menus WHERE guild_id = ?", (guild_id,)) if guild_id else []
                 auto_responses = await db_handler.fetchall("SELECT trigger, response FROM autoresponses WHERE guild_id = ?", (guild_id,)) if guild_id else []
                 alerts_count = await db_handler.fetchone("SELECT COUNT(*) FROM flagged_alert_messages WHERE guild_id = ?", (guild_id,)) if guild_id else (0,)
+                active_tickets = await db_handler.fetchall("SELECT channel_id, created_at FROM ticket_channels WHERE guild_id = ?", (guild_id,)) if guild_id else []
+                paused_tickets_count = await db_handler.fetchone("SELECT COUNT(*) FROM paused_tickets WHERE channel_id IN (SELECT channel_id FROM ticket_channels WHERE guild_id = ?)", (guild_id,)) if guild_id else (0,)
 
                 embed = discord.Embed(
                     title="ColossusBot Help",
@@ -128,8 +130,8 @@ class ClientHandler:
                     value=(
                         f"- **Help**: Use `@ColossusBot help` or `{prefix}help` for detailed commands.\n"
                         f"- **Custom Prefix**: Each server can set its own prefix. Default is `{BOT_PREFIX}`.\n"
-                        f"- **Advanced Features**: Check out moderation, alerts, and more!\n"
-                        f"- **Documentation**: Visit the README for more details."
+                        "- **Advanced Features**: Check out moderation, alerts, and more!\n"
+                        "- **Documentation**: Visit the README for more details."
                     ),
                     inline=False
                 )
@@ -154,7 +156,9 @@ class ClientHandler:
                         f"- **Owner ID**: {owner_id}\n"
                         f"- **Role Menus**: {len(role_menus)} menu(s) configured.\n"
                         f"- **Auto Responses**: {len(auto_responses)} response(s) configured.\n"
-                        f"- **Active Alerts**: {alerts_count[0]} flagged alert(s) recorded."
+                        f"- **Active Alerts**: {alerts_count[0]} flagged alert(s) recorded.\n"
+                        f"- **Active Tickets**: {len(active_tickets)} ticket(s) open.\n"
+                        f"- **Paused Tickets**: {paused_tickets_count[0]} ticket(s) paused."
                     ) if guild_id else "This command was run in a DM or guild information is unavailable.",
                     inline=False
                 )
@@ -170,6 +174,13 @@ class ClientHandler:
                     embed.add_field(
                         name="Auto Responses Details",
                         value="\n".join([f"- Trigger: `{trigger}` | Response: {response}" for trigger, response in auto_responses]),
+                        inline=False
+                    )
+
+                if active_tickets:
+                    embed.add_field(
+                        name="Active Tickets",
+                        value="\n".join([f"- <#{channel_id}> | Created At: {created_at}" for channel_id, created_at in active_tickets]),
                         inline=False
                     )
 
