@@ -1,15 +1,15 @@
 # File: handlers/web_handler.py
 
 import logging
-import time
 from flask import Flask, jsonify, request
 from threading import Thread, Lock
 from typing import List, Dict, Any
-from dashboard.renderer import Renderer  # Assuming you have a Renderer for HTML templates
+from dashboard.renderer import Renderer  # Ensure this module exists
 from discord.ext import commands as discord_commands
-from handlers.log_handler import SanitizingHandler  # If needed
+from handlers.log_handler import SanitizingHandler  # Ensure this is correctly defined
 import os
 import sys
+import time  # Ensure time is imported
 
 class WebHandler:
     """
@@ -66,13 +66,22 @@ class WebHandler:
         )
         self._setup_routes()
 
-        # Redirect Flask 'werkzeug' logs through SanitizingHandler if needed
+        # Redirect Flask 'werkzeug' logs through SanitizingHandler
         flask_logger = logging.getLogger('werkzeug')
-        flask_logger.removeHandler(flask_logger.handlers[0])  # Remove the default Flask handler
+
+        # Check if werkzeug has any handlers before attempting to remove them
+        if flask_logger.hasHandlers():
+            # Remove all existing handlers
+            for handler in flask_logger.handlers[:]:
+                flask_logger.removeHandler(handler)
+            logging.getLogger(__name__).debug("Removed existing werkzeug handlers.")
+
+        # Add SanitizingHandler to werkzeug logger
         sanitizing_handler = SanitizingHandler(sys.stdout)  # Use sanitized stdout
         sanitizing_handler.setLevel(logging.INFO)
         sanitizing_handler.setFormatter(logging.Formatter('[Werkzeug] %(message)s'))
         flask_logger.addHandler(sanitizing_handler)
+        logging.getLogger(__name__).debug("Added SanitizingHandler to werkzeug logger.")
 
     def _setup_routes(self) -> None:
         """
@@ -244,4 +253,18 @@ class WebHandler:
         Starts the Flask app in a separate thread.
         """
         logging.getLogger(__name__).info(f"[{self.__class__.__name__}] Starting web interface in a separate thread.")
-  
+        thread = Thread(target=self.run)
+        thread.daemon = True
+        thread.start()
+        logging.getLogger(__name__).info(f"[{self.__class__.__name__}] Web interface is now running.")
+
+    def stop(self) -> None:
+        """
+        Stops the Flask app.
+        """
+        logging.getLogger(__name__).info(f"[{self.__class__.__name__}] Stopping web interface...")
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+        logging.getLogger(__name__).info(f"[{self.__class__.__name__}] Web interface stopped.")
