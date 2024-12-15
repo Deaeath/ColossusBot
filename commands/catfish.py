@@ -16,7 +16,6 @@ import os
 import logging
 
 # Set up logger
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 class CatfishCommand(commands.Cog):

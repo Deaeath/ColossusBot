@@ -15,6 +15,8 @@ import re
 import logging
 from handlers.database_handler import DatabaseHandler
 
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class AIChatbot(commands.Cog):
     """

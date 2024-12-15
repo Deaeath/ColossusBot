@@ -18,8 +18,8 @@ import io
 from handlers.database_handler import DatabaseHandler
 from typing import Dict, Any, List, Optional
 
-logger = logging.getLogger("ColossusBot")
-
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class ReactionRoleMenu(commands.Cog):
     """
@@ -696,8 +696,6 @@ class ReactionRoleMenu(commands.Cog):
         else:
             # It's a Unicode emoji; assume valid
             return True
-
-    # Additional helper methods can be added here.
 
 
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:

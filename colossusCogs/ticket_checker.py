@@ -19,9 +19,7 @@ from discord.ext import commands, tasks
 from handlers.database_handler import DatabaseHandler
 
 # Set up logger
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 class TicketChecker(commands.Cog):
     """

@@ -13,9 +13,7 @@ import discord
 import logging
 
 # Set up logger
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 class PurgeMessages(commands.Cog):
     """

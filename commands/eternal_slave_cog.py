@@ -29,8 +29,8 @@ from handlers.database_handler import DatabaseHandler
 from typing import Optional, Tuple, Any, Union, List
 import asyncio
 
-logger = logging.getLogger("ColossusBot")
-
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class EternalSlaveCog(commands.Cog):
     """

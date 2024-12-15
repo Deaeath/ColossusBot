@@ -17,18 +17,42 @@ from handlers.database_handler import DatabaseHandler
 from handlers.event_handler import EventsHandler
 from handlers.commands_handler import CommandsHandler
 from handlers.web_handler import WebHandler
+from handlers.log_handler import BufferLoggingHandler  # Import the custom handler
+from threading import Lock
+
+# Initialize the shared buffer and lock
+console_buffer = []
+buffer_lock = Lock()
 
 # Configure Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("colossusbot.log"),
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger("ColossusBot")
+logger.setLevel(logging.DEBUG)  # Capture all log levels
 
+# Create formatters
+file_formatter = logging.Formatter("[%(name)s] %(asctime)s - %(levelname)s - %(message)s")
+stream_formatter = logging.Formatter("[%(name)s] %(levelname)s - %(message)s")
+
+# File Handler
+file_handler = logging.FileHandler("colossusbot.log")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(file_formatter)
+logger.addHandler(file_handler)
+
+# Stream Handler (Console)
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
+stream_handler.setFormatter(stream_formatter)
+logger.addHandler(stream_handler)
+
+# Buffer Logging Handler
+buffer_handler = BufferLoggingHandler(
+    buffer=console_buffer,
+    buffer_lock=buffer_lock,
+    level=logging.DEBUG  # Capture all levels
+)
+buffer_formatter = logging.Formatter("[%(name)s] %(message)s")
+buffer_handler.setFormatter(buffer_formatter)
+logger.addHandler(buffer_handler)
 
 async def main() -> None:
     """
@@ -43,7 +67,7 @@ async def main() -> None:
 
     database_config = client_handler.get_database_config()
     database_handler: DatabaseHandler = DatabaseHandler(database_config)
-    web_handler: WebHandler = WebHandler(client, client_handler.console_buffer)
+    web_handler: WebHandler = WebHandler(client, console_buffer, buffer_lock)  # Pass buffer and lock
     event_handler: EventsHandler = EventsHandler(client, database_handler)
     commands_handler: CommandsHandler = CommandsHandler(client, database_handler)
 
@@ -91,7 +115,6 @@ async def main() -> None:
         await client.close()
         web_handler.stop()
 
-
 async def load_cogs(client: Bot):
     """Load all stand-alone commands from the ./commands directory."""
     logger.info("[Main] [load_cogs] Loading cogs!")
@@ -108,7 +131,6 @@ async def load_cogs(client: Bot):
                     logger.error(f"[Main] [load_cogs] Failed to load {filename}: {e}")
                     traceback.print_exc()
     logger.info("[Main] [load_cogs] All cogs loaded!\n")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

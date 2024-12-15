@@ -6,8 +6,8 @@ import logging
 from handlers.database_handler import DatabaseHandler
 from typing import Optional
 
-logger = logging.getLogger("ColossusBot")
-
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class Autoresponder(commands.Cog):
     def __init__(self, client: commands.Bot, db_handler: DatabaseHandler) -> None:

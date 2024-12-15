@@ -12,9 +12,7 @@ from discord.ext import commands
 from handlers.database_handler import DatabaseHandler
 
 # Set up logger
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 class PrefixManager(commands.Cog):
     """

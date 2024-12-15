@@ -18,9 +18,7 @@ from discord import Embed, Member
 from discord.ext import commands
 
 # Set up logger
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 class VoteCommands(commands.Cog):
     """

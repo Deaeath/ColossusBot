@@ -13,7 +13,6 @@ from flask import render_template, current_app
 from typing import Dict, Any, List
 
 # Configure logging for debugging
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 

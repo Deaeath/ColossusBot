@@ -12,8 +12,8 @@ import logging
 import math
 import asyncio
 
-logger = logging.getLogger("ChannelAccessManager")
-
+# Set up logger
+logger = logging.getLogger(__name__)
 
 class ChannelAccessManager(commands.Cog):
     """
