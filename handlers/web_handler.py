@@ -1,12 +1,13 @@
 # File: handlers/web_handler.py
 
-from datetime import time
 import logging
+import time
 from flask import Flask, jsonify, request
 from threading import Thread, Lock
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer  # Assuming you have a Renderer for HTML templates
 from discord.ext import commands as discord_commands
+from handlers.log_handler import SanitizingHandler  # If needed
 import os
 import sys
 

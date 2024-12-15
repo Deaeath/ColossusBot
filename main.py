@@ -17,7 +17,7 @@ from handlers.database_handler import DatabaseHandler
 from handlers.event_handler import EventsHandler
 from handlers.commands_handler import CommandsHandler
 from handlers.web_handler import WebHandler
-from handlers.log_handler import BufferLoggingHandler  # Import the custom handler
+from handlers.log_handler import BufferLoggingHandler, SanitizingHandler  # Import the custom handlers
 from threading import Lock
 
 # Initialize the shared buffer and lock

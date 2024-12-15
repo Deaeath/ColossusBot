@@ -57,3 +57,50 @@ class BufferLoggingHandler(logging.Handler):
         message = self.IPV4_REGEX.sub('[REDACTED IP]', message)
         message = self.IPV6_REGEX.sub('[REDACTED IP]', message)
         return message
+
+class SanitizingHandler(logging.StreamHandler):
+    """
+    Custom logging handler that sanitizes sensitive information like IP addresses
+    before outputting them to a stream (e.g., sys.stdout).
+    """
+    # Regular expressions to identify IPv4 and IPv6 addresses
+    IPV4_REGEX = re.compile(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b')
+    IPV6_REGEX = re.compile(r'\b(?:[A-Fa-f0-9]{1,4}:){7}[A-Fa-f0-9]{1,4}\b')
+
+    def __init__(self, stream=None):
+        """
+        Initializes the SanitizingHandler.
+
+        Args:
+            stream (IO): The stream to output logs to (e.g., sys.stdout).
+        """
+        super().__init__(stream)
+
+    def emit(self, record: logging.LogRecord):
+        """
+        Emits a log record after sanitizing IP addresses.
+
+        Args:
+            record (logging.LogRecord): The log record to be emitted.
+        """
+        try:
+            msg = self.format(record)
+            sanitized_msg = self.sanitize_ips(msg)
+            self.stream.write(sanitized_msg + '\n')
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+    def sanitize_ips(self, message: str) -> str:
+        """
+        Sanitizes IP addresses in the log message.
+
+        Args:
+            message (str): The log message.
+
+        Returns:
+            str: The sanitized log message.
+        """
+        message = self.IPV4_REGEX.sub('[REDACTED IP]', message)
+        message = self.IPV6_REGEX.sub('[REDACTED IP]', message)
+        return message
