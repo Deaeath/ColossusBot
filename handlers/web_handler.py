@@ -7,7 +7,6 @@ from threading import Thread, Lock
 from typing import List, Dict, Any
 from dashboard.renderer import Renderer  # Assuming you have a Renderer for HTML templates
 from discord.ext import commands as discord_commands
-from handlers.log_handler import SanitizingHandler  # If needed
 import os
 import sys
 
