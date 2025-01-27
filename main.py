@@ -8,8 +8,11 @@ Initializes the bot, sets up handlers, and starts the bot lifecycle.
 
 import logging
 import os
+import random
 import traceback
 import asyncio
+from typing import Any, Dict, List
+from discord import Activity, ActivityType
 from discord.ext.commands import Bot
 from config import BOT_TOKEN
 from handlers.client_handler import ClientHandler
@@ -53,6 +56,40 @@ buffer_handler = BufferLoggingHandler(
 buffer_formatter = logging.Formatter("[%(name)s] %(message)s")
 buffer_handler.setFormatter(buffer_formatter)
 logger.addHandler(buffer_handler)
+
+# Define the dynamic status change coroutine
+async def change_status(client: Bot) -> None:
+    """
+    Periodically changes the bot's status to a random activity based on its functionalities.
+    
+    :param client: The Discord bot client instance.
+    """
+    statuses: List[Dict[str, Any]] = [
+        {"type": ActivityType.playing, "name": "with commands like !active and !catfish"},
+        {"type": ActivityType.listening, "name": "to your suggestions with !suggest"},
+        {"type": ActivityType.watching, "name": "over server activity"},
+        {"type": ActivityType.playing, "name": "Chess with users via !vibecheck"},
+        {"type": ActivityType.competing, "name": "in moderating actions"},
+        {"type": ActivityType.playing, "name": "with AI-powered chat using !aichatbot"},
+        {"type": ActivityType.watching, "name": "over ticket channels with !ticketmonitor"},
+        {"type": ActivityType.listening, "name": "to your feedback through !suggest"},
+        {"type": ActivityType.playing, "name": "to define words with !define"},
+        {"type": ActivityType.watching, "name": "the server's health"},
+        {"type": ActivityType.playing, "name": "Google searching with !google"},
+        {"type": ActivityType.listening, "name": "to your commands like !purge_user"},
+    ]
+    
+    while True:
+        try:
+            status = random.choice(statuses)
+            activity = Activity(type=status["type"], name=status["name"])
+            await client.change_presence(activity=activity)
+            logger.debug(f"Status changed to: {status['type'].name} {status['name']}")
+        except Exception as e:
+            logger.error(f"Failed to change status: {e}")
+            traceback.print_exc()
+        finally:
+            await asyncio.sleep(600)  # Wait for 10 minutes before changing again
 
 async def main() -> None:
     """
@@ -99,6 +136,9 @@ async def main() -> None:
         Triggered when the bot successfully connects to Discord.
         """
         logger.info(f"{client.user} has connected to Discord!")
+        # Start the background task for changing status
+        client.loop.create_task(change_status(client))
+        logger.debug("Started background task for dynamic status changes.")
         # Additional actions can be performed here if needed
 
     # Run the client
