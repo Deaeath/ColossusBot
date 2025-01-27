@@ -143,7 +143,7 @@ class EventsHandler(commands.Cog):
             try:
                 # Note: discord.py does not provide a direct way to fetch a single reaction.
                 # As a workaround, you can re-fetch the message's reactions.
-                await message.remove_reaction(payload.emoji, user)  # Attempt to remove to trigger cache update
+                # await message.remove_reaction(payload.emoji, user)  # Attempt to remove to trigger cache update
                 reaction = discord.utils.get(message.reactions, emoji=payload.emoji.name)
             except discord.HTTPException as e:
                 logger.error(f"Failed to update/fetch reaction: {e}")
