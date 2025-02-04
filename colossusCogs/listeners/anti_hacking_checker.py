@@ -1,5 +1,3 @@
-# File: colossusCogs/Listeners/anti_hacking_checker.py
-
 """
 Anti-Hacking Cog for ColossusBot
 --------------------------------
@@ -57,8 +55,27 @@ class AntiHacking(commands.Cog):
         # Default security channel ID (fallback if none is configured for the guild)
         self.default_security_channel_id = 1135648274007724062
 
-        # Start the background task with error handling
-        self.client.loop.create_task(self.background_task())
+        # Placeholder for the background task
+        self.bg_task = None
+
+    async def cog_load(self) -> None:
+        """
+        Asynchronous initialization hook for the cog.
+        This method is called when the cog is loaded and is used to start background tasks.
+        """
+        self.bg_task = asyncio.create_task(self.background_task())
+
+    async def cog_unload(self) -> None:
+        """
+        Asynchronous cleanup hook for the cog.
+        Cancels any background tasks when the cog is unloaded.
+        """
+        if self.bg_task:
+            self.bg_task.cancel()
+            try:
+                await self.bg_task
+            except asyncio.CancelledError:
+                pass
 
     async def track_action(self, user_id: int, user_name: str, guild: discord.Guild) -> None:
         """
