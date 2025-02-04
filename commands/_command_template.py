@@ -27,6 +27,7 @@ class CommandTemplate(commands.Cog):
         :param client: The Discord bot client instance.
         """
         self.client = client
+        self.db_path = "path/to/database.db"  # Path to the database file (optional, commands that rely on the database should be cogs instead of commands)
         logger.info("[CommandTemplate] CommandTemplate cog initialized.")
 
     @commands.command(name="example", help="An example command to demonstrate functionality.", usage="!example [input_text]")
