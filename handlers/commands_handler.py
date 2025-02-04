@@ -489,6 +489,37 @@ class CommandsHandler(commands.Cog):
         else:
             logger.error(f"[{self.__class__.__name__}] Web application instance not found in the bot.")
 
+    # =====================
+    # Global Error Handling
+    # =====================
+
+    async def cog_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
+        """
+        A global error handler for commands in this cog.
+        Provides user-friendly messages for common errors and logs unexpected errors.
+
+        :param ctx: The command context.
+        :param error: The error raised during command invocation.
+        """
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("❌ You do not have the required permissions to execute this command.")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"❌ Missing required argument: `{error.param.name}`. Usage: `{ctx.command.usage}`")
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send("❌ Bad argument provided. Please check your input and try again.")
+        elif isinstance(error, commands.CommandNotFound):
+            # Optionally ignore unknown commands or provide feedback.
+            pass
+        elif isinstance(error, commands.CommandInvokeError):
+            # Unwrap the original exception
+            original = error.original
+            await ctx.send("❌ An internal error occurred while executing the command.")
+            logger.error(f"Error in command {ctx.command}: {original}", exc_info=True)
+        else:
+            await ctx.send("❌ An error occurred while processing the command.")
+            logger.error(f"Error in command {ctx.command}: {error}", exc_info=True)
+
+
 # =====================
 # Cog Setup
 # =====================
