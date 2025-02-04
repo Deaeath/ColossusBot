@@ -18,6 +18,7 @@ from colossusCogs.reaction_role_menu import ReactionRoleMenu
 from colossusCogs.autoresponder import Autoresponder
 from colossusCogs.ticket_checker import TicketChecker
 from colossusCogs.prefix_manager import PrefixManager
+from colossusCogs.listeners.anti_hacking_checker import AntiHacking
 from handlers.database_handler import DatabaseHandler
 import logging
 import discord
@@ -48,9 +49,13 @@ class CommandsHandler(commands.Cog):
         self.autoresponder = Autoresponder(client, self.db_handler)
         self.ticket_checker = TicketChecker(client, self.db_handler)
         self.prefix_manager = PrefixManager(client, self.db_handler)
+        self.anti_hacking = AntiHacking(client, self.db_handler)
         logger.info(f"[{self.__class__.__name__}] CommandsHandler initialized successfully.")
 
-    # Existing Command Methods
+    # =====================
+    # Basic Chat Commands
+    # =====================
+
     @commands.command(
         name="clear_chat",
         help="Clears the conversation history for the user.",
@@ -85,6 +90,10 @@ class CommandsHandler(commands.Cog):
         logger.info(f"[{self.__class__.__name__}] Executing 'show_history' command with args: {args}")
         await self.aichatbot.show_history(ctx, *args)
 
+    # =====================
+    # Permissions and Moderation Commands
+    # =====================
+
     @commands.command(
         name="reset_perms",
         help="Resets custom permissions for users and channels.",
@@ -94,7 +103,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def reset_perms(self, ctx: commands.Context, *args) -> None:
         """
-        Resets custom permissions for users and channels by routing to ChannelAccessManager cog.
+        Resets custom permissions for users and channels by routing to the ChannelAccessManager cog.
 
         :param ctx: The command context.
         :param args: Additional arguments for the reset_perms command.
@@ -111,7 +120,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def view_perms(self, ctx: commands.Context, *args) -> None:
         """
-        Displays the current database records for custom permissions by routing to ChannelAccessManager cog.
+        Displays the current database records for custom permissions by routing to the ChannelAccessManager cog.
 
         :param ctx: The command context.
         :param args: Additional arguments for the view_perms command.
@@ -128,7 +137,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(moderate_members=True)
     async def mute_user(self, ctx: commands.Context, member: Member, *, reason: Optional[str] = None) -> None:
         """
-        Mutes a member in the server by routing to AdminCommands cog.
+        Mutes a member in the server by routing to the AdminCommands cog.
 
         :param ctx: The command context.
         :param member: The member to mute.
@@ -136,6 +145,10 @@ class CommandsHandler(commands.Cog):
         """
         logger.info(f"[{self.__class__.__name__}] Executing 'mute_user' command for {member} with reason: {reason}")
         await self.admin_commands.mute_user_logic(ctx, member, reason)
+
+    # =====================
+    # Channel Archiving Commands
+    # =====================
 
     @commands.command(
         name="autoarchive",
@@ -146,7 +159,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_channels=True)
     async def autoarchive(self, ctx: commands.Context) -> None:
         """
-        Automatically archives inactive channels by routing to ChannelArchiver cog.
+        Automatically archives inactive channels by routing to the ChannelArchiver cog.
 
         :param ctx: The command context.
         """
@@ -166,7 +179,7 @@ class CommandsHandler(commands.Cog):
         target: Optional[Union[discord_abc.GuildChannel, int, str]] = None,
     ) -> None:
         """
-        Archives a specific channel or category by routing to ChannelArchiver cog.
+        Archives a specific channel or category by routing to the ChannelArchiver cog.
 
         :param ctx: The command context.
         :param target: The channel, category, or identifier to archive.
@@ -187,7 +200,7 @@ class CommandsHandler(commands.Cog):
         target: Optional[discord_abc.GuildChannel] = None,
     ) -> None:
         """
-        Unarchives a specific channel or category by routing to ChannelArchiver cog.
+        Unarchives a specific channel or category by routing to the ChannelArchiver cog.
 
         :param ctx: The command context.
         :param target: The channel or category to unarchive.
@@ -195,7 +208,9 @@ class CommandsHandler(commands.Cog):
         logger.info(f"[{self.__class__.__name__}] Executing 'unarchive' command for target: {target}")
         await self.channel_archiver.unarchive(ctx, target)
 
+    # =====================
     # Reaction Role Menu Commands
+    # =====================
 
     @commands.command(
         name="createmenu",
@@ -296,7 +311,9 @@ class CommandsHandler(commands.Cog):
         logger.info(f"[{self.__class__.__name__}] Executing 'deletemenu' command for menu_id: {menu_id}")
         await self.reaction_role_menu.delete_menu(ctx, menu_id)
 
+    # =====================
     # Autoresponder Commands
+    # =====================
 
     @commands.command(
         name="add_autoresponse",
@@ -307,7 +324,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def add_autoresponse(self, ctx: commands.Context, trigger: str, *, response: str) -> None:
         """
-        Adds a new autoresponse to the server.
+        Adds a new autoresponse to the server by routing to the Autoresponder cog.
 
         :param ctx: The command context.
         :param trigger: The keyword or phrase to trigger the response.
@@ -325,7 +342,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def remove_autoresponse(self, ctx: commands.Context, autoresponse_id: int) -> None:
         """
-        Removes an existing autoresponse from the server.
+        Removes an existing autoresponse from the server by routing to the Autoresponder cog.
 
         :param ctx: The command context.
         :param autoresponse_id: The unique ID of the autoresponse to remove.
@@ -342,14 +359,16 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def list_autoresponses(self, ctx: commands.Context) -> None:
         """
-        Lists all autoresponses configured in the server.
+        Lists all autoresponses configured in the server by routing to the Autoresponder cog.
 
         :param ctx: The command context.
         """
         logger.info(f"[{self.__class__.__name__}] Executing 'list_autoresponses' command in guild ID: {ctx.guild.id}")
         await self.autoresponder.list_autoresponses(ctx)
 
+    # =====================
     # Ticket Checker Commands
+    # =====================
 
     @commands.command(
         name="ticketmonitor",
@@ -364,12 +383,14 @@ class CommandsHandler(commands.Cog):
         By default, ticket checks are disabled until enabled by this command.
 
         :param ctx: The command context.
-        :param state: The desired state, either "on" or "off".
+        :param state: Desired state ("on" or "off").
         """
         logger.info(f"[{self.__class__.__name__}] Executing 'ticketmonitor' command with state: {state}")
         await self.channel_manager.ticketmonitor_command(ctx, state)
 
+    # =====================
     # Prefix Manager Commands
+    # =====================
 
     @commands.command(
         name="setprefix",
@@ -380,7 +401,7 @@ class CommandsHandler(commands.Cog):
     @commands.has_permissions(manage_guild=True)
     async def setprefix(self, ctx: commands.Context, *, new_prefix: str) -> None:
         """
-        Change the bot's command prefix for the current guild and persist it to the database.
+        Changes the bot's command prefix for the current guild by routing to the PrefixManager cog.
 
         :param ctx: The command context.
         :param new_prefix: The new prefix to set for this guild.
@@ -388,7 +409,33 @@ class CommandsHandler(commands.Cog):
         logger.info(f"[{self.__class__.__name__}] Executing 'setprefix' command with new prefix: {new_prefix}")
         await self.prefix_manager.setprefix(ctx, new_prefix)
 
-    # Commands Metadata
+    # =====================
+    # Anti-Hacking Configuration Commands
+    # =====================
+
+    @commands.command(
+        name="setsecurity",
+        help="Sets anti-hacking configuration parameters: threshold, time window, and security channel.",
+        usage="!setsecurity [threshold:int] [time_window:int] [#channel]",
+        extras={"permissions": ["Manage Guild"]},
+    )
+    @commands.has_permissions(manage_guild=True)
+    async def setsecurity(self, ctx: commands.Context, threshold: Optional[int] = None, time_window: Optional[int] = None, channel: Optional[discord.TextChannel] = None) -> None:
+        """
+        Sets the anti-hacking configuration for the current guild by routing to the AntiHacking cog.
+        Accepts optional parameters for the action threshold, time window, and security channel.
+        
+        :param ctx: The command context.
+        :param threshold: (Optional) New action threshold.
+        :param time_window: (Optional) New time window in seconds.
+        :param channel: (Optional) The channel where security alerts will be sent.
+        """
+        logger.info(f"[{self.__class__.__name__}] Executing 'setsecurity' command with threshold={threshold}, time_window={time_window}, channel={channel}")
+        await self.anti_hacking.update_security_config(ctx, threshold, time_window, channel)
+
+    # =====================
+    # Commands Metadata (API Route)
+    # =====================
 
     def get_commands_data(self) -> Dict[str, Dict[str, Any]]:
         """
@@ -436,17 +483,20 @@ class CommandsHandler(commands.Cog):
             data = self.get_commands_data()
             return jsonify(data)
 
-        # Assuming the bot has an attribute `web_app` representing the Flask app
         if hasattr(self.client, 'web_app'):
             self.client.web_app.register_blueprint(commands_bp)
             logger.info(f"[{self.__class__.__name__}] Registered /api/commands route for dashboard.")
         else:
             logger.error(f"[{self.__class__.__name__}] Web application instance not found in the bot.")
 
+# =====================
+# Cog Setup
+# =====================
+
 async def setup(client: commands.Bot, db_handler: DatabaseHandler) -> None:
     """
     Registers the CommandsHandler cog with the bot.
-
+    
     :param client: The Discord bot client instance.
     :param db_handler: The database handler instance.
     """

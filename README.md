@@ -62,6 +62,7 @@ ColossusBot is a **feature-rich, modular, and database-driven Giga Chad Discord 
       - [**2. `flagged_words_alert.py`**](#2-flagged_words_alertpy)
       - [**3. `nsfw_checker.py`**](#3-nsfw_checkerpy)
       - [**4. `repeated_message_alert.py`**](#4-repeated_message_alertpy)
+    - [**5. `anti_hacking_checker.py`**](#5-anti_hacking_checkerpy)
       - [**How Reactions Work in Listeners**](#how-reactions-work-in-listeners)
   - [**Command Reference**](#command-reference)
     - [**1. `!active`**](#1-active)
@@ -190,6 +191,7 @@ ColossusBot/
 │   │   └── .gitkeep              # Configuration for ColossusBot (i.e. a cog_config.py file with all common imports/variables)
 │   └── Listeners/
 │       ├── active_alert_checker.py  # Checks for active alerts
+│       ├── anti_hacking_checker.py   # Detects hacked bots and users
 │       ├── flagged_words_alert.py   # Detects flagged words
 │       ├── nsfw_checker.py          # Scans for NSFW content
 │       ├── repeated_message_alert.py # Detects repeated messages
@@ -301,6 +303,7 @@ The `EventHandler` cog serves as the centralized controller for handling a wide 
    - **FlaggedWordsAlert** for monitoring flagged keywords.
    - **RepeatedMessageAlert** for detecting and responding to repeated messages.
    - **ActiveAlertChecker** for logging and checking channel activity.
+   - **AntiHackingChecker** for detecting hacked bots and users.
 3. The bot performs periodic checks for ticket channels, ensuring they are kept up to date and closed when inactive.
 4. The event handler ensures real-time processing of messages and reactions, while managing long-running tasks like ticket monitoring.
 
@@ -779,6 +782,16 @@ The `listeners/` directory contains cogs that handle various types of event-driv
   - **🔇**: Mute the user.
   - **👢**: Kick the user from the server.
   - **🔨**: Ban the user.
+
+  ### **5. `anti_hacking_checker.py`**
+
+  **Purpose**: The `anti_hacking_checker.py` listener monitors for suspicious activity that could indicate compromised accounts or hacking attempts.
+
+  - **Key Features**:
+    - **Pattern Detection**: Monitors for suspicious patterns like mass deletions, permission changes, or rapid-fire commands
+    - **Account Protection**: Detects potential compromised accounts based on behavior changes
+    - **Auto-Response**: Can automatically lock down channels or revoke permissions when threats detected
+    - **Staff Alerts**: Notifies staff immediately of potential security threats
 
 #### **How Reactions Work in Listeners**
 

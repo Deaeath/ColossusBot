@@ -349,6 +349,17 @@ class DatabaseHandler:
                 prefix TEXT
             )
             """,
+            
+            # Security Incidents Table (used by the Anti-Hacking cog)
+            """
+            CREATE TABLE IF NOT EXISTS security_incidents (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                user_name TEXT,
+                incident TEXT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+            """
         ]
 
         # Execute all table creation queries
@@ -464,6 +475,20 @@ class DatabaseHandler:
             elif self.db_config["engine"] == "mysql":
                 self.connection.close()
             logger.info(f"[{self.__class__.__name__}] Database connection closed.")
+
+    # ==================== Generic Insert Record Method ====================
+
+    async def insert_record(self, table: str, data: Dict[str, Any]) -> None:
+        """
+        Inserts a record into the specified table.
+
+        :param table: The name of the table.
+        :param data: A dictionary of column names and their corresponding values.
+        """
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join(["?"] * len(data))
+        query = f"INSERT INTO {table} ({columns}) VALUES ({placeholders})"
+        await self.execute(query, tuple(data.values()))
 
     # ==================== Guild Configuration Methods ====================
 
