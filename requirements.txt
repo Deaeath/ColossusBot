@@ -1,0 +1,16 @@
+aiohttp
+aiomysql
+aiosqlite
+asyncio
+discord
+flask
+google
+googlesearch
+numpy
+openai>=1.0.0
+pillow
+PyNaCl
+python-dotenv
+requests
+vaderSentiment
+wikipedia
